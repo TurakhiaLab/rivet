@@ -9,12 +9,17 @@ TODO: Add link to separate readme with instructions for this
 ___
 
 ## Recombinant Detection Workflow
-The entire workflow can be completed within a Docker shell. Launch the Docker shell with the following two commands.
+Currently the entire recombination pipeline, with ranking, exists at the pre-built public docker image.
 
-Put your service account key file in the corresponding location
+The Dockerfile also contains all the necessary installs to run the fill pipeline, and thus the entire workflow can be completed within a Docker shell and the results will be saved locally inside the shell and on remote GCP storage bucket at the specified location when the pipeline completes.
+
+
+Launch the Docker shell with the following two commands.
+
+- Put your service account key file in the corresponding location or update the location in the command below:
 ```
 KEY=~/.config/gcloud/<key_file.json>
-docker run -it -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/<key_file.json> -v ${KEY}:/tmp/keys/keys.json:ro mrkylesmith/ripples_pipeline:latest
+docker run -it -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/<key_file.json> -v ${KEY}:/tmp/keys/keys.json:ro mrkylesmith/ripples_pipeline_dev:latest
 ```
 
 This will drop you into Docker shell where you can launch RIPPLES jobs on GCP.
@@ -110,3 +115,9 @@ Run the following command to create a local server and view Recombination Tracke
 python3 app.py -v <vcf_file.vcf> -r <final_recombinant_file.txt>
 ```
 
+### Example:
+To view an example of the Recombination Dashboard visulization there is example recombination data files in `example` directory.
+Run the following command and past URL to browser to see the visualization.
+```
+python3 app.py -v example/example.vcf -r example/final_recombinant_example.txt>
+```
