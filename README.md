@@ -119,5 +119,5 @@ python3 app.py -v <vcf_file.vcf> -r <final_recombinant_file.txt>
 To view an example of the Recombination Dashboard visulization there is example recombination data files in `example` directory.
 Run the following command and past URL to browser to see the visualization.
 ```
-python3 app.py -v example/example.vcf -r example/final_recombinant_example.txt>
+python3 app.py -v example/recombinant_trio_snps.vcf -r example/recomb_2022-08-14_n5.txt
 ```
