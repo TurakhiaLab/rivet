@@ -1,0 +1,12 @@
+name: recombination
+channels:
+  - defaults
+  - conda-forge
+  - bioconda
+  - anaconda
+dependencies:
+  - google-cloud-sdk
+  - google-cloud-storage
+  - gsutil 
+  - python
+  - wget
