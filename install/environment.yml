@@ -5,8 +5,23 @@ channels:
   - bioconda
   - anaconda
 dependencies:
-  - google-cloud-sdk
-  - google-cloud-storage
-  - gsutil 
+  - cxx-compiler
+  - cmake=3.19.6
+  - protobuf=3.12.3
+  - make
+  - autoconf
+  - boost-cpp
+  - mafft
   - python
+  - pip
+  - git
   - wget
+  - rsync
+  - openmpi
+  - openssh
+  - isa-l
+  - google-cloud-storage
+  - google-cloud-sdk
+  - chronumental
+  - pip:
+          - pyyaml
