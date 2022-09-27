@@ -22,6 +22,6 @@ dependencies:
   - isa-l
   - google-cloud-storage
   - google-cloud-sdk
-  - chronumental
   - pip:
           - pyyaml
+          - chronumental
