@@ -1,0 +1,21 @@
+name: rivet
+channels:
+  - defaults
+  - conda-forge
+  - bioconda
+  - anaconda
+dependencies:
+  - python
+  - pip
+  - git
+  - wget
+  - rsync
+  - google-cloud-storage
+  - google-cloud-sdk
+  - flask
+  - flask-caching
+  - pip:
+          - pyyaml
+          - chronumental
+          - cyvcf2
+          - termcolor

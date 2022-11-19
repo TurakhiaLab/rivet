@@ -63,6 +63,9 @@ num_descendants: 5
 
 ```
 
+### Using Large Private MAT (Gisaid) vs Public MAT
+The RIPPLES job should work the same from a user perspective whichever private or public MAT you use, however you should expect far less detected recombinants in the public MAT results and please see the note below about visualization.
+
 **Note:** The following files with the same naming from the above config need to be placed in GCP Storage Bucket (`bucket_id`) ahead of time:
 - `mat`
 - `metadata`
@@ -73,6 +76,12 @@ num_descendants: 5
     - `cogUk.$date/genbank.fa.xz`
 
 <br>
+
+**Note: At this time, using a Gisaid MAT will NOT enable a Taxonium Tree view for the Recombinant Tracker visualization.  If you want to see recombinants on Taxonium tree, use a public MAT.**
+
+
+
+
 
 
 
@@ -128,21 +137,34 @@ The pipeline will create a local results directory, based on the name given in `
 
 <br>
 
-## Generate additional data files needed for Recombination Tracker UI
+## Generate additional data files needed for RIVET
 
 
-You will need these two files, the final recombinant text file and generated VCF file to display visualizations.
+You will need these three files, the final recombinant results text file, generated VCF file containing the SNPS of each trio node, and a TSV file containing sample descendants for each recombinant node.
 
 
-## Visualize RIPPLES results with Recombination Tracker
+# RIVET: RecombInation ViEwer and Tracker
+
+### Activate Environment
+Run the following commands to activate necessary Conda env.
+```
+conda env create -f install/rivet_env.yml
+conda activate rivet
+```
+
+
 Run the following command to create a local server and view Recombination Tracker in browser
 ```
-python3 app.py -v <vcf_file.vcf> -r <final_recombinant_file.txt>
+python3 app.py -v <vcf_file.vcf> -r <final_recombinant_file.txt> -d <sample_descendants.tsv>
+```
+Type the following help command to see these options and their descriptions:
+```
+python3 app.py --help
 ```
 
 ### Example:
-To view an example of the Recombination Dashboard visulization there is example recombination data files in `example` directory.
+To view an example  there is example recombination data files in `example` directory.
 Run the following command and past URL to browser to see the visualization.
 ```
-python3 app.py -v example/recombinant_trio_snps.vcf -r example/recomb_2022-08-14_n5.txt
+python3 app.py -v example/trio_snps_10_22_22.vcf -r example/final_recombinants_10_20_22.txt -d example/samples_descendants_10_22_22.tsv
 ```
