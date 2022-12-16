@@ -1,19 +1,13 @@
 name: rivet
 channels:
-  - defaults
   - conda-forge
-  - bioconda
-  - anaconda
 dependencies:
-  - python
   - pip
-  - git
-  - wget
-  - rsync
-  - google-cloud-storage
-  - google-cloud-sdk
-  - flask
-  - flask-caching
+  - seaborn = 0.12.1
+  - google-cloud-storage = 2.7.0
+  - google-cloud-sdk = 412.0.0
+  - flask = 2.2.2
+  - flask-caching = 2.0.1
   - pip:
           - pyyaml
           - chronumental

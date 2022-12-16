@@ -108,6 +108,7 @@ if __name__ == "__main__":
   init_data = backend.init_data(recomb_results)
   app.config['init_data'] = init_data
   app.config['input_recombination_results'] = recomb_results
+  backend.make_plot(recomb_results,"static/midpoint_plot.png")
 
   # Load VCF file
   tick = time.perf_counter()

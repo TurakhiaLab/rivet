@@ -12,6 +12,12 @@ from cyvcf2 import VCF
 from functools import lru_cache
 from collections import OrderedDict
 from alive_progress import alive_bar, alive_it
+import heapq
+import matplotlib.pyplot as plt
+from matplotlib.collections import LineCollection
+import sys
+import seaborn as sns
+import matplotlib.patches as patches
 
 
 def get_treeview_host():
@@ -128,11 +134,72 @@ def format_bp_data(bp_dictionary):
         lst.append(value)
     return lst
 
-def generate_breakpoint_data(recomb_results_file):
-    """
-    """
-    data = []
-    midpoints = {}
+def load_intervals(recomb_results_file):
+    intervals=[]
+    with open(recomb_results_file) as f:
+      # Extract breakpoint column headers from input results tsv file
+      # Column indices (0-based) of the two breakpoint intervals in the input recombination results file
+      #TODO: Get this information from init
+      bp1_col_idx= 3
+      bp2_col_idx= 4
+      next(f)
+      for line in f:
+        splitline = line.strip().split('\t')
+        intervals.append(tuple( format_bp_interval(splitline[bp1_col_idx])))
+        intervals.append(tuple(format_bp_interval(splitline[bp2_col_idx])))
+        
+    return sorted(intervals)
+
+def place_intervals(intervals):
+    track_heap=[]
+    segments_to_plot=[]
+    empty_tracks=[]
+    for interval in intervals:
+        cur_track_cnt=None
+        if( ( len(track_heap)==0 or track_heap[0][0]>interval[0]) and (len(empty_tracks)==0) ):
+            cur_track_cnt=len(track_heap)
+        else:
+            while(len(track_heap)>0 and track_heap[0][0]<=interval[0]):
+                heapq.heappush(empty_tracks,heapq.heappop(track_heap)[1])
+            cur_track_cnt=heapq.heappop(empty_tracks)
+        heapq.heappush(track_heap,(interval[1],cur_track_cnt))
+        segments_to_plot.append([(interval[0],cur_track_cnt),(interval[1],cur_track_cnt)])
+    return (len(track_heap),segments_to_plot)
+
+def make_plot(recomb_results_file, plot_file):
+    dpi=96
+    intervals=load_intervals(recomb_results_file)
+    (max_height,segments_to_plot)=place_intervals(intervals)
+    fig,[ax,region_plot_ax] = plt.subplots(2,1,sharex=True,gridspec_kw={'height_ratios': [20, 1],'hspace': 0.08},figsize=(1500/dpi,1000/dpi))
+    ax.set_xlim(0,30000)
+    ax.set_ylim(0,max_height+1)
+    ax.set_ylabel("Breakpoint Intervals")
+    line_segments = LineCollection(segments_to_plot,linewidths=1,colors='k')
+    ax.add_collection(line_segments)
+    ax2=ax.twinx()
+    ax.tick_params('x',reset=True)
+    midpoints=map(lambda a: calculate_midpoint(a[0],a[1]), intervals)
+    sns.kdeplot(x=midpoints,ax=ax2,linewidth=2,color='k')
+    plt.setp(ax.get_xticklabels(),visible=True)
+    region_dict={
+		'ORF1a': {"xpos": 274, "end": 13409, "color": '#add8e6'},
+		'ORF1b': {"xpos": 13409, "end": 21531, "color": '#ffb1b1'},
+		'S': {"xpos": 21531, "end": 25268, "color": '#ffffe0'},
+		'3a': {"xpos": 25268, "end": 26126, "color": '#ffdc9d'},
+		'E': {"xpos": 26126, "end": 26471, "color": '#bcf5bc'},
+		'M': {"xpos": 26471, "end": 28471, "color": '#ffceff'},
+		'N': {"xpos": 28471, "end": 29903, "color": '#ffa500'}
+	}
+    region_plot_ax.set_axis_off()
+    for region in region_dict.items():
+        rect=patches.Rectangle((region[1]["xpos"],0),region[1]["end"]-region[1]["xpos"],1,color=region[1]["color"])
+        region_plot_ax.add_patch(rect)
+        region_plot_ax.text(calculate_midpoint(region[1]["xpos"],region[1]["end"])-200,0.2,region[0],size='large')
+
+    plt.savefig(plot_file)
+
+def find_recomb_midpoints(recomb_results_file):
+    midpoints=[]
     with open(recomb_results_file) as f:
       # Extract breakpoint column headers from input results tsv file
       column_headers = f.readline().strip().split('\t')
@@ -148,20 +215,23 @@ def generate_breakpoint_data(recomb_results_file):
         interval2_start, interval2_end = format_bp_interval(splitline[bp2_col_idx])
         midpoint1 = calculate_midpoint(interval1_start, interval1_end)
         midpoint2 = calculate_midpoint(interval2_start, interval2_end)
+        midpoints.append(midpoint1)
+        midpoints.append(midpoint2)
+    return midpoints
 
+def generate_breakpoint_data(recomb_results_file):
+    """
+    """
+    midpoints_vec=find_recomb_midpoints(recomb_results_file)
+    midpoints = {}
+    for midpoint in midpoints_vec:
         # Add the two position values
-        if midpoint1 not in midpoints:
-            midpoints[midpoint1] = {"position": midpoint1, "count": 1}
+        if midpoint not in midpoints:
+            midpoints[midpoint] = {"position": midpoint, "count": 1}
 
         # If midpoint position already added to dataset, increament count
         else:
-            midpoints[midpoint1]["count"]+= 1
-
-        if midpoint2 not in midpoints:
-            midpoints[midpoint2] = {"position": midpoint2, "count": 1}
-        else:
-            midpoints[midpoint2]["count"]+= 1
-        
+            midpoints[midpoint]["count"]+= 1
     midpoints = OrderedDict(sorted(midpoints.items()))
     return midpoints
 
