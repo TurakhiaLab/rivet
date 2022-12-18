@@ -73,14 +73,17 @@ def get_data():
       breakpoint2 = init_data["breakpoint2"]
       descendants = init_data["descendants"]
 
-  #TODO: Take this input from visualization settings side panel toggle
-  recomb_informative_only = True
+  #TODO: Add back visualization settings side panel toggle
+  recomb_informative_only = False
       
   d = app.config.get('snp_data')
+  positions = app.config.get('positions')
 
   track_data =  OrderedDict()
-  track_data = backend.get_track_data(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, d, recomb_informative_only)
-  print(track_data)
+  #TODO: Add back functionality to this function for displaying recombinant informative snps only
+  track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, d, recomb_informative_only)
+  print("TRIO DATA SELECTED: ", track_data)
+
   return jsonify(track_data)
 
 @app.route('/')
@@ -113,8 +116,9 @@ if __name__ == "__main__":
   # Load VCF file
   tick = time.perf_counter()
   vcf_file = args.vcf
-  snp_dict = backend.vcf_to_dict(vcf_file)
+  snp_dict, positions = backend.vcf_to_dict(vcf_file)
   app.config['snp_data'] = snp_dict
+  app.config['positions'] = positions
 
   # Load descendants file
   desc_file = args.descendants_file

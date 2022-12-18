@@ -303,44 +303,7 @@ def load_table(results_file):
 
     return table, columns
 
-def vcf_to_dict(vcf_file):
-  """
-  Function to retrieve snps from a single VCF file containing variants for all trio nodes.
 
-  Return:
-    Dictionary of OrderedDicts, ie) { node id: {pos:genotype, ...} ... }
-  """
-  # Load vcf file
-  vcf_reader = VCF(vcf_file)
-  samples = vcf_reader.samples
-
-  # Create dictionary of all node_ids (recomb/donor/acceptor) (samples from VCF file).
-  # Then the value at each node id, is an OrderedDict with the genotypes at each position, 
-  # ordered by increasing genomic position.
-  nodes_ids = {key: OrderedDict() for key in samples}
-  nodes_ids["Reference"] = OrderedDict()
-
-  # Get number of records in input VCF file
-  print("Loading VCF file.")
-
-  # Iterate over genomic positions
-  for record in alive_it(vcf_reader):
-      # Record reference allele at each genomic position
-      nodes_ids["Reference"][str(record.POS)] = str(record.REF)
-
-      position = str(record.POS)
-      alleles_indexes = np.nonzero(record.gt_types)
-      genotype_array = record.gt_bases
-
-      for i in np.nditer(alleles_indexes):
-          sample_name = samples[i]
-          sample_alt_allele = genotype_array[i]
-          nodes_ids[sample_name][position] = sample_alt_allele
-
-  # Return nested dictionary contaning all nodes and corresponding snps
-  return nodes_ids
-
-# TODO: Explicitly cache d for this function
 def get_track_data(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, d, recomb_informative_only):
     """
     Pass in dictionary of snp data for all nodes.
@@ -388,6 +351,143 @@ def get_track_data(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, d
         if (snps["Recomb"] == snps["Donor"] or snps["Recomb"] == snps["Acceptor"]) and not (snps["Recomb"] == snps["Donor"] and snps["Recomb"] == snps["Acceptor"]):
             # Add snps dict at this genomic coordinate to track dataset
             track_data[coordinate] = snps
+
+    data["SNPS"] = track_data
+
+    node_ids = {}
+    node_ids["Recomb"] = recomb_id
+    node_ids["Donor"] = donor_id
+    node_ids["Acceptor"] = acceptor_id
+
+    breakpoints = {}
+    # TODO: Clean up
+    breakpoint1 = breakpoint1[1:len(breakpoint1)-1]
+    breakpoint2 = breakpoint2[1:len(breakpoint2)-1]
+    interval1 = {}
+    interval2 = {}
+    intervals1 = breakpoint1.split(",")
+    intervals2 = breakpoint2.split(",")
+    interval1["xpos"] = intervals1[0]
+    interval1["end"] = intervals1[1]
+    interval2["xpos"] = intervals2[0]
+    interval2["end"] = intervals2[1]
+
+    breakpoints["breakpoint1"] = interval1
+    breakpoints["breakpoint2"] = interval2
+    # Now add breakpoints to the rest of the data
+    data["BREAKPOINTS"] = breakpoints
+    data["NODE_IDS"] = node_ids
+    data["DESCENDANTS"] = descendants
+    
+    return data
+
+def vcf_to_dict(vcf_file):
+  """
+  Function to retrieve snps from a single VCF file containing variants for all trio nodes.
+
+  Return:
+    Dictionary of OrderedDicts, ie) { node id: {pos:genotype, ...} ... }
+  """
+  # Load vcf file
+  vcf_reader = VCF(vcf_file)
+  samples = vcf_reader.samples
+  positions = []
+
+  # Create dictionary of all node_ids (recomb/donor/acceptor) (samples from VCF file).
+  # Then the value at each node id, is an OrderedDict with the genotypes at each position, 
+  # ordered by increasing genomic position.
+  nodes_ids = {key: OrderedDict() for key in samples}
+  nodes_ids["Reference"] = OrderedDict()
+  print("Loading VCF file.")
+
+  # Iterate over genomic positions
+  for record in alive_it(vcf_reader):
+      # Record reference allele at each genomic position
+      nodes_ids["Reference"][str(record.POS)] = str(record.REF)
+      positions.append(str(record.POS))
+
+      position = str(record.POS)
+      alleles_indexes = np.nonzero(record.gt_types)
+      genotype_array = record.gt_bases
+
+      for i in np.nditer(alleles_indexes):
+          sample_name = samples[i]
+          nodes_ids[sample_name][position] = genotype_array[i]
+
+  # Return nested dictionary contaning all nodes and corresponding snps
+  return nodes_ids, positions
+
+
+def get_positions(snp_data):
+    """
+    """
+    pos = set()
+    for (key, value) in enumerate(snp_data.items()):
+        pos.add(value[0])
+    return pos
+
+
+
+def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, d, recomb_informative_only):
+    """
+    Pass in dictionary of snp data for all nodes.
+    Lookup and format into smaller dictionary containing 
+    snp data for only a single track to display.
+
+    @param: recomb_informative_only (bool), to display all snps 
+        or only recombination-informative snps
+    """
+    print("Fetching data for given recomb_id row selection: {}".format(recomb_id))
+
+    data = {}
+    track_data = OrderedDict()
+    positions_test = set()
+
+    for snps in [recomb_id, donor_id, acceptor_id]:
+        positions_test = positions_test.union(get_positions(d[snps]))
+    pos = list(positions_test)
+    pos.sort()
+
+    # Iterate wrt genomic positions
+    for p in pos:
+        # Initialize dictionary for track snps at each coordinate
+        snps = {}
+
+        # Add position to snp data, (redundant, but simple for now)
+        snps["Position"] = p
+
+        # Get reference allele at this coordinate
+        snps["Reference"] = d["Reference"][p] 
+
+        # Get recombinant node allele at this coordinate
+        if d[recomb_id].get(p):
+            snps["Recomb"] = d[recomb_id][p]
+        else:
+            snps["Recomb"] = d["Reference"][p] 
+
+        # Get donor node allele at this coordinate
+        if d[donor_id].get(p):
+            snps["Donor"] = d[donor_id][p]
+        # If coordinate is not snp, get reference allele
+        else:
+            snps["Donor"] = d["Reference"][p]
+
+        # Get acceptor node allele at this coordinate
+        if d[acceptor_id].get(p):
+            snps["Acceptor"] = d[acceptor_id][p]
+        else:
+            snps["Acceptor"] = d["Reference"][p]
+
+        # If showing all snps, just add position to track data
+        if recomb_informative_only == False:
+            track_data[p] = snps
+            continue
+
+        # TODO: Add back functionality 
+        # If recombinant allele matches only one of donor/acceptor, but not both, include it
+        #if(determine_informative(snps)):
+        #    # Add snps dict at this genomic coordinate to track dataset
+        #    track_data[p] = snps
 
     data["SNPS"] = track_data
 
