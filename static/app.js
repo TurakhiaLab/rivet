@@ -17,4 +17,19 @@ function main() {
 	init_coordinate_track(svg.append('svg'), border_height);
 
 	track = graph().svg(svg);
+
+
+	// Download buttons
+	const desc_button = document.querySelector('#download_all_descendants');
+	const table_button = document.querySelector('#download_table');
+	if (desc_button) {
+		desc_button.addEventListener('click', () => {
+			download_all_descendants();
+		}, false);
+	}
+	if (table_button) {
+		table_button.addEventListener('click', () => {
+			download_table();
+		}, false);
+	}
 }

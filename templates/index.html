@@ -9,9 +9,9 @@
   <div class="header">
 				<a href="{{ url_for('table') }}" class="navbar-brand mb-0 h1">
 				<!-- ADD RECOMBINATION TRACKER LOGO IMAGE -->
-				<img src="static/images/msa_logo.png" width="80" height="60"/>
+				<img src="static/images/rivet-logo.png" width="150" height="60"/>
 				<!--img src="{{url_for('static', filename='msa_logo.png')}}" width="80" height="60"/-->
-        RIVET: Recombination Viewer and Tracker
+        Recombination Viewer and Tracker
 				</a>
 				<button
 				type="button"
@@ -79,7 +79,7 @@
 <div class="offcanvas offcanvas-start" style="width: 1000px" id="off_canvas_left" data-bs-keyboard="true" data-bs-scroll="false" data-bs-backdrop="true" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
   <div class="offcanvas-header">
      <div class="header-title">
-        <h3 class="offcanvas-title" id="offcanvasScrollingLabel">Recombinant Node Descendants:</h3>
+        <h3 class="offcanvas-title" id="offcanvasScrollingLabel">Selected Node Descendants:</h3>
 		 </div>
 		 <div class="download_button">
 					<button type="button" class="btn btn-outline-primary" id="download_descendants">Download Descendants</button>
@@ -89,27 +89,11 @@
     </div>
   </div>
   <div class="offcanvas-body" id="off_canvas_left_body" style="width: 950px">
-    <!--p>TODO: Add further description of descendants if necessary.</p-->
+    <!--p> TODO: Add further description of descendants if necessary.</p-->
   </div>
 </div>
    </div>
     <script>
-
-
-	   /* Formatting function for row details */
-/*TODO: REMOVE
-     function format(d) {
-    return (
-        '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
-        '<tr>' +
-        '<td>Example descendant sample with fewest additional mutations:</td>' +
-        '<td>' +
-        d.Descendant +
-        '</td>' +
-        '</table>'
-      );
-		  }
-			*/
 
     $(document).ready(function () {
 			var table = $('#datatable').DataTable({
@@ -151,19 +135,9 @@
    });
 
     </script>
-	
-<!--
-  <div class="download_button" id="download_visual_header">
-					<h5>Download or Copy SVG of SNP visual above </h5>
-      <div class="download_button" id="download_visual_body">
-			    <button type="button" class="btn btn-outline-primary" id="download_visual">Download Visual</button>
-			    <button type="button" class="btn btn-outline-primary" id="copy_visual">Copy Visual</button>
-			    <button type="button" class="btn btn-secondary" id="visual_settings">Visual Settings</button>
-	    </div>
-	</div>
-<-->
 
-	<!-- Right side offcanvas panel -->
+
+<!-- TODO: Remove right side offcanvas panel for now, update visualization settings as more visualization interactive features added
 	<button class="btn btn-secondary" id="visual_settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Visualization Settings</button>
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" data-bs-scroll="true" data-bs-keyboard="true" data-bs-backdrop="false" aria-labelledby="offcanvasRightLabel">
@@ -174,7 +148,6 @@
 
   <div class="offcanvas-body" id="off_canvas_right_body">
 					<p>Toggle between viewing all SNPS for each node and recombination-informative SNPS only (default).</p>
-	 <!--div class="btn-group btn-group-toggle" data-toggle="buttons"-->
 				 <button type="button" class="btn btn-outline-dark btn-sm" id="recomb_info_only" data-toggle="button" aria-pressed="false">
 		     Show Recombination-Informative Only
 	       </button>
@@ -186,6 +159,8 @@
   </div>
 </div>
 
+<-->
+
 
  <div class="container">
     <div class="row">
@@ -194,6 +169,12 @@
     <table id="datatable" class="striped" style="width:100%">
 				 <h2>RIPPLES Dectected Recombination Events</h2>
 				 <h5>Public Tree, Last Updated: October 20th, 2022</h5>
+	
+         <div class="download_button" id="download">
+           <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>
+           <button type="button" class="btn btn-outline-primary" id="download_table">Download Table</button>
+         </div>
+
         <thead>
 						<tr>
 							 {% for header in headings %}

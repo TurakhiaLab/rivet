@@ -30,6 +30,15 @@ def get_treeview_host():
     HOST += "/".join([BUCKET_NAME,OBJECT_NAME])
     return HOST
 
+def parse_file(file):
+    """
+    """
+    data = []
+    f = open(file, "r")
+    for line in f:
+        data.append(line.strip().split('\t'))
+    return data
+
 def check_column_format(row):
     """
     Check to make sure input results file columns start with 3 trio node ids:
@@ -112,6 +121,7 @@ def calculate_midpoint(bp_lower_bound, bp_upper_bound):
     Return, floor midpoint
     """
     return (bp_lower_bound + bp_upper_bound)//2
+
 
 def format_bp_interval(bp_interval):
     """

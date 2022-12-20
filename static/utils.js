@@ -41,6 +41,51 @@ function format_descedants(data) {
 	return string;
 }
 
+function format_tsv(data) {
+	var obj = '';
+	for (let i = 0; i < data.length; ++i) {
+		for (let j = 0; j < data[i].length; ++j) {
+			if (j == data[i].length - 1) {
+				obj += data[i][j];
+				obj += '\n';
+			} else {
+				obj += data[i][j];
+				obj += '\t';
+			}
+		}
+	}
+	// Return string obj as array
+	return [obj];
+}
+
+function download_all_descendants() {
+	fetch('/get_all_descendants', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({download: 'all_descendants'})
+	}).then(res => {
+		res.json().then(data => {
+			var file_name = 'descendants.txt';
+			formatted_data = format_tsv(data);
+			serialize_object(file_name, formatted_data);
+		});
+	});
+}
+
+function download_table() {
+	fetch('/download_table', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({download: 'table'})
+	}).then(res => {
+		res.json().then(data => {
+			var file_name = 'recombination_results.txt';
+			formatted_data = format_tsv(data);
+			serialize_object(file_name, formatted_data);
+		});
+	});
+}
+
 function display_descendants(label_node_id) {
 	fetch('/get_descendants', {
 		method: 'POST',
@@ -48,7 +93,8 @@ function display_descendants(label_node_id) {
 		body: JSON.stringify({node: label_node_id})
 	}).then(res => {
 		res.json().then(data => {
-			// First remove previously fetched list of descendants
+			// First remove previously fetched list
+			// of descendants
 			d3.select('#desc').remove();
 
 			// Toggle offcanvas left
@@ -57,7 +103,8 @@ function display_descendants(label_node_id) {
 			var bsOffcanvas = new bootstrap.Offcanvas(myOffcanvas)
 			bsOffcanvas.show()
 
-			// Get descendants data and format 1 per line
+			// Get descendants data and format 1 per
+			// line
 			var desc_string = format_descedants(data);
 			var num_des = data.length;
 			// Set text formatting size
@@ -74,17 +121,16 @@ function display_descendants(label_node_id) {
 			    .style('font-weight', 'bold')
 			    .html(desc_string);
 
-			// Write node descendants to file on button click
+			// Write node descendants to file on
+			// button click
 			var file_name = label_node_id + '_descendants.txt';
 			var obj = ['hi1\tresults2\n'];
 			var obj1 = format_txt(data);
-			console.log(obj1);
 
 			const desc_button =
 			    document.querySelector('#download_descendants');
 			// Listen for download
 			if (desc_button) {
-				console.log('Got inside!');
 				desc_button.addEventListener(
 				    'click',
 				    () => {serialize_object(file_name, obj1)},

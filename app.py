@@ -43,6 +43,18 @@ def get_descendants():
     return jsonify(desc_d[node_id])
 
 
+@app.route("/get_all_descendants", methods=["POST", "GET"])
+def get_all_descendants():
+    desc_file = app.config.get('desc_file')
+    desc_data = backend.parse_file(desc_file)
+    return jsonify(desc_data)
+
+@app.route("/download_table", methods=["POST", "GET"])
+def download_table():
+    results_file = app.config.get('input_recombination_results')
+    results_data = backend.parse_file(results_file)
+    return jsonify(results_data)
+
 @app.route("/get_breakpoint_data")
 def get_breakpoint_data():
     results_file = app.config.get('input_recombination_results')
@@ -124,6 +136,7 @@ if __name__ == "__main__":
   desc_file = args.descendants_file
   desc_dict = backend.load_descendants(desc_file)
   app.config['desc_data'] = desc_dict
+  app.config['desc_file'] = desc_file
 
   # Load table 
   table, columns = backend.load_table(recomb_results)
