@@ -90,10 +90,11 @@ def get_data():
       
   d = app.config.get('snp_data')
   positions = app.config.get('positions')
+  info_sites = app.config.get('info_sites')
 
   track_data =  OrderedDict()
   #TODO: Add back functionality to this function for displaying recombinant informative snps only
-  track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, d, recomb_informative_only)
+  track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, d, recomb_informative_only)
   print("TRIO DATA SELECTED: ", track_data)
 
   return jsonify(track_data)
@@ -139,7 +140,10 @@ if __name__ == "__main__":
   app.config['desc_file'] = desc_file
 
   # Load table 
-  table, columns = backend.load_table(recomb_results)
+  table, columns, metadata = backend.load_table(recomb_results)
+  # Preprocess informative site information for snp plot
+  info_sites = backend.label_informative_sites(metadata)
+  app.config['info_sites'] = info_sites
   app.config['table'] = table
   app.config['columns'] = columns
   cache.set("table", table)

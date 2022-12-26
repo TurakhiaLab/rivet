@@ -16,8 +16,14 @@ function main() {
 	// Starting: y_position = border_height
 	init_coordinate_track(svg.append('svg'), border_height);
 
-	track = graph().svg(svg);
+	// Add legend for visualization
+	var legend = d3.select('#legend').append('div');
 
+	// Create small SVG for the viz legend
+	var legend_svg =
+	    legend.append('svg').attr('width', 400).attr('height', 600);
+
+	track = graph().svg(svg).legend(legend_svg);
 
 	// Download buttons
 	const desc_button = document.querySelector('#download_all_descendants');
@@ -32,4 +38,5 @@ function main() {
 			download_table();
 		}, false);
 	}
+	// TODO: Add visualization svg download button
 }

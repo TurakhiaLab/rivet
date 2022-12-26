@@ -315,6 +315,10 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 			// Speed slightly faster than matching polygons.
 			.attr('stroke', '#dd760b');
 
+
+	// Get informative site positions
+	var info_sites = data['INFO_SITES'];
+
 	var num = 0;
 	var circle =
 	    track_svg.selectAll('polygon')
@@ -365,8 +369,18 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 			var delay = i * 200;
 			return delay;
 		})
-		//.duration(3000)
-		.attr('fill', '#7a7a7a');
+		.attr('fill', function(d, i) {
+			var color;
+			if (d.toString() in info_sites) {
+				var match = info_sites[d];
+				color = determine_informative(match);
+			} else {
+				// Otherwise not an informative site,
+				// don't highlight
+				color = '#6F7378';
+			}
+			return color;
+		});
 
 	var region_sizes = [232, 13205, 8095];
 	var regions = [1, 233, 13436, 21531];
@@ -420,12 +434,14 @@ function add_column_label(
 	    // Background rect white, so only text label shows
 	    .attr('fill', '#D3D3D3');
 
+
 	// Add text position label above each track
 	track_svg.append('text')
 	    .attr('x', x_pos + (square_dims / 2))
 	    .attr('y', (label_y_position + (square_dims / 2)))
 	    .text(label_text)
 	    .style('text-anchor', 'end')
+	    .attr('fill', '#c45f00')
 	    .attr('dominant-baseline', 'central')
 	    .attr('font-weight', 700)
 	    .style('font-size', '20px')
@@ -441,6 +457,7 @@ function add_column_position_labels(
     track_svg, y_position, snp_positions, square_dims, num_snps, d) {
 	// Move y_position past top track
 	y_position -= (square_dims + buffer_btw_bases)
+
 
 	// Starting x_pos on lefthand side of visual
 	var x_pos = track_x_position;
@@ -615,6 +632,20 @@ function add_track_label(
 				.transition()
 				.delay(1000)
 		    });
+	}
+	if (label_text == 'Acceptor') {
+		// Add text instuctions above tracks
+		track_svg.append('text')
+		    .attr('x', label_x_offset + label_width)
+		    .attr('y', (label_y_position + (square_dims / 2)) - 50)
+		    .text('Click below to view descendants')
+		    // TODO: Uniquely label text that will not be included in
+		    // SVG download, only for browser interactivity
+		    .attr('id', label_text)
+		    .attr('text-anchor', 'end')
+		    .attr('dominant-baseline', 'central')
+		    .attr('font-weight', 400)
+		    .style('font-size', '8px');
 	}
 }
 
@@ -997,6 +1028,9 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 			// Speed slightly faster than matching polygons.
 			.attr('stroke', '#dd760b');
 
+	// Get informative site positions
+	var info_sites = data['INFO_SITES'];
+
 	var num = 0;
 	var circle =
 	    track_svg.selectAll('polygon')
@@ -1047,13 +1081,23 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 			var delay = i * 200;
 			return delay;
 		})
-		.attr('fill', '#7a7a7a');
+		.attr('fill', function(d, i) {
+			var color;
+			if (d.toString() in info_sites) {
+				var match = info_sites[d];
+				color = determine_informative(match);
+			} else {
+				// Otherwise not an informative site,
+				// don't highlight
+				color = '#6F7378';
+			}
+			return color;
+		});
 
 	var region_sizes = [232, 13205, 8095];
 	var regions = [1, 233, 13436, 21531];
 
-	// TODO: Extract this region data from json passed from
-	// backend processing of gene annotation files
+	// TODO: Get region data from gene annotation file
 	// Hardcoded regions for now
 	var color = '#474747';
 	var region_names = ['ORF1a', 'ORF1b', 'S', '3a', 'E', 'M', 'N'];
@@ -1084,20 +1128,18 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 
 // TODO: Replace d with reference_snps
 // (already computing in app.js)
-// TODO: Make templated function for small, autoscale, large tracks
 function add_reference_track(
     track_svg, polygon_buffer, y_position, square_dims, reference_snps,
     snp_positions, d) {
 	// New y position to update and return
 	var new_y = y_position;
-
 	var color = '#333333';
 
 	track_svg.append('rect')
 	    .attr('x', track_x_position)
 	    .attr('y', new_y - polygon_buffer - buffer_btw_tracks)
-	    .attr('width', track_width)
-	    // The track height scales based on even paritioning
+	    .attr('width', track_width)	 // The track height scales based on
+					 // even paritioning
 	    // of square dimensions
 	    .attr('height', square_dims)
 	    .attr('fill', color);
@@ -1219,6 +1261,9 @@ function add_trio_track(track_svg, y_position, square_dims, d) {
 	var x = d3.scaleBand().domain(snp_positions).range([
 		track_x_position, track_width + track_x_position
 	]);
+
+	var info_sites = d['INFO_SITES'];
+
 	track_svg.append('g')
 	    .attr('class', 'TopAxis')
 	    .data([snp_positions])
@@ -1230,10 +1275,24 @@ function add_trio_track(track_svg, y_position, square_dims, d) {
 	    .attr('dy', '.2em')
 	    .style('font-size', '15px')
 	    .attr('transform', 'rotate(-65)')
-	    // TODO: Add mouseover highlighting
-	    .on('mouseover', function(d) {
-		    d3.select(this).attr('fill', '#ff0000');
+	    .style('fill', function(d, i) {
+		    var color;
+		    if (d.toString() in info_sites) {
+			    var match = info_sites[d];
+			    color = determine_informative(match);
+		    } else {
+			    // Otherwise not an informative site, don't
+			    // highlight
+			    color = '#000000';
+		    }
+		    return color;
 	    });
+	/*
+		.on('mouseover',
+		    function(d) {
+			    d3.select(this).attr('fill', '#ff0000');
+		    })
+		    */
 
 	// Set new y position (to add further tracks above if needed)
 	new_y -= (square_dims + buffer_btw_tracks);

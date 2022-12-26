@@ -1,5 +1,6 @@
 function graph() {
 	var svg;
+	var legend;
 
 	// Set constants for tracks
 	var border_color = 'black';
@@ -19,12 +20,17 @@ function graph() {
 	      width = track_width
 	height = border_height - outer_buffer;
 
+	// Bool to keep track of when oversize track has been selected or not
+	var oversize = false;
 
 	function track(d) {
 		// Clear previous visualization elements
 		svg.selectAll('svg').remove();
 		svg.selectAll('rect').remove();
 		svg.selectAll('text').remove();
+
+		// Display color legend to the right of snp plot
+		display_legend(legend);
 
 		var y_position = border_height;
 		var snp_positions = [];
@@ -38,11 +44,12 @@ function graph() {
 		}
 		var num_snps = reference_snps.length;
 
+		// Error handle zero SNPS
 		if (num_snps == 0) {
-			// Error handle zero SNPS
 			handle_zero_snps(svg);
 			return;
 		}
+
 		// Less than 15 snps, tracks and bases will have fixed size
 		if (num_snps < 15) {
 			var small_track_width = track_width / 2;
@@ -70,10 +77,7 @@ function graph() {
 			var trio1_track = trio1_list[0];
 			y_position = trio1_list[1];
 		}
-		// TODO: Add a check for snps greater than 50 or 60.
-		// Add visualization scrolling for this
-		// Then eventhing in-b/w is handled by autoscaling
-
+		// if (num_snps >= 15 && num_snps <= 40) {
 		if (num_snps >= 15) {
 			let square_dims =
 			    ((track_width -
@@ -99,10 +103,22 @@ function graph() {
 			var trio1_track = trio1_list[0];
 			y_position = trio1_list[1];
 		}
+		// TODO: If num snps greater than 40: use horizontal scrolling
+		/*
+    if (num_snps > 40) {
+	       y_position = build_oversize_tracks(
+	       svg, y_position, snp_positions, reference_snps, d);
+    }
+    */
 	}
 
 	track.svg = function(value) {
 		svg = value;
+		return track;
+	};
+
+	track.legend = function(value) {
+		legend = value;
 		return track;
 	};
 

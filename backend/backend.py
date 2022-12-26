@@ -100,21 +100,52 @@ def tsv_to_json(results_tsvfile):
     json.dump(dictionary, json_file, indent = 4, sort_keys = False)
     json_file.close()
 
-def tsv_to_dict(results_tsvfile):
+def format_info_sites(csv_string):
+    """
+    Parse comma separated string of informative sites to a list of informative sites
+    """
+    _list = csv_string.split(",")
+    return _list
+
+def tsv_to_dict(results_tsvfile, metadata_start_col = None):
     """
     Convert the recombination TSV results file to a dictionary and use recombination_node_id as the key for each data row.
+
+    @param: metadata_start_col: 
+        Starting position of extra metadata columns to remove and not display in UI datatable
     """
     dictionary = {}
+    metadata = {}
     with open(results_tsvfile) as f:
-      # Extract column headers from input results tsv file
-      column_headers = f.readline().strip().split('\t')
+      # Extract column headers from input results tsv file, removing extra metadata columns
+      column_headers = f.readline().strip().split('\t')[:metadata_start_col - 1]
+
       for line in f:
         splitline = line.strip().split('\t')
         recomb_node_id = splitline[0]
-        # Build dictionary with key: recomb_node_id
-        # and value : corresponding data for that recombinant node
-        dictionary[recomb_node_id] = splitline 
-    return dictionary, column_headers
+        node_metadata = {}
+        # Do not display extra metadata columns in results datatable
+        if metadata_start_col is not None:
+            # Build dictionary for data corresponding to recombinant node
+            dictionary[recomb_node_id] = splitline[:metadata_start_col - 1]
+
+            # Get string of informative sites and parse each position to a list of (str) positions
+            info_sites_list = splitline[metadata_start_col-1:][0].split(",")
+            
+            # Check number of informative positions matches the number of characters in ABAB string
+            err_message = "Informative sites not matching ABAB string for recomb node: {}".format(recomb_node_id)
+            assert len(info_sites_list) == len(splitline[12]), err_message
+            
+            # Add informative site and informative seq to metadata
+            node_metadata["InfoSites"] = info_sites_list
+            node_metadata["InfoSeq"] = splitline[12]
+            metadata[recomb_node_id] = node_metadata
+        else:
+            # Build dictionary with key: recomb_node_id
+            # and value : corresponding data for that recombinant node
+            dictionary[recomb_node_id] = splitline 
+    return dictionary, column_headers, metadata
+
 
 def calculate_midpoint(bp_lower_bound, bp_upper_bound):
     """
@@ -270,6 +301,33 @@ def generate_taxonium_link(recomb_id, donor_id, acceptor_id, HOST):
     link += '&treenomeEnabled=true'
     return link
 
+def label_informative_sites(metadata):
+    """
+    For each recombinant node, check list of recombination-informative positions
+    and label each position as either matching the "D" (Donor), or "A" (Acceptor)
+    """
+    info_node_matches = {}
+    # Iterate through the recombinant nodes
+    for node in metadata.keys():
+        info_positions = metadata[node]["InfoSites"]
+        info_seq = metadata[node]["InfoSeq"]
+        i = 0
+        positions = {}
+        for pos in info_positions:
+            # Position where recomb matches the acceptor
+            if info_seq[i] == "B":
+                positions[pos] = "A"
+            else:
+                # Otherwise this is a position where recomb matches the donor
+                positions[pos] = "D"
+
+            # Move to next sequence in ABAB string
+            i+=1
+
+        info_node_matches[node] = positions
+    return info_node_matches
+
+
 def build_table(results_dict, columns):
     """
     Build a table from a dictionary.
@@ -292,14 +350,14 @@ def build_table(results_dict, columns):
 
     return table
 
-
 def load_table(results_file):
     """
     Create table from dictionary. Return table and columns as separate lists.
     """
+
     #Convert final recombination results file to dictionary indexed by recomb_node_id
     # Extract datatable column headers also
-    results_dict, columns = tsv_to_dict(results_file)
+    results_dict, columns, metadata = tsv_to_dict(results_file, 19)
 
     # Add additional column for Taxodium tree view links
     # Last column in datatable by default
@@ -311,7 +369,7 @@ def load_table(results_file):
 
     table = build_table(results_dict, columns)
 
-    return table, columns
+    return table, columns, metadata
 
 
 def get_track_data(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, d, recomb_informative_only):
@@ -436,9 +494,7 @@ def get_positions(snp_data):
         pos.add(value[0])
     return pos
 
-
-
-def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, d, recomb_informative_only):
+def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, d, recomb_informative_only):
     """
     Pass in dictionary of snp data for all nodes.
     Lookup and format into smaller dictionary containing 
@@ -451,12 +507,13 @@ def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, des
 
     data = {}
     track_data = OrderedDict()
-    positions_test = set()
+    positions = set()
 
     for snps in [recomb_id, donor_id, acceptor_id]:
-        positions_test = positions_test.union(get_positions(d[snps]))
-    pos = list(positions_test)
+        positions = positions.union(get_positions(d[snps]))
+    pos = list(positions)
     pos.sort()
+    print("Number of positions: ", len(pos))
 
     # Iterate wrt genomic positions
     for p in pos:
@@ -525,5 +582,8 @@ def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, des
     data["BREAKPOINTS"] = breakpoints
     data["NODE_IDS"] = node_ids
     data["DESCENDANTS"] = descendants
+
+    # Add recombinant-informative metadata to track data
+    data["INFO_SITES"] = info_sites[recomb_id]
     
     return data

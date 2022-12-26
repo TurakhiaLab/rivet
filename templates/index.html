@@ -32,17 +32,19 @@
 															Home
 											</a>
 							<li class="nav-item active">
-											<a href="{{ url_for('getting_started') }}" class="nav-link">
-															Getting Started
-											</a>
-							<li class="nav-item active">
 											<a href="{{ url_for('breakpoints') }}" class="nav-link">
 															Recombination Across the Genome
 											</a>
 							<li class="nav-item active">
+											<a href="{{ url_for('getting_started') }}" class="nav-link">
+															Getting Started
+											</a>
+              <!-- Remove upload page for now
+							<li class="nav-item active">
 											<a href="{{ url_for('upload') }}" class="nav-link">
 															Upload your results
 											</a>
+              <-->
 						  <li class="navbar-brand navbar-right pull-sm-right m-r-0">
 											<a target="_blank" href="https://github.com/mrkylesmith/sarscov2Recombination" class="fa fa-github">
 										  </a>
@@ -73,7 +75,7 @@
     <div class="grid-child vis" id="visualization">
         <div class="viz" id="tracks"></div>
     </div>
-
+	<div class="legend" id="legend"></div>
   </div>
 
 <div class="offcanvas offcanvas-start" style="width: 1000px" id="off_canvas_left" data-bs-keyboard="true" data-bs-scroll="false" data-bs-backdrop="true" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">

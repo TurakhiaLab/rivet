@@ -87,6 +87,10 @@ function download_table() {
 }
 
 function display_descendants(label_node_id) {
+	if (label_node_id == 'None') {
+		return;
+	}
+
 	fetch('/get_descendants', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
@@ -138,4 +142,62 @@ function display_descendants(label_node_id) {
 			}
 		});
 	});
+}
+
+function determine_informative(match) {
+	// Matches the acceptor
+	if (match == 'A') {
+		return '#BDDDF5';  // Light blue
+	} else {
+		// Matches the donor
+		return '#4169E1';  // Royal blue
+	}
+}
+
+function display_legend(svg) {
+	var items = [
+		'Recombinant matches acceptor', 'Recombinant matches donor',
+		'Non-Recombinant-Informative SNP', 'Breakpoint Intervals'
+	];
+	var color_range = ['#BDDDF5', '#4169E1', '#6F7378', '#800000'];
+	var scale = d3.scaleOrdinal().domain(items).range(color_range);
+
+	const legend_square_size = 30
+	svg.selectAll('squares')
+	    .data(items)
+	    .enter()
+	    .append('rect')
+	    .attr('x', 10)
+	    .attr(
+		'y',
+		function(d, i) {
+			return 300 + i * (legend_square_size + 5)
+		})
+	    .attr('width', legend_square_size)
+	    .attr('height', legend_square_size)
+	    .style('fill', function(d) {
+		    return scale(d)
+	    })
+
+	svg.selectAll('labels')
+	    .data(items)
+	    .enter()
+	    .append('text')
+	    .attr('x', 10 + legend_square_size * 1.2)
+	    .attr(
+		'y',
+		function(d, i) {
+			return 300 + i * (legend_square_size + 5) +
+			    (legend_square_size / 2)
+		})
+	    .style(
+		'fill',
+		function(d) {
+			return scale(d)
+		})
+	    .text(function(d) {
+		    return d
+	    })
+	    .attr('text-anchor', 'left')
+	    .style('alignment-baseline', 'middle')
 }
