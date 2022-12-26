@@ -212,7 +212,7 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 	    border_height - coordinate_outer_buffer + coordinate_track_height;
 	var x_axis_pos = [zero.toString(), x_axis_height.toString()].join(',');
 
-	var x = d3.scaleLinear().domain([0, 30000]).range([
+	var x = d3.scaleLinear().domain([0, 29903]).range([
 		track_x_position, small_track_width + track_x_position
 	]);
 
@@ -221,7 +221,10 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 		'transform',
 		// TODO: Parameterize this translation
 		'translate(0,600)')
-	    .call(d3.axisBottom(x));
+	    .call(d3.axisBottom(x).tickValues([
+		    0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000,
+		    18000, 20000, 22000, 24000, 26000, 28000, 29903
+	    ]));
 
 	//  Create x-axis label for coordinate track
 	track_svg.append('text')
@@ -495,13 +498,15 @@ function init_coordinate_track(track_svg, y_position) {
 	    border_height - coordinate_outer_buffer + coordinate_track_height;
 	var x_axis_pos = [zero.toString(), x_axis_height.toString()].join(',');
 
-	var x = d3.scaleLinear().domain([0, 30000]).range([
+	var x = d3.scaleLinear().domain([0, 29903]).range([
 		track_x_position, track_width + track_x_position
 	]);
-
 	track_svg.append('g')
 	    .attr('transform', 'translate(0,600)')
-	    .call(d3.axisBottom(x));
+	    .call(d3.axisBottom(x).tickValues([
+		    0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000,
+		    18000, 20000, 22000, 24000, 26000, 28000, 29903
+	    ]));
 
 	//  Create x-axis label for coordinate track
 	track_svg.append('text')
@@ -931,17 +936,19 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 	    border_height - coordinate_outer_buffer + coordinate_track_height;
 	var x_axis_pos = [zero.toString(), x_axis_height.toString()].join(',');
 
-	var x = d3.scaleLinear().domain([0, 30000]).range([
+	var x = d3.scaleLinear().domain([0, 29903]).range([
 		track_x_position, track_width + track_x_position
 	]);
-
 	// Draw axis
 	// TODO: Make vertical position a parameter
 	track_svg.append('g')
 	    .attr(
 		'transform',
 		'translate(0,600)')  // vertical position
-	    .call(d3.axisBottom(x));
+	    .call(d3.axisBottom(x).tickValues([
+		    0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000,
+		    18000, 20000, 22000, 24000, 26000, 28000, 29903
+	    ]));
 
 	//  Create x-axis label for coordinate track
 	track_svg.append('text')
@@ -1315,7 +1322,7 @@ function add_trio_track(track_svg, y_position, square_dims, d) {
 
 function add_coordinate_axis(svg, margin, width, height) {
 	// Create the scale
-	var x = d3.scaleLinear().domain([0, 30000]).range([
+	var x = d3.scaleLinear().domain([0, 29903]).range([
 		track_x_position, track_width + track_x_position
 	]);
 
