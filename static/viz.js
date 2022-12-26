@@ -30,14 +30,13 @@ function graph() {
 		svg.selectAll('text').remove();
 
 		// Display color legend to the right of snp plot
-		display_legend(legend);
+		display_legend(legend, d['COLOR']);
 
 		var y_position = border_height;
 		var snp_positions = [];
 		var reference_snps = [];
 
 		// Get reference and trio snps at each position
-		console.log(d['SNPS']);
 		for (const [key, value] of Object.entries(d['SNPS'])) {
 			snp_positions.push(parseInt(key));
 			reference_snps.push(value['Reference']);

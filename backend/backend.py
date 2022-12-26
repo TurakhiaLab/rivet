@@ -5,6 +5,7 @@ Backend functions for RIVET UI
 import pandas as pd 
 import numpy as np
 import json
+import yaml
 import time
 import random
 import string
@@ -19,6 +20,21 @@ import sys
 import seaborn as sns
 import matplotlib.patches as patches
 
+
+def parse_config(config_file):
+    """
+    Parse input configuration file to use custom coloring for visualization.
+    """
+    with open(config_file) as f:
+      config = yaml.load(f, Loader=yaml.FullLoader)
+    return config
+
+def default_color_schema():
+    """
+    Default color schema to use if config file not provided.
+    """
+    d = {'a': '#cc0000', 'g': '#003366', 'c': '#57026f', 't': '#338333', 'base_matching_reference': '#dadada', 'reference_track': '#333333', 'recomb_match_acceptor': '#BDDDF5', 'recomb_match_donor': '#4169E1', 'non_informative_site': '#dadada', 'breakpoint_intervals': '#800000', 'genomic_regions': '#33333'}
+    return d
 
 def get_treeview_host():
     """
@@ -494,7 +510,7 @@ def get_positions(snp_data):
         pos.add(value[0])
     return pos
 
-def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, d, recomb_informative_only):
+def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only):
     """
     Pass in dictionary of snp data for all nodes.
     Lookup and format into smaller dictionary containing 
@@ -585,5 +601,8 @@ def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, des
 
     # Add recombinant-informative metadata to track data
     data["INFO_SITES"] = info_sites[recomb_id]
+
+    # Add color_schema from input config file to track data
+    data["COLOR"] = color_schema
     
     return data

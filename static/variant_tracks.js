@@ -143,7 +143,8 @@ function add_small_reference_track(
 	    ((reference_snps.length - 1) * buffer_btw_bases);
 
 	// Grey color for reference track
-	var color = '#333333';
+	var color = d['COLOR']['reference_track'];
+
 	track_svg.append('rect')
 	    .attr('x', track_x_position)
 	    .attr('y', new_y - polygon_buffer - buffer_btw_tracks)
@@ -203,7 +204,8 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    .attr('width', small_track_width)
 	    .attr('height', coordinate_track_height)
-	    .attr('fill', '#b2b2b2');
+	    //.attr('fill', '#b2b2b2');
+	    .attr('fill', '#dadada');
 
 	var zero = 0;
 	var x_axis_height =
@@ -248,13 +250,14 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 			return x(d['breakpoint1'].xpos)
 		})
 	    .attr('y', border_height - coordinate_outer_buffer)
-	    .attr('fill', '#b2b2b2')
+	    //.attr('fill', '#b2b2b2')
+	    .attr('fill', '#dadada')
 	    .transition()
 	    // TODO
 	    // Delay of the transition
 	    .delay(1000)
 	    .duration(3000)
-	    .attr('fill', '#800000');
+	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	track_svg.append('rect')
 	    .data([breakpoint_data])
@@ -271,11 +274,12 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 			return x(d['breakpoint2'].xpos)
 		})
 	    .attr('y', border_height - coordinate_outer_buffer)
-	    .attr('fill', '#b2b2b2')
+	    //.attr('fill', '#b2b2b2')
+	    .attr('fill', '#dadada')
 	    .transition()
 	    .delay(1000)
 	    .duration(3000)
-	    .attr('fill', '#800000');
+	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	// Drawing polygons
 	const dot = track_svg.append('g')
@@ -301,8 +305,8 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 			    border_height - coordinate_outer_buffer +
 				coordinate_track_height)
 			.attr('stroke-width', '1.0')
-			// TODO: color same as coordinate track
-			.attr('stroke', '#b2b2b2')
+			//.attr('stroke', '#b2b2b2')
+			.attr('stroke', '#dadada')
 			.transition()
 			// Added a delay so the lines would appear in sequential
 			// increasing order
@@ -373,11 +377,12 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 			var color;
 			if (d.toString() in info_sites) {
 				var match = info_sites[d];
-				color = determine_informative(match);
+				color =
+				    determine_informative(match, data['COLOR']);
 			} else {
 				// Otherwise not an informative site,
 				// don't highlight
-				color = '#6F7378';
+				color = data['COLOR']['non_informative_site'];
 			}
 			return color;
 		});
@@ -482,7 +487,8 @@ function init_coordinate_track(track_svg, y_position) {
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    .attr('width', track_width)
 	    .attr('height', coordinate_track_height)
-	    .attr('fill', '#b2b2b2');
+	    //.attr('fill', '#b2b2b2');
+	    .attr('fill', '#dadada');
 
 	var zero = 0;
 	var x_axis_height =
@@ -551,10 +557,11 @@ function append_interval(test, breakpoint_data, breakpoint, x) {
 			return x(d[breakpoint].xpos)
 		})
 	    .attr('y', border_height - coordinate_outer_buffer)
-	    .attr('fill', '#b2b2b2')
+	    //.attr('fill', '#b2b2b2')
+	    .attr('fill', '#dadada')
 	    .transition()
 	    .duration(10000)
-	    .attr('fill', '#800000');
+	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 }
 
 
@@ -569,10 +576,11 @@ function add_breakpoint_internals(track_svg, data) {
 	    .attr('width', 50)
 	    // Same as coordinate track
 	    .attr('height', coordinate_track_height)
-	    .attr('fill', '#b2b2b2')
+	    //.attr('fill', '#b2b2b2')
+	    .attr('fill', '#dadada')
 	    .transition()
 	    .duration(3000)
-	    .attr('fill', '#800000');
+	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 }
 
 function add_track_label(
@@ -770,121 +778,119 @@ function add_bases_to_track(
     svg, snps, starting_x_pos, y_pos, square_dims, is_reference,
     reference_snps = [], d) {
 	var position_data = [];
+	var colors;
+
 	// Get reference and trio snps at each position
 	if (d != null) {
 		for (const [key, value] of Object.entries(d['SNPS'])) {
 			position_data.push(parseInt(key));
 		}
-	}
+		var Tooltip = d3.select('#tracks')
+				  .append('div')
+				  .style('opacity', 0)
+				  .attr('class', 'tooltip')
+				  .style('background-color', 'white')
+				  .style('border', 'solid')
+				  .style('border-width', '2px')
+				  .style('border-radius', '5px')
 
-	var Tooltip = d3.select('#tracks')
-			  .append('div')
-			  .style('opacity', 0)
-			  .attr('class', 'tooltip')
-			  .style('background-color', 'white')
-			  .style('border', 'solid')
-			  .style('border-width', '2px')
-			  .style('border-radius', '5px')
+		var color_base_mapping = {
+			'G': d['COLOR']['g'],
+			'C': d['COLOR']['c'],
+			'T': d['COLOR']['t'],
+			'A': d['COLOR']['a']
+		};
 
-	// TODO: Error handle
-	if (d != null) {
-	}
-	// Create small square
-	// (parameterize the color based on the base it is A,T,G,C)
-	var color_base_mapping =
-	    {'G': '#003366', 'C': '#57026f', 'T': '#338333', 'A': '#cc0000'};
-
-	var base;
-	var color;
-	var num_snps = snps.length;
-	// TODO: Old testing, remove
-	let test =
-	    ((square_dims * num_snps) + (buffer_btw_bases * (num_snps - 1)));
-
-	var x_pos = starting_x_pos;
-
-	// TODO: OLD color matching. Update coloring based on
-	// Recombination-Informative SNPS, not reference Iterator to move
-	// through reference snps
-	i = 0
-	for (base of snps) {
-		if (is_reference == true) {
-			// Fill reference bases with dark grey squares
-			color = '#333333';
-		} else {
-			// Check if reference_snps parameter passed, if
-			// so assume reference_snps.length = snps.length
-			// (also guaranteed by backend data preprossessing)
-			if (!(reference_snps.length == 0)) {
-				// If alternate allele, color according
-				// to base type
-				if (base != reference_snps[i]) {
-					color = color_base_mapping[base];
-				}
-				// Otherwise if base matches reference,
-				// color base same as reference
-				else {
-					color = '#5d5d5d';
+		var base;
+		var color;
+		var num_snps = snps.length;
+		var x_pos = starting_x_pos;
+		i = 0
+		for (base of snps) {
+			if (is_reference == true) {
+				// Fill reference bases with dark grey squares
+				color = d['COLOR']['reference_track'];
+			} else {
+				// Check if reference_snps parameter passed, if
+				// so assume reference_snps.length = snps.length
+				// (also guaranteed by backend data
+				// preprossessing)
+				if (!(reference_snps.length == 0)) {
+					// If alternate allele, color according
+					// to base type
+					if (base != reference_snps[i]) {
+						color =
+						    color_base_mapping[base];
+					}
+					// Otherwise if base matches reference,
+					// color base same as reference
+					else {
+						color =
+						    d['COLOR']['base_matching_reference'];
+					}
 				}
 			}
+
+			// Move to next base in reference sequence
+			++i;
+
+			let halfway = square_dims / 2;
+
+			// Append square base inside specific svg track
+			svg.append('rect')
+			    .attr('class', 'bases')
+			    .data(position_data)
+			    .attr('x', x_pos)
+			    .attr('y', y_pos)
+			    .attr('height', square_dims)
+			    .attr('width', square_dims)
+			    .attr('fill', color)
+			    .on('mouseover',
+				function(d) {
+					d3.selectAll('.bases')
+					    .style('opacity', '0.2')
+					    .filter(function() {
+						    return !this.classList
+								.contains(
+								    'active')
+					    })
+					d3.select(this)
+					    .style('stroke', '#4169E1')
+					    .attr('stroke-width', '2')
+					    .style('opacity', '1')
+				})
+			    .on('mousemove',
+				function(d) {
+					// TODO
+				})
+			    .on('mouseleave',
+				function(d) {
+					Tooltip.style('opacity', 0)
+					d3.select(this).style('stroke', 'none')
+					d3.selectAll('.bases').style(
+					    'opacity', '1')
+				})
+			    .on('click', function(d, i) {
+				    // TODO
+				    console.log(d);
+				    console.log(i);
+			    });
+
+			// Add base text inside the square
+			svg.append('text')
+			    .attr('x', x_pos + halfway)
+			    .attr('y', y_pos + halfway)
+			    .text(base)
+			    // Center text char in square
+			    .attr('text-anchor', 'middle')
+			    .attr('dominant-baseline', 'central')
+			    .style('fill', 'white')
+			    .style('font-size', '20px');
+
+			// Increment x_pos by width of square to place next
+			// square
+			x_pos += (square_dims + buffer_btw_bases);
 		}
-
-		// Move to next base in reference sequence
-		++i;
-
-		let halfway = square_dims / 2;
-
-		// Append square base inside specific svg track
-		svg.append('rect')
-		    .attr('class', 'bases')
-		    .data(position_data)
-		    .attr('x', x_pos)
-		    .attr('y', y_pos)
-		    .attr('height', square_dims)
-		    .attr('width', square_dims)
-		    .attr('fill', color)
-		    .on('mouseover',
-			function(d) {
-				d3.selectAll('.bases')
-				    .style('opacity', '0.2')
-				    .filter(function() {
-					    return !this.classList.contains(
-						'active')
-				    })
-				d3.select(this)
-				    .style('stroke', '#4169E1')
-				    .attr('stroke-width', '2')
-				    .style('opacity', '1')
-			})
-		    .on('mousemove',
-			function(d) {
-				// TODO
-			})
-		    .on('mouseleave',
-			function(d) {
-				Tooltip.style('opacity', 0)
-				d3.select(this).style('stroke', 'none')
-				d3.selectAll('.bases').style('opacity', '1')
-			})
-		    .on('click', function(d, i) {
-			    // TODO
-			    console.log(d);
-			    console.log(i);
-		    });
-
-		// Add base text inside the square
-		svg.append('text')
-		    .attr('x', x_pos + halfway)
-		    .attr('y', y_pos + halfway)
-		    .text(base)
-		    // Center text char in square
-		    .attr('text-anchor', 'middle')
-		    .attr('dominant-baseline', 'central')
-		    .style('fill', 'white')
-		    .style('font-size', '20px');
-
-		// Increment x_pos by width of square to place next square
-		x_pos += (square_dims + buffer_btw_bases);
 	}
 }
 
@@ -917,7 +923,8 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    .attr('width', track_width)
 	    .attr('height', coordinate_track_height)
-	    .attr('fill', '#b2b2b2');
+	    //.attr('fill', '#b2b2b2');
+	    .attr('fill', '#dadada');
 
 	var zero = 0;
 	var x_axis_height =
@@ -963,12 +970,13 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 			return x(d['breakpoint1'].xpos)
 		})
 	    .attr('y', border_height - coordinate_outer_buffer)
-	    .attr('fill', '#b2b2b2')
+	    //.attr('fill', '#b2b2b2')
+	    .attr('fill', '#dadada')
 	    .transition()
 	    // Delay of the transition
 	    .delay(1000)
 	    .duration(3000)
-	    .attr('fill', '#800000');
+	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	track_svg.append('rect')
 	    .data([breakpoint_data])
@@ -985,11 +993,12 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 			return x(d['breakpoint2'].xpos)
 		})
 	    .attr('y', border_height - coordinate_outer_buffer)
-	    .attr('fill', '#b2b2b2')
+	    //.attr('fill', '#b2b2b2')
+	    .attr('fill', '#dadada')
 	    .transition()
 	    .delay(1000)
 	    .duration(3000)
-	    .attr('fill', '#800000');
+	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	// Drawing polygons
 	const dot = track_svg.append('g')
@@ -1002,31 +1011,33 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 			.attr('r', 0.1)
 			.style('fill', 'darkblue')
 
-	var lines = track_svg.selectAll('lines')
-			.data(snp_positions)
-			.enter()
-			.append('line')
-			.attr('class', 'lines')
-			.attr('x1', (d) => x(d))
-			.attr('x2', (d) => x(d))
-			.attr('y1', border_height - coordinate_outer_buffer)
-			.attr(
-			    'y2',
-			    border_height - coordinate_outer_buffer +
-				coordinate_track_height)
-			.attr('stroke-width', '1.0')
-			// Starting color same as coordinate track
-			.attr('stroke', '#b2b2b2')
-			.transition()
-			// Added a delay so the lines would appear in sequential
-			// increasing order
-			.duration(function(d, i) {
-				var delay = i * 200;
-				return delay;
-			})
-			// Fade in line posiiton color
-			// Speed slightly faster than matching polygons.
-			.attr('stroke', '#dd760b');
+	var lines =
+	    track_svg.selectAll('lines')
+		.data(snp_positions)
+		.enter()
+		.append('line')
+		.attr('class', 'lines')
+		.attr('x1', (d) => x(d))
+		.attr('x2', (d) => x(d))
+		.attr('y1', border_height - coordinate_outer_buffer)
+		.attr(
+		    'y2',
+		    border_height - coordinate_outer_buffer +
+			coordinate_track_height)
+		.attr('stroke-width', '1.0')
+		// Starting color same as coordinate track
+		//.attr('stroke', '#b2b2b2')
+		.attr('stroke', '#dadada')
+		.transition()
+		// Added a delay so the lines would appear in sequential
+		// increasing order
+		.duration(function(d, i) {
+			var delay = i * 200;
+			return delay;
+		})
+		// Fade in line posiiton color
+		// Speed slightly faster than matching polygons.
+		.attr('stroke', '#dd760b');  // Orange line for snp positions
 
 	// Get informative site positions
 	var info_sites = data['INFO_SITES'];
@@ -1085,11 +1096,12 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 			var color;
 			if (d.toString() in info_sites) {
 				var match = info_sites[d];
-				color = determine_informative(match);
+				color =
+				    determine_informative(match, data['COLOR']);
 			} else {
 				// Otherwise not an informative site,
 				// don't highlight
-				color = '#6F7378';
+				color = data['COLOR']['non_informative_site'];
 			}
 			return color;
 		});
@@ -1133,7 +1145,7 @@ function add_reference_track(
     snp_positions, d) {
 	// New y position to update and return
 	var new_y = y_position;
-	var color = '#333333';
+	var color = d['COLOR']['reference_track'];
 
 	track_svg.append('rect')
 	    .attr('x', track_x_position)
@@ -1152,7 +1164,7 @@ function add_reference_track(
 
 	add_bases_to_track(
 	    track_svg, reference_snps, track_x_position, y_pos, square_dims,
-	    true, d);
+	    true, reference_snps, d);
 
 	var top_line = 0;
 	var left_square = 0;
@@ -1263,6 +1275,7 @@ function add_trio_track(track_svg, y_position, square_dims, d) {
 	]);
 
 	var info_sites = d['INFO_SITES'];
+	var colors = d['COLOR'];
 
 	track_svg.append('g')
 	    .attr('class', 'TopAxis')
@@ -1279,15 +1292,15 @@ function add_trio_track(track_svg, y_position, square_dims, d) {
 		    var color;
 		    if (d.toString() in info_sites) {
 			    var match = info_sites[d];
-			    color = determine_informative(match);
+			    color = determine_informative(match, colors);
 		    } else {
 			    // Otherwise not an informative site, don't
 			    // highlight
-			    color = '#000000';
+			    color = colors['non_informative_site'];
 		    }
 		    return color;
 	    });
-	/*
+	/* TODO: Mouseover/click to column position labels
 		.on('mouseover',
 		    function(d) {
 			    d3.select(this).attr('fill', '#ff0000');

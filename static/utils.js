@@ -144,22 +144,25 @@ function display_descendants(label_node_id) {
 	});
 }
 
-function determine_informative(match) {
+function determine_informative(match, colors) {
 	// Matches the acceptor
 	if (match == 'A') {
-		return '#BDDDF5';  // Light blue
+		return colors['recomb_match_acceptor'];
 	} else {
 		// Matches the donor
-		return '#4169E1';  // Royal blue
+		return colors['recomb_match_donor'];
 	}
 }
 
-function display_legend(svg) {
+function display_legend(svg, colors) {
 	var items = [
 		'Recombinant matches acceptor', 'Recombinant matches donor',
 		'Non-Recombinant-Informative SNP', 'Breakpoint Intervals'
 	];
-	var color_range = ['#BDDDF5', '#4169E1', '#6F7378', '#800000'];
+	var color_range = [
+		colors['recomb_match_acceptor'], colors['recomb_match_donor'],
+		colors['non_informative_site'], colors['breakpoint_intervals']
+	];
 	var scale = d3.scaleOrdinal().domain(items).range(color_range);
 
 	const legend_square_size = 30

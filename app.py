@@ -91,10 +91,11 @@ def get_data():
   d = app.config.get('snp_data')
   positions = app.config.get('positions')
   info_sites = app.config.get('info_sites')
+  color_schema = app.config.get('color_schema')
 
   track_data =  OrderedDict()
   #TODO: Add back functionality to this function for displaying recombinant informative snps only
-  track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, d, recomb_informative_only)
+  track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only)
   print("TRIO DATA SELECTED: ", track_data)
 
   return jsonify(track_data)
@@ -117,6 +118,7 @@ if __name__ == "__main__":
   parser.add_argument("-v", "--vcf", required=True, type=str, help="Give input VCF containing snps of all recombinant/donor/acceptor trio nodes.")
   parser.add_argument("-r", "--recombinant_results", required=True, type=str, help="Give input recombination results file")
   parser.add_argument("-d", "--descendants_file", required=True, type=str, help="File continaing descendants (up to 10k) for each node in VCF")
+  parser.add_argument("-c", "--config", required=False, type=str, help="Configuration file for defining custom color schema for visualizations.")
   args = parser.parse_args()
   
   # Load recombination results file and get initial data
@@ -143,6 +145,16 @@ if __name__ == "__main__":
   table, columns, metadata = backend.load_table(recomb_results)
   # Preprocess informative site information for snp plot
   info_sites = backend.label_informative_sites(metadata)
+
+  # Load config file, if provided
+  color_schema = None
+  if args.config != None:
+      color_schema = backend.parse_config(args.config)
+  else:
+      print("Config file not provided, using default RIVET settings.")
+      color_schema = backend.default_color_schema()
+
+  app.config['color_schema'] = color_schema
   app.config['info_sites'] = info_sites
   app.config['table'] = table
   app.config['columns'] = columns

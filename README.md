@@ -155,7 +155,7 @@ conda activate rivet
 
 Run the following command to create a local server and view Recombination Tracker in browser
 ```
-python3 app.py -v <vcf_file.vcf> -r <final_recombinant_file.txt> -d <sample_descendants.tsv>
+python3 app.py -v <vcf_file.vcf> -r <final_recombinant_file.txt> -d <sample_descendants.tsv> -c <config_file.yaml
 ```
 Type the following help command to see these options and their descriptions:
 ```
