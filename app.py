@@ -118,9 +118,21 @@ if __name__ == "__main__":
   parser.add_argument("-v", "--vcf", required=True, type=str, help="Give input VCF containing snps of all recombinant/donor/acceptor trio nodes.")
   parser.add_argument("-r", "--recombinant_results", required=True, type=str, help="Give input recombination results file")
   parser.add_argument("-d", "--descendants_file", required=True, type=str, help="File continaing descendants (up to 10k) for each node in VCF")
-  parser.add_argument("-c", "--config", required=False, type=str, help="Configuration file for defining custom color schema for visualizations.")
+  parser.add_argument("-c", "--config", required=True, type=str, help="Configuration file for defining custom color schema for visualizations.")
   args = parser.parse_args()
+
+  # Load and parse config file
+  config = backend.parse_config(args.config)
+  print("Loading RIVET for MAT date: ", config["date"])
   
+  color_schema = config
+  #color_schema = None
+  #if args.config != None:
+  #    color_schema = backend.parse_config(args.config)
+  #else:
+  #    print("Config file not provided, using default RIVET settings.")
+  #    color_schema = backend.default_color_schema()
+   
   # Load recombination results file and get initial data
   recomb_results = args.recombinant_results
   init_data = backend.init_data(recomb_results)
@@ -142,17 +154,9 @@ if __name__ == "__main__":
   app.config['desc_file'] = desc_file
 
   # Load table 
-  table, columns, metadata = backend.load_table(recomb_results)
+  table, columns, metadata = backend.load_table(recomb_results, config)
   # Preprocess informative site information for snp plot
   info_sites = backend.label_informative_sites(metadata)
-
-  # Load config file, if provided
-  color_schema = None
-  if args.config != None:
-      color_schema = backend.parse_config(args.config)
-  else:
-      print("Config file not provided, using default RIVET settings.")
-      color_schema = backend.default_color_schema()
 
   app.config['color_schema'] = color_schema
   app.config['info_sites'] = info_sites

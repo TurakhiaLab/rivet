@@ -7,6 +7,7 @@ import numpy as np
 import json
 import yaml
 import time
+import datetime
 import random
 import string
 from cyvcf2 import VCF
@@ -36,13 +37,12 @@ def default_color_schema():
     d = {'a': '#cc0000', 'g': '#003366', 'c': '#57026f', 't': '#338333', 'base_matching_reference': '#dadada', 'reference_track': '#333333', 'recomb_match_acceptor': '#2879C0', 'recomb_match_donor': '#F9521E', 'non_informative_site': '#dadada', 'breakpoint_intervals': '#800000', 'genomic_regions': '#33333'}
     return d
 
-def get_treeview_host():
+def get_treeview_host(date):
     """
     Get the HOST url for public Taxonium tree view .jsonl.gz file.
     """
-    #TODO: Update with config file for specific recombination run
     BUCKET_NAME = "public_trees"
-    OBJECT_NAME = "2022-12-12.taxonium.jsonl.gz"
+    OBJECT_NAME = "{}.taxonium.jsonl.gz".format(date)
     HOST = "https://storage.googleapis.com/"
     HOST += "/".join([BUCKET_NAME,OBJECT_NAME])
     return HOST
@@ -344,7 +344,7 @@ def label_informative_sites(metadata):
     return info_node_matches
 
 
-def build_table(results_dict, columns):
+def build_table(results_dict, columns, config):
     """
     Build a table from a dictionary.
     """
@@ -367,7 +367,7 @@ def build_table(results_dict, columns):
                         row[i]="-"
             except IndexError:
                 pass
-        row.append(generate_taxonium_link(value[0], value[1], value[2], get_treeview_host()))
+        row.append(generate_taxonium_link(value[0], value[1], value[2], get_treeview_host(config["date"])))
         table.append(row)
 
         # Iterate row for error message
@@ -375,10 +375,13 @@ def build_table(results_dict, columns):
 
     return table
 
-def load_table(results_file):
+def load_table(results_file, config):
     """
     Create table from dictionary. Return table and columns as separate lists.
     """
+    # Check date in config file properly formatted
+    if not isinstance(config["date"], datetime.date):
+        raise RuntimeError(colored("[ERROR]: Check formatting of MAT 'date' field provided in config.yaml file (-c). Expected format: year-month-day"), 'red', attrs=['reverse'])
 
     #Convert final recombination results file to dictionary indexed by recomb_node_id
     # Extract datatable column headers also
@@ -392,7 +395,7 @@ def load_table(results_file):
     if(len(columns) == 0):
         raise RuntimeError(colored("[ERROR]: Check input results file: {}. Empty file or missing header information".format(results_file), 'red', attrs=['reverse']))
 
-    table = build_table(results_dict, columns)
+    table = build_table(results_dict, columns, config)
 
     return table, columns, metadata
 

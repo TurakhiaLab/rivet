@@ -1,4 +1,6 @@
-# Configuration file for RIVET color schema
+# Configuration file for RIVET
+
+### Color Schema Options ####
 # Base coloring 
 a: '#cc0000'
 g: '#003366'
@@ -19,3 +21,7 @@ breakpoint_intervals: '#800000'
 
 # Genomic Coordinate Track (default all genomic regions are same color)
 genomic_regions: '#33333'
+
+### Taxonium Tree View Options ###
+date: 2022-12-12
+bucket_name: public_trees
