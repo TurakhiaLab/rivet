@@ -38,10 +38,11 @@ def default_color_schema():
 
 def get_treeview_host():
     """
+    Get the HOST url for public Taxonium tree view .jsonl.gz file.
     """
     #TODO: Update with config file for specific recombination run
     BUCKET_NAME = "public_trees"
-    OBJECT_NAME = "2022-09-06.taxonium.jsonl.gz"
+    OBJECT_NAME = "2022-12-12.taxonium.jsonl.gz"
     HOST = "https://storage.googleapis.com/"
     HOST += "/".join([BUCKET_NAME,OBJECT_NAME])
     return HOST
@@ -297,7 +298,6 @@ def generate_taxonium_link(recomb_id, donor_id, acceptor_id, HOST):
     """
     Generate link to view trio nodes in Taxonium tree.
     """
-    HOST = get_treeview_host()
     link = "https://taxonium.org/?protoUrl=" + HOST
     # Search Recomb id
     link += '&srch=[{"key":"aa1","type":"name","method":"text_exact","text":"'
