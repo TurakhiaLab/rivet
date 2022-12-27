@@ -255,11 +255,11 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    //.attr('fill', '#b2b2b2')
 	    .attr('fill', '#dadada')
-	    .transition()
-	    // TODO
+
+	    //.transition()
 	    // Delay of the transition
-	    .delay(10)
-	    .duration(30)
+	    //.delay(1000)
+	    //.duration(3000)
 	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	track_svg.append('rect')
@@ -279,9 +279,10 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    //.attr('fill', '#b2b2b2')
 	    .attr('fill', '#dadada')
-	    .transition()
-	    .delay(10)
-	    .duration(30)
+
+	    //.transition()
+	    //.delay(1000)
+	    //.duration(3000)
 	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	// Drawing polygons
@@ -310,13 +311,14 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 			.attr('stroke-width', '1.0')
 			//.attr('stroke', '#b2b2b2')
 			.attr('stroke', '#dadada')
-			.transition()
+
+			//.transition()
 			// Added a delay so the lines would appear in sequential
 			// increasing order
-			.duration(function(d, i) {
-				var delay = i * 20;
-				return delay;
-			})
+			//.duration(function(d, i) {
+			// var delay = i * 200;
+			// return delay;
+			//})
 			//.duration(1000)
 			// Fade in line posiiton color
 			// Speed slightly faster than matching polygons.
@@ -371,11 +373,13 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 			    return polygon_points;
 		    })
 		.attr('fill', '#FFFFFF')
-		.transition()
-		.duration(function(d, i) {
-			var delay = i * 20;
-			return delay;
-		})
+
+		//.transition()
+		//.duration(function(d, i) {
+		//	var delay = i * 200;
+		// return delay;
+		//})
+
 		.attr('fill', function(d, i) {
 			var color;
 			if (d.toString() in info_sites) {
@@ -979,10 +983,11 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    //.attr('fill', '#b2b2b2')
 	    .attr('fill', '#dadada')
-	    .transition()
+
+	    //.transition()
 	    // Delay of the transition
-	    .delay(10)
-	    .duration(30)
+	    //.delay(1000)
+	    //.duration(3000)
 	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	track_svg.append('rect')
@@ -1002,9 +1007,11 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    //.attr('fill', '#b2b2b2')
 	    .attr('fill', '#dadada')
-	    .transition()
-	    .delay(10)
-	    .duration(30)
+
+	    //.transition()
+	    //.delay(1000)
+	    //.duration(3000)
+
 	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	// Drawing polygons
@@ -1035,13 +1042,15 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 		// Starting color same as coordinate track
 		//.attr('stroke', '#b2b2b2')
 		.attr('stroke', '#dadada')
-		.transition()
+
+		//.transition()
 		// Added a delay so the lines would appear in sequential
 		// increasing order
-		.duration(function(d, i) {
-			var delay = i * 20;
-			return delay;
-		})
+		//.duration(function(d, i) {
+		// var delay = i * 200;
+		// return delay;
+		//})
+
 		// Fade in line posiiton color
 		// Speed slightly faster than matching polygons.
 		.attr('stroke', '#dd760b');  // Orange line for snp positions
@@ -1094,11 +1103,13 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 			    return polygon_points;
 		    })
 		.attr('fill', '#FFFFFF')
-		.transition()
-		.duration(function(d, i) {
-			var delay = i * 20;
-			return delay;
-		})
+
+		//.transition()
+		//.duration(function(d, i) {
+		// var delay = i * 200;
+		// return delay;
+		//})
+
 		.attr('fill', function(d, i) {
 			var color;
 			if (d.toString() in info_sites) {
