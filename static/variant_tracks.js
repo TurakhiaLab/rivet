@@ -243,14 +243,22 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .attr(
 		'width',
 		function(d) {
-			return (
-			    x(d['breakpoint1'].end) - x(d['breakpoint1'].xpos))
+			try {
+				return (
+					x(d['breakpoint1'].end) - x(d['breakpoint1'].xpos))	
+			} catch (error) {
+				return 0;				
+			}
 		})
 	    .attr('height', coordinate_track_height)
 	    .attr(
 		'x',
 		function(d) {
-			return x(d['breakpoint1'].xpos)
+			try {
+				return x(d['breakpoint1'].xpos)
+			} catch (error) {
+				return 0;				
+			}
 		})
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    //.attr('fill', '#b2b2b2')
@@ -267,14 +275,23 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .attr(
 		'width',
 		function(d) {
-			return (
-			    x(d['breakpoint2'].end) - x(d['breakpoint2'].xpos))
+			try {
+				return (
+					x(d['breakpoint2'].end) - x(d['breakpoint2'].xpos))
+			} catch (error) {
+				return 0
+			}
+			
 		})
 	    .attr('height', coordinate_track_height)
 	    .attr(
 		'x',
 		function(d) {
-			return x(d['breakpoint2'].xpos)
+			try {
+				return x(d['breakpoint2'].xpos)
+			} catch (error) {
+				return 0;				
+			}
 		})
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    //.attr('fill', '#b2b2b2')
@@ -971,14 +988,23 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .attr(
 		'width',
 		function(d) {
-			return (
-			    x(d['breakpoint1'].end) - x(d['breakpoint1'].xpos))
+			try {
+				return (
+					x(d['breakpoint1'].end) - x(d['breakpoint1'].xpos))	
+			} catch (error) {
+				return 0
+			}
+			
 		})
 	    .attr('height', coordinate_track_height)
 	    .attr(
 		'x',
 		function(d) {
-			return x(d['breakpoint1'].xpos)
+			try {
+				return x(d['breakpoint1'].xpos)				
+			} catch (error) {
+				return 0
+			}
 		})
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    //.attr('fill', '#b2b2b2')
@@ -995,14 +1021,23 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .attr(
 		'width',
 		function(d) {
-			return (
-			    x(d['breakpoint2'].end) - x(d['breakpoint2'].xpos))
+			try {
+				return (
+					x(d['breakpoint2'].end) - x(d['breakpoint2'].xpos))
+			} catch (error) {
+				return 0
+			}
+			
 		})
 	    .attr('height', coordinate_track_height)
 	    .attr(
 		'x',
 		function(d) {
-			return x(d['breakpoint2'].xpos)
+			try {
+				return x(d['breakpoint2'].xpos)
+			} catch (error) {
+				return 0
+			}
 		})
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    //.attr('fill', '#b2b2b2')

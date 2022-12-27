@@ -358,6 +358,15 @@ def build_table(results_dict, columns):
             raise RuntimeError(colored("[ERROR]: First 3 columns must be: recomb_node_id\t donor_node_id\t acceptor_node_id.  Formatting error occurring at line: {}".format(row_num), 'red', attrs=['reverse']))
             
         row = [value[i] for i in range(0,len(columns)-1)]
+        for i in range(0,len(row)):
+            try:
+                str=row[i]
+                if(str[0]=="(" and str[-1]==")"):
+                    fields=str[1:-1].split(",")
+                    if((len(fields)==2) and (fields[0]=="0" or fields[1]=="29903" )):
+                        row[i]="-"
+            except IndexError:
+                pass
         row.append(generate_taxonium_link(value[0], value[1], value[2], get_treeview_host()))
         table.append(row)
 
@@ -581,19 +590,26 @@ def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, des
 
     breakpoints = {}
     # TODO: Clean up
-    breakpoint1 = breakpoint1[1:len(breakpoint1)-1]
-    breakpoint2 = breakpoint2[1:len(breakpoint2)-1]
-    interval1 = {}
-    interval2 = {}
-    intervals1 = breakpoint1.split(",")
-    intervals2 = breakpoint2.split(",")
-    interval1["xpos"] = intervals1[0]
-    interval1["end"] = intervals1[1]
-    interval2["xpos"] = intervals2[0]
-    interval2["end"] = intervals2[1]
+    try:
+        breakpoint1 = breakpoint1[1:len(breakpoint1)-1]
+        interval1 = {}
+        intervals1 = breakpoint1.split(",")
+        interval1["xpos"] = intervals1[0]
+        interval1["end"] = intervals1[1]
+        breakpoints["breakpoint1"] = interval1
+    except IndexError:
+        pass
 
-    breakpoints["breakpoint1"] = interval1
-    breakpoints["breakpoint2"] = interval2
+    try:
+        breakpoint2 = breakpoint2[1:len(breakpoint2)-1]
+        interval2 = {}
+        intervals2 = breakpoint2.split(",")
+        interval2["xpos"] = intervals2[0]
+        interval2["end"] = intervals2[1]
+        breakpoints["breakpoint2"] = interval2
+    except IndexError:
+        pass
+
     # Now add breakpoints to the rest of the data
     data["BREAKPOINTS"] = breakpoints
     data["NODE_IDS"] = node_ids
