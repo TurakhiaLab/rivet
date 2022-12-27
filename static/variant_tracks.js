@@ -258,8 +258,8 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .transition()
 	    // TODO
 	    // Delay of the transition
-	    .delay(1000)
-	    .duration(3000)
+	    .delay(10)
+	    .duration(30)
 	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	track_svg.append('rect')
@@ -280,8 +280,8 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 	    //.attr('fill', '#b2b2b2')
 	    .attr('fill', '#dadada')
 	    .transition()
-	    .delay(1000)
-	    .duration(3000)
+	    .delay(10)
+	    .duration(30)
 	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	// Drawing polygons
@@ -314,7 +314,7 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 			// Added a delay so the lines would appear in sequential
 			// increasing order
 			.duration(function(d, i) {
-				var delay = i * 200;
+				var delay = i * 20;
 				return delay;
 			})
 			//.duration(1000)
@@ -373,7 +373,7 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 		.attr('fill', '#FFFFFF')
 		.transition()
 		.duration(function(d, i) {
-			var delay = i * 200;
+			var delay = i * 20;
 			return delay;
 		})
 		.attr('fill', function(d, i) {
@@ -565,7 +565,7 @@ function append_interval(test, breakpoint_data, breakpoint, x) {
 	    //.attr('fill', '#b2b2b2')
 	    .attr('fill', '#dadada')
 	    .transition()
-	    .duration(10000)
+	    .duration(10)
 	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 }
 
@@ -584,7 +584,7 @@ function add_breakpoint_internals(track_svg, data) {
 	    //.attr('fill', '#b2b2b2')
 	    .attr('fill', '#dadada')
 	    .transition()
-	    .duration(3000)
+	    .duration(30)
 	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 }
 
@@ -630,7 +630,7 @@ function add_track_label(
 				d3.select(this)
 				    .text(label_node_id)
 				    .transition()
-				    .delay(1000);
+				    .delay(10);
 
 				d3.select(this)
 				    .style('fill', '#4169E1')
@@ -643,7 +643,7 @@ function add_track_label(
 				.style('fill', 'black')
 				.style('opacity', 1)
 				.transition()
-				.delay(1000)
+				.delay(10)
 		    });
 	}
 	if (label_text == 'Acceptor') {
@@ -981,8 +981,8 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 	    .attr('fill', '#dadada')
 	    .transition()
 	    // Delay of the transition
-	    .delay(1000)
-	    .duration(3000)
+	    .delay(10)
+	    .duration(30)
 	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	track_svg.append('rect')
@@ -1003,8 +1003,8 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 	    //.attr('fill', '#b2b2b2')
 	    .attr('fill', '#dadada')
 	    .transition()
-	    .delay(1000)
-	    .duration(3000)
+	    .delay(10)
+	    .duration(30)
 	    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
 	// Drawing polygons
@@ -1039,7 +1039,7 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 		// Added a delay so the lines would appear in sequential
 		// increasing order
 		.duration(function(d, i) {
-			var delay = i * 200;
+			var delay = i * 20;
 			return delay;
 		})
 		// Fade in line posiiton color
@@ -1096,7 +1096,7 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 		.attr('fill', '#FFFFFF')
 		.transition()
 		.duration(function(d, i) {
-			var delay = i * 200;
+			var delay = i * 20;
 			return delay;
 		})
 		.attr('fill', function(d, i) {

@@ -33,7 +33,7 @@ def default_color_schema():
     """
     Default color schema to use if config file not provided.
     """
-    d = {'a': '#cc0000', 'g': '#003366', 'c': '#57026f', 't': '#338333', 'base_matching_reference': '#dadada', 'reference_track': '#333333', 'recomb_match_acceptor': '#BDDDF5', 'recomb_match_donor': '#4169E1', 'non_informative_site': '#dadada', 'breakpoint_intervals': '#800000', 'genomic_regions': '#33333'}
+    d = {'a': '#cc0000', 'g': '#003366', 'c': '#57026f', 't': '#338333', 'base_matching_reference': '#dadada', 'reference_track': '#333333', 'recomb_match_acceptor': '#2879C0', 'recomb_match_donor': '#F9521E', 'non_informative_site': '#dadada', 'breakpoint_intervals': '#800000', 'genomic_regions': '#33333'}
     return d
 
 def get_treeview_host():
