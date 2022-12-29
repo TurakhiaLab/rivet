@@ -985,71 +985,73 @@ function add_coordinate_track(
 
 	var breakpoint_data = data['BREAKPOINTS'];
 
-	track_svg.append('rect')
-	    .data([breakpoint_data])
-	    .attr(
-		'width',
-		function(d) {
-			try {
-				return (
-				    x(d['breakpoint1'].end) -
-				    x(d['breakpoint1'].xpos))
-			} catch (error) {
-				return 0
-			}
-		})
-	    .attr('height', coordinate_track_height)
-	    .attr(
-		'x',
-		function(d) {
-			try {
-				return x(d['breakpoint1'].xpos)
-			} catch (error) {
-				return 0
-			}
-		})
-	    .attr('y', border_height - coordinate_outer_buffer)
-	    //.attr('fill', '#b2b2b2')
-	    .attr('fill', '#dadada')
+	/* Do not display breakpoint intervals on coordinate track for now
+		track_svg.append('rect')
+		    .data([breakpoint_data])
+		    .attr(
+			'width',
+			function(d) {
+				try {
+					return (
+					    x(d['breakpoint1'].end) -
+					    x(d['breakpoint1'].xpos))
+				} catch (error) {
+					return 0
+				}
+			})
+		    .attr('height', coordinate_track_height)
+		    .attr(
+			'x',
+			function(d) {
+				try {
+					return x(d['breakpoint1'].xpos)
+				} catch (error) {
+					return 0
+				}
+			})
+		    .attr('y', border_height - coordinate_outer_buffer)
+		    //.attr('fill', '#b2b2b2')
+		    .attr('fill', '#dadada')
 
-	    //.transition()
-	    // Delay of the transition
-	    //.delay(1000)
-	    //.duration(3000)
-	    .attr('fill', data['COLOR']['breakpoint_intervals']);
+		    //.transition()
+		    // Delay of the transition
+		    //.delay(1000)
+		    //.duration(3000)
+		    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
-	track_svg.append('rect')
-	    .data([breakpoint_data])
-	    .attr(
-		'width',
-		function(d) {
-			try {
-				return (
-				    x(d['breakpoint2'].end) -
-				    x(d['breakpoint2'].xpos))
-			} catch (error) {
-				return 0
-			}
-		})
-	    .attr('height', coordinate_track_height)
-	    .attr(
-		'x',
-		function(d) {
-			try {
-				return x(d['breakpoint2'].xpos)
-			} catch (error) {
-				return 0
-			}
-		})
-	    .attr('y', border_height - coordinate_outer_buffer)
-	    //.attr('fill', '#b2b2b2')
-	    .attr('fill', '#dadada')
+		track_svg.append('rect')
+		    .data([breakpoint_data])
+		    .attr(
+			'width',
+			function(d) {
+				try {
+					return (
+					    x(d['breakpoint2'].end) -
+					    x(d['breakpoint2'].xpos))
+				} catch (error) {
+					return 0
+				}
+			})
+		    .attr('height', coordinate_track_height)
+		    .attr(
+			'x',
+			function(d) {
+				try {
+					return x(d['breakpoint2'].xpos)
+				} catch (error) {
+					return 0
+				}
+			})
+		    .attr('y', border_height - coordinate_outer_buffer)
+		    //.attr('fill', '#b2b2b2')
+		    .attr('fill', '#dadada')
 
-	    //.transition()
-	    //.delay(1000)
-	    //.duration(3000)
+		    //.transition()
+		    //.delay(1000)
+		    //.duration(3000)
 
-	    .attr('fill', data['COLOR']['breakpoint_intervals']);
+		    .attr('fill', data['COLOR']['breakpoint_intervals']);
+	*/
 
 	// Drawing polygons
 	const dot = track_svg.append('g')
