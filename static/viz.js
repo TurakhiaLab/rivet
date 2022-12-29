@@ -1,5 +1,6 @@
 function graph() {
 	var svg;
+	var div;
 	var legend;
 
 	// Set constants for tracks
@@ -11,7 +12,7 @@ function graph() {
 	const polygon_buffer = 150;
 	const trio_block_buffer = 25;
 	const track_height = 25;
-	const track_width = 1200;
+	const track_width = 1900;
 	const track_x_position = 150;
 	const track_y_position = border_height;	 // Plus some offset upwards
 	const num_tracks = 0;
@@ -20,17 +21,9 @@ function graph() {
 	      width = track_width
 	height = border_height - outer_buffer;
 
-	// Bool to keep track of when oversize track has been selected or not
-	var oversize = false;
-
 	function track(d) {
-		// Clear previous visualization elements
-		svg.selectAll('svg').remove();
-		svg.selectAll('rect').remove();
-		svg.selectAll('text').remove();
-
-		// Display color legend to the right of snp plot
-		display_legend(legend, d['COLOR']);
+		// Clear previous track visualization elements
+		div.selectAll('svg').remove();
 
 		var y_position = border_height;
 		var snp_positions = [];
@@ -42,77 +35,71 @@ function graph() {
 			reference_snps.push(value['Reference']);
 		}
 		var num_snps = reference_snps.length;
+		var fixed_square_dims = 40;
+		var medium_track_width = track_width;
+		var square_dims;
+		var container_width;
 
 		// Error handle zero SNPS
 		if (num_snps == 0) {
-			handle_zero_snps(svg);
+			handle_zero_snps(div);
 			return;
 		}
-
-		// Less than 15 snps, tracks and bases will have fixed size
-		if (num_snps < 15) {
-			var small_track_width = track_width / 2;
-
-			let square_dims = 50;
-
-			var coordinate_track_list = add_small_coordinate_track(
-			    svg.append('svg'), y_position, d, square_dims);
-
-			var coordinate_track = coordinate_track_list[0];
-			y_position = coordinate_track_list[1];
-
-			// Init reference track
-			var reference_track_list = add_small_reference_track(
-			    svg.append('svg'), polygon_buffer, y_position,
-			    square_dims, reference_snps, snp_positions, d);
-
-			var reference_track = reference_track_list[0];
-			y_position = reference_track_list[1];
-
-			// Add trio tracks
-			var trio1_list = add_small_trio_track(
-			    svg.append('svg'), y_position, square_dims, d);
-
-			var trio1_track = trio1_list[0];
-			y_position = trio1_list[1];
+		// Less than 20 snps, scale down medium track size, make base
+		// sizes slightly larger
+		if (num_snps < 20) {
+			container_width = medium_track_width / 1.5;
+			square_dims = 40;
 		}
-		// if (num_snps >= 15 && num_snps <= 40) {
-		if (num_snps >= 15) {
-			let square_dims =
-			    ((track_width -
-			      (buffer_btw_bases * (num_snps - 1))) /
-			     num_snps);
-
-			var coordinate_track_list = add_coordinate_track(
-			    svg.append('svg'), y_position, d, square_dims);
-
-			var coordinate_track = coordinate_track_list[0];
-			y_position = coordinate_track_list[1];
-
-			var reference_track_list = add_reference_track(
-			    svg.append('svg'), polygon_buffer, y_position,
-			    square_dims, reference_snps, snp_positions, d);
-
-			var reference_track = reference_track_list[0];
-			y_position = reference_track_list[1];
-
-			var trio1_list = add_trio_track(
-			    svg.append('svg'), y_position, square_dims, d);
-
-			var trio1_track = trio1_list[0];
-			y_position = trio1_list[1];
+		// Between 20-40 snps: Keep container width and base size fixed
+		if (num_snps >= 20 && num_snps <= 40) {
+			square_dims = 40;
+			container_width = medium_track_width;
 		}
-		// TODO: If num snps greater than 40: use horizontal scrolling
-		/*
-    if (num_snps > 40) {
-	       y_position = build_oversize_tracks(
-	       svg, y_position, snp_positions, reference_snps, d);
-    }
-    */
+		// >40 snps: container width becomes variable,
+		// snp base sizes fixed
+		if (num_snps > 40) {
+			container_width = (buffer_btw_bases * (num_snps - 1)) +
+			    (num_snps * fixed_square_dims) + track_x_position;
+			square_dims = fixed_square_dims;
+		}
+
+		// Variable svg container width based on
+		// number of snps
+		var container = div.append('svg')
+				    .attr('id', 'inner_SVG')
+				    .attr('width', container_width)
+				    .attr('height', 700);
+
+		var coordinate_track_list = add_coordinate_track(
+		    container, y_position, d, square_dims, container_width);
+
+		var coordinate_track = coordinate_track_list[0];
+		y_position = coordinate_track_list[1];
+
+		var reference_track_list = add_reference_track(
+		    container, polygon_buffer, y_position, square_dims,
+		    reference_snps, snp_positions, d, container_width);
+
+		var reference_track = reference_track_list[0];
+		y_position = reference_track_list[1];
+
+		var trio_list = add_trio_track(
+		    container, y_position, square_dims, d, container_width);
+
+		var trio_track = trio_list[0];
+		y_position = trio_list[1];
+
+		// Display color legend to the right of snp plot
+		display_legend(legend, d['COLOR']);
 	}
 
 	track.svg = function(value) {
 		svg = value;
+		return track;
+	};
+	track.div = function(value) {
+		div = value;
 		return track;
 	};
 

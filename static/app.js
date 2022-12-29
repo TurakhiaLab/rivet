@@ -3,7 +3,7 @@ window.onload = main;
 function main() {
 	// Border Constants
 	var border = 1;
-	var border_width = 1400;
+	var border_width = 2100;
 	var border_height = 700;
 
 	var selection = d3.select('#tracks').append('div');
@@ -11,9 +11,11 @@ function main() {
 	// Create large SVG for the entire viz
 	var svg = selection.append('svg')
 		      .attr('width', border_width)
+		      .attr('id', 'outer_SVG')
 		      .attr('height', border_height);
 
 	// Starting: y_position = border_height
+	// Initialize a starting coordinate track
 	init_coordinate_track(svg.append('svg'), border_height);
 
 	// Add legend for visualization
@@ -23,7 +25,7 @@ function main() {
 	var legend_svg =
 	    legend.append('svg').attr('width', 400).attr('height', 600);
 
-	track = graph().svg(svg).legend(legend_svg);
+	track = graph().svg(svg).div(selection).legend(legend_svg);
 
 	// Download buttons
 	const desc_button = document.querySelector('#download_all_descendants');

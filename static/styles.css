@@ -5,6 +5,11 @@ button:focus{
     border-color: #343a40;
 }
 
+div#tracks {
+   max-width: 2100px;
+   overflow-x: scroll;
+  }
+
 div#off_canvas_right_body {
 				background-color: #a9a9a9;
 }
