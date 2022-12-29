@@ -110,6 +110,7 @@ function display_descendants(label_node_id) {
 			// Get descendants data and format 1 per
 			// line
 			var desc_string = format_descedants(data);
+
 			var num_des = data.length;
 			// Set text formatting size
 			var font_size = 14;
@@ -128,8 +129,7 @@ function display_descendants(label_node_id) {
 			// Write node descendants to file on
 			// button click
 			var file_name = label_node_id + '_descendants.txt';
-			var obj = ['hi1\tresults2\n'];
-			var obj1 = format_txt(data);
+			var obj = format_txt(data);
 
 			const desc_button =
 			    document.querySelector('#download_descendants');
@@ -137,7 +137,7 @@ function display_descendants(label_node_id) {
 			if (desc_button) {
 				desc_button.addEventListener(
 				    'click',
-				    () => {serialize_object(file_name, obj1)},
+				    () => {serialize_object(file_name, obj)},
 				    false);
 			}
 		});
@@ -157,50 +157,64 @@ function determine_informative(match, colors) {
 function display_legend(svg, colors) {
 	var items = [
 		'Recombinant matches acceptor', 'Recombinant matches donor',
-		'Non-Recombinant-Informative SNP', 'Breakpoint Intervals'
+		'Non-Recombinant-Informative'
 	];
+	//'Breakpoint Intervals'
+
 	var color_range = [
 		colors['recomb_match_acceptor'], colors['recomb_match_donor'],
-		colors['non_informative_site'], colors['breakpoint_intervals']
+		colors['non_informative_site']
 	];
-	var scale = d3.scaleOrdinal().domain(items).range(color_range);
+	var legend_square_size = 30;
+	var num_items = 3;
 
-	const legend_square_size = 30
+	const legend_item_starting_height = 450;
+	var legend_item_h = legend_item_starting_height;
+
+	// Add legend row color square
 	svg.selectAll('squares')
-	    .data(items)
+	    .data(color_range)
 	    .enter()
 	    .append('rect')
 	    .attr('x', 10)
 	    .attr(
 		'y',
 		function(d, i) {
-			return 300 + i * (legend_square_size + 5)
+			if (i == 0) {
+				return legend_item_starting_height;
+			}
+			return legend_item_h += legend_square_size + 5;
 		})
 	    .attr('width', legend_square_size)
 	    .attr('height', legend_square_size)
-	    .style('fill', function(d) {
-		    return scale(d)
-	    })
+	    .attr('fill', d => d);
 
+	// Reset item height to starting height
+	legend_item_h = legend_item_starting_height;
+
+	// Add legend row label
 	svg.selectAll('labels')
 	    .data(items)
 	    .enter()
 	    .append('text')
-	    .attr('x', 10 + legend_square_size * 1.2)
+	    .attr('x', 45)
 	    .attr(
 		'y',
 		function(d, i) {
-			return 300 + i * (legend_square_size + 5) +
-			    (legend_square_size / 2)
+			if (i == 0) {
+				return legend_item_starting_height +
+				    (legend_square_size / 2);
+			}
+			legend_item_h += legend_square_size + 5;
+			return legend_item_h + (legend_square_size / 2);
 		})
-	    .style(
+	    .attr(
 		'fill',
-		function(d) {
-			return scale(d)
+		function(d, i) {
+			return color_range[i];
 		})
-	    .text(function(d) {
-		    return d
-	    })
+	    .text(d => d)
 	    .attr('text-anchor', 'left')
-	    .style('alignment-baseline', 'middle')
+	    .style('alignment-baseline', 'middle');
 }
+

@@ -1,9 +1,9 @@
 
 // Track constants
-const track_width = 1900;
-const track_x_position = 150;
+const track_width = 1750;
+const track_x_position = 300;
 const border_height = 700;
-const border_width = 2100;
+const border_width = 1900;
 const outer_buffer = 50;  // Enought to be larger than height of track
 const buffer_btw_tracks = 5;
 const buffer_btw_bases = 5;
@@ -614,7 +614,7 @@ function add_track_label(
 	let label_halfway = square_dims / 2;
 	let label_width = 100;
 	// Left side track label buffer distance from each track
-	let label_x_offset = 30;
+	let label_x_offset = 180;
 
 	if (d != null) {
 		// Add label to left of reference track
@@ -1190,6 +1190,9 @@ function add_coordinate_track(
 
 	draw_genomic_region(track_svg, region_names, region_data, x);
 
+	// Display color legend left of visualization, below track labels
+	display_legend(track_svg, data['COLOR']);
+
 	return [track_svg, border_height - coordinate_outer_buffer];
 }
 
@@ -1206,8 +1209,8 @@ function add_reference_track(
 	    .attr('x', track_x_position)
 	    .attr('y', new_y - polygon_buffer - buffer_btw_tracks)
 	    .attr('width', scale_width)
-	    // The track height scales based on even paritioning of square
-	    // dimensions
+	    // The track height scales based on even paritioning of
+	    // square dimensions
 	    .attr('height', square_dims)
 	    .attr('fill', '#FFFFFF');
 

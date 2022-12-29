@@ -6,8 +6,8 @@ button:focus{
 }
 
 div#tracks {
-   max-width: 2100px;
-   overflow-x: scroll;
+   max-width: 1900px;
+   overflow-x: auto;
   }
 
 div#off_canvas_right_body {
@@ -119,14 +119,14 @@ div.dataTables_wrapper {
 				padding-left: 0px; 
     }
 
-header { padding-bottom: 100px; }
+header { padding-bottom: 20px; }
 
 #datatable.h1 div{
 				text-align:center;
 }
 
 body { 
-				padding-top: 50px;
+				padding-top: 20px;
 				padding-right: 200px; 
 }
 

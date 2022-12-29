@@ -12,8 +12,8 @@ function graph() {
 	const polygon_buffer = 150;
 	const trio_block_buffer = 25;
 	const track_height = 25;
-	const track_width = 1900;
-	const track_x_position = 150;
+	const track_width = 1750;
+	const track_x_position = 300;
 	const track_y_position = border_height;	 // Plus some offset upwards
 	const num_tracks = 0;
 
@@ -35,7 +35,7 @@ function graph() {
 			reference_snps.push(value['Reference']);
 		}
 		var num_snps = reference_snps.length;
-		var fixed_square_dims = 40;
+		var fixed_square_dims = 30;
 		var medium_track_width = track_width;
 		var square_dims;
 		var container_width;
@@ -49,11 +49,11 @@ function graph() {
 		// sizes slightly larger
 		if (num_snps < 20) {
 			container_width = medium_track_width / 1.5;
-			square_dims = 40;
+			square_dims = 30;
 		}
 		// Between 20-40 snps: Keep container width and base size fixed
 		if (num_snps >= 20 && num_snps <= 40) {
-			square_dims = 40;
+			square_dims = 30;
 			container_width = medium_track_width;
 		}
 		// >40 snps: container width becomes variable,
@@ -70,6 +70,17 @@ function graph() {
 				    .attr('id', 'inner_SVG')
 				    .attr('width', container_width)
 				    .attr('height', 700);
+
+       /*
+		// Add title to SNP visualization plot
+		container.append('text')
+		    //.attr('x', container_width / 2)
+		    .attr('x', 250)
+		    .attr('y', 150)
+		    .attr('text-anchor', 'middle')
+		    .style('font-size', '30px')
+		    .text('Title');
+				*/
 
 		var coordinate_track_list = add_coordinate_track(
 		    container, y_position, d, square_dims, container_width);
@@ -89,9 +100,6 @@ function graph() {
 
 		var trio_track = trio_list[0];
 		y_position = trio_list[1];
-
-		// Display color legend to the right of snp plot
-		display_legend(legend, d['COLOR']);
 	}
 
 	track.svg = function(value) {
