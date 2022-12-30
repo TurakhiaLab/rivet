@@ -1,9 +1,9 @@
 
 // Track constants
-const track_width = 1200;
-const track_x_position = 150;
+const track_width = 1750;
+const track_x_position = 300;
 const border_height = 700;
-const border_width = 1500;
+const border_width = 1900;
 const outer_buffer = 50;  // Enought to be larger than height of track
 const buffer_btw_tracks = 5;
 const buffer_btw_bases = 5;
@@ -245,9 +245,10 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 		function(d) {
 			try {
 				return (
-					x(d['breakpoint1'].end) - x(d['breakpoint1'].xpos))	
+				    x(d['breakpoint1'].end) -
+				    x(d['breakpoint1'].xpos))
 			} catch (error) {
-				return 0;				
+				return 0;
 			}
 		})
 	    .attr('height', coordinate_track_height)
@@ -257,7 +258,7 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 			try {
 				return x(d['breakpoint1'].xpos)
 			} catch (error) {
-				return 0;				
+				return 0;
 			}
 		})
 	    .attr('y', border_height - coordinate_outer_buffer)
@@ -277,11 +278,11 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 		function(d) {
 			try {
 				return (
-					x(d['breakpoint2'].end) - x(d['breakpoint2'].xpos))
+				    x(d['breakpoint2'].end) -
+				    x(d['breakpoint2'].xpos))
 			} catch (error) {
 				return 0
 			}
-			
 		})
 	    .attr('height', coordinate_track_height)
 	    .attr(
@@ -290,7 +291,7 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 			try {
 				return x(d['breakpoint2'].xpos)
 			} catch (error) {
-				return 0;				
+				return 0;
 			}
 		})
 	    .attr('y', border_height - coordinate_outer_buffer)
@@ -499,7 +500,6 @@ function add_column_position_labels(
 	}
 }
 
-
 function init_coordinate_track(track_svg, y_position) {
 	// New y position to update and return as new track is
 	// added above previous one
@@ -614,7 +614,7 @@ function add_track_label(
 	let label_halfway = square_dims / 2;
 	let label_width = 100;
 	// Left side track label buffer distance from each track
-	let label_x_offset = 30;
+	let label_x_offset = 180;
 
 	if (d != null) {
 		// Add label to left of reference track
@@ -643,7 +643,6 @@ function add_track_label(
 				// Fetch and display the descendants for the
 				// selected recombinant node id
 				display_descendants(label_node_id);
-
 				d3.select('#' + label_text)
 			})
 		    .on('mouseover',
@@ -933,12 +932,14 @@ function draw_coordinate_line(track_svg, x_coordinate) {
 	    .attr('stroke', '#dd760b');
 }
 
-function add_coordinate_track(track_svg, y_position, data, square_dims) {
+function add_coordinate_track(
+    track_svg, y_position, data, square_dims, container_width) {
 	// New y position to update, and return
 	var new_y = y_position;
 
 	// Get all genomic positions
 	var snp_positions = [];
+	var scale_width = container_width - (track_x_position * 2);
 
 	for (const [key, value] of Object.entries(data['SNPS'])) {
 		snp_positions.push(parseInt(key));
@@ -947,7 +948,7 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 	track_svg.append('rect')
 	    .attr('x', track_x_position)
 	    .attr('y', border_height - coordinate_outer_buffer)
-	    .attr('width', track_width)
+	    .attr('width', scale_width)
 	    .attr('height', coordinate_track_height)
 	    //.attr('fill', '#b2b2b2');
 	    .attr('fill', '#dadada');
@@ -957,9 +958,10 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 	    border_height - coordinate_outer_buffer + coordinate_track_height;
 	var x_axis_pos = [zero.toString(), x_axis_height.toString()].join(',');
 
-	var x = d3.scaleLinear().domain([0, 29903]).range([
-		track_x_position, track_width + track_x_position
+	var x = d3.scaleLinear().domain([0, 29903]).rangeRound([
+		track_x_position, (container_width - track_x_position)
 	]);
+
 	// Draw axis
 	// TODO: Make vertical position a parameter
 	track_svg.append('g')
@@ -975,7 +977,7 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 	track_svg.append('text')
 	    .attr('class', 'x label')
 	    .attr('text-anchor', 'end')
-	    .attr('x', border_width / 1.75)
+	    .attr('x', container_width / 1.75)
 	    .attr('y', border_height - 60)
 	    .attr('font-weight', 700)
 	    .style('font-size', '20px')
@@ -983,71 +985,73 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 
 	var breakpoint_data = data['BREAKPOINTS'];
 
-	track_svg.append('rect')
-	    .data([breakpoint_data])
-	    .attr(
-		'width',
-		function(d) {
-			try {
-				return (
-					x(d['breakpoint1'].end) - x(d['breakpoint1'].xpos))	
-			} catch (error) {
-				return 0
-			}
-			
-		})
-	    .attr('height', coordinate_track_height)
-	    .attr(
-		'x',
-		function(d) {
-			try {
-				return x(d['breakpoint1'].xpos)				
-			} catch (error) {
-				return 0
-			}
-		})
-	    .attr('y', border_height - coordinate_outer_buffer)
-	    //.attr('fill', '#b2b2b2')
-	    .attr('fill', '#dadada')
+	/* Do not display breakpoint intervals on coordinate track for now
+		track_svg.append('rect')
+		    .data([breakpoint_data])
+		    .attr(
+			'width',
+			function(d) {
+				try {
+					return (
+					    x(d['breakpoint1'].end) -
+					    x(d['breakpoint1'].xpos))
+				} catch (error) {
+					return 0
+				}
+			})
+		    .attr('height', coordinate_track_height)
+		    .attr(
+			'x',
+			function(d) {
+				try {
+					return x(d['breakpoint1'].xpos)
+				} catch (error) {
+					return 0
+				}
+			})
+		    .attr('y', border_height - coordinate_outer_buffer)
+		    //.attr('fill', '#b2b2b2')
+		    .attr('fill', '#dadada')
 
-	    //.transition()
-	    // Delay of the transition
-	    //.delay(1000)
-	    //.duration(3000)
-	    .attr('fill', data['COLOR']['breakpoint_intervals']);
+		    //.transition()
+		    // Delay of the transition
+		    //.delay(1000)
+		    //.duration(3000)
+		    .attr('fill', data['COLOR']['breakpoint_intervals']);
 
-	track_svg.append('rect')
-	    .data([breakpoint_data])
-	    .attr(
-		'width',
-		function(d) {
-			try {
-				return (
-					x(d['breakpoint2'].end) - x(d['breakpoint2'].xpos))
-			} catch (error) {
-				return 0
-			}
-			
-		})
-	    .attr('height', coordinate_track_height)
-	    .attr(
-		'x',
-		function(d) {
-			try {
-				return x(d['breakpoint2'].xpos)
-			} catch (error) {
-				return 0
-			}
-		})
-	    .attr('y', border_height - coordinate_outer_buffer)
-	    //.attr('fill', '#b2b2b2')
-	    .attr('fill', '#dadada')
+		track_svg.append('rect')
+		    .data([breakpoint_data])
+		    .attr(
+			'width',
+			function(d) {
+				try {
+					return (
+					    x(d['breakpoint2'].end) -
+					    x(d['breakpoint2'].xpos))
+				} catch (error) {
+					return 0
+				}
+			})
+		    .attr('height', coordinate_track_height)
+		    .attr(
+			'x',
+			function(d) {
+				try {
+					return x(d['breakpoint2'].xpos)
+				} catch (error) {
+					return 0
+				}
+			})
+		    .attr('y', border_height - coordinate_outer_buffer)
+		    //.attr('fill', '#b2b2b2')
+		    .attr('fill', '#dadada')
 
-	    //.transition()
-	    //.delay(1000)
-	    //.duration(3000)
+		    //.transition()
+		    //.delay(1000)
+		    //.duration(3000)
 
-	    .attr('fill', data['COLOR']['breakpoint_intervals']);
+		    .attr('fill', data['COLOR']['breakpoint_intervals']);
+	*/
 
 	// Drawing polygons
 	const dot = track_svg.append('g')
@@ -1188,26 +1192,30 @@ function add_coordinate_track(track_svg, y_position, data, square_dims) {
 
 	draw_genomic_region(track_svg, region_names, region_data, x);
 
+	// Display color legend left of visualization, below track labels
+	display_legend(track_svg, data['COLOR']);
+
 	return [track_svg, border_height - coordinate_outer_buffer];
 }
 
-// TODO: Replace d with reference_snps
-// (already computing in app.js)
 function add_reference_track(
     track_svg, polygon_buffer, y_position, square_dims, reference_snps,
-    snp_positions, d) {
+    snp_positions, d, container_width) {
 	// New y position to update and return
 	var new_y = y_position;
 	var color = d['COLOR']['reference_track'];
 
+	var scale_width = container_width - (track_x_position * 2);
+
 	track_svg.append('rect')
 	    .attr('x', track_x_position)
 	    .attr('y', new_y - polygon_buffer - buffer_btw_tracks)
-	    .attr('width', track_width)	 // The track height scales based on
-					 // even paritioning
-	    // of square dimensions
+	    .attr('width', scale_width)
+	    // The track height scales based on even paritioning of
+	    // square dimensions
 	    .attr('height', square_dims)
-	    .attr('fill', color);
+	    .attr('fill', '#FFFFFF');
+
 	track_svg.append('text')
 	    .attr('x', 0)
 	    .attr('y', track_x_position + square_dims)
@@ -1237,15 +1245,17 @@ function add_reference_track(
 }
 
 // TODO: Redundant, create templated function
-function add_trio_track(track_svg, y_position, square_dims, d) {
+function add_trio_track(
+    track_svg, y_position, square_dims, d, container_width) {
 	// New y position to update and return
 	var new_y = y_position;
-
 	var color = '#c6c6c6';
 	var donor_snps = [];
 	var recomb_snps = [];
 	var acceptor_snps = [];
 	var reference_snps = [];
+
+	var scale_width = container_width - (track_x_position * 2);
 
 	for (const [key, value] of Object.entries(d['SNPS'])) {
 		donor_snps.push(value['Donor']);
@@ -1258,9 +1268,9 @@ function add_trio_track(track_svg, y_position, square_dims, d) {
 	track_svg.append('rect')
 	    .attr('x', track_x_position)
 	    .attr('y', new_y - buffer_btw_tracks)
-	    .attr('width', track_width)
+	    .attr('width', scale_width)
 	    .attr('height', square_dims)
-	    .attr('fill', color);
+	    .attr('fill', '#FFFFFF');
 
 	// Add snps to donor track
 	add_bases_to_track(
@@ -1282,7 +1292,7 @@ function add_trio_track(track_svg, y_position, square_dims, d) {
 	    .attr('y', new_y - buffer_btw_tracks)
 	    .attr('width', track_width)
 	    .attr('height', square_dims)
-	    .attr('fill', color);
+	    .attr('fill', '#FFFFFF');
 
 	// Add snps to recomb track
 	add_bases_to_track(
@@ -1303,7 +1313,7 @@ function add_trio_track(track_svg, y_position, square_dims, d) {
 	    .attr('y', new_y - buffer_btw_tracks)
 	    .attr('width', track_width)
 	    .attr('height', square_dims)
-	    .attr('fill', color);
+	    .attr('fill', '#FFFFFF');
 
 	// Add snps to acceptor track
 	add_bases_to_track(
@@ -1323,8 +1333,13 @@ function add_trio_track(track_svg, y_position, square_dims, d) {
 		snp_positions.push(key);
 	}
 
+	var num_snps = acceptor_snps.length;
+	var label_width =
+	    (num_snps * square_dims + (num_snps - 1) * buffer_btw_bases) +
+	    track_x_position;
+
 	var x = d3.scaleBand().domain(snp_positions).range([
-		track_x_position, track_width + track_x_position
+		track_x_position, label_width
 	]);
 
 	var info_sites = d['INFO_SITES'];
