@@ -214,6 +214,7 @@ def place_intervals(intervals):
     track_heap=[]
     segments_to_plot=[]
     empty_tracks=[]
+    max_track_cnt=0
     for interval in intervals:
         cur_track_cnt=None
         if( ( len(track_heap)==0 or track_heap[0][0]>interval[0]) and (len(empty_tracks)==0) ):
@@ -223,8 +224,9 @@ def place_intervals(intervals):
                 heapq.heappush(empty_tracks,heapq.heappop(track_heap)[1])
             cur_track_cnt=heapq.heappop(empty_tracks)
         heapq.heappush(track_heap,(interval[1],cur_track_cnt))
+        max_track_cnt=max(max_track_cnt,len(track_heap))
         segments_to_plot.append([(interval[0],cur_track_cnt),(interval[1],cur_track_cnt)])
-    return (len(track_heap),segments_to_plot)
+    return (max_track_cnt,segments_to_plot)
 
 def make_plot(recomb_results_file, plot_file):
     dpi=96
