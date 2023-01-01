@@ -5,6 +5,11 @@ button:focus{
     border-color: #343a40;
 }
 
+div#tracks {
+   max-width: 1900px;
+   overflow-x: auto;
+  }
+
 div#off_canvas_right_body {
 				background-color: #a9a9a9;
 }
@@ -114,14 +119,14 @@ div.dataTables_wrapper {
 				padding-left: 0px; 
     }
 
-header { padding-bottom: 100px; }
+header { padding-bottom: 20px; }
 
 #datatable.h1 div{
 				text-align:center;
 }
 
 body { 
-				padding-top: 50px;
+				padding-top: 20px;
 				padding-right: 200px; 
 }
 
