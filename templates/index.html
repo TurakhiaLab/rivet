@@ -97,20 +97,32 @@
     <script>
 
     $(document).ready(function () {
-			var table = $('#datatable').DataTable({
-							            //TODO: Add more table specs here
-													pageLength: 5,
-													lengthMenu: [ 5, 10, 25, 50 ],
-							            // Display table results in descending order of the recombinant ranking score (coln 15)
-							            order: [[15, 'desc']],
-													autoWidth: false,
-													scrollX: true,
-									});
-  
+    var table = $('#datatable').DataTable({
+                          pageLength: 5,
+                          lengthMenu: [ 5, 10, 25, 50 ],
+                          // Display table results in descending order of the recombinant ranking score (coln 15)
+                          order: [[15, 'desc']],
+                          autoWidth: false,
+                          scrollX: true,
+                          columnDefs: [
+                          // Hide breakpoint interval columns from results table
+                          {
+                               target: 3,
+                               visible: false,
+                               searchable: true,
+                           },
+                           {
+                               target: 4,
+                               visible: false,
+                               searchable: true,
+                           },
+                         ],
+                       });
+
        $('#datatable tbody').on('click', 'tr', function () {
          var row = table.row( this ).data();
-				 //TODO: Get parsed input file header information ahead of time
-		   	 var data = {"recomb_id" :row[0], "breakpoint1" : row[3], "breakpoint2": row[4], "donor_id" : row[1], "acceptor_id" : row[2], "descendant": row[11]};
+         //TODO: Get parsed input file header information ahead of time
+         var data = {"recomb_id" :row[0], "breakpoint1" : row[3], "breakpoint2": row[4], "donor_id" : row[1], "acceptor_id" : row[2], "descendant": row[11]};
          var endpoints = ["/get_data"];
          $.each(endpoints, function(i,u){
          $.ajax({
@@ -171,7 +183,7 @@
     <!--table id="datatable" class="striped" style="width:100%"-->
     <table id="datatable" class="striped" style="width:100%">
 				 <h2>RIPPLES Dectected Recombination Events</h2>
-				 <h5>Public Tree, Last Updated: December 12th, 2022</h5>
+				 <h5>Public Tree, Last Updated: December 31, 2022</h5>
 	
          <div class="download_button" id="download">
            <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>
