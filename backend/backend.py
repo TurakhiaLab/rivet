@@ -231,7 +231,7 @@ def place_intervals(intervals):
 def make_plot(recomb_results_file, plot_file):
     dpi=96
     intervals=load_intervals(recomb_results_file)
-    print(intervals)
+    #print(intervals)
     (max_height,segments_to_plot)=place_intervals(intervals)
     fig,[ax,region_plot_ax] = plt.subplots(2,1,sharex=True,gridspec_kw={'height_ratios': [20, 1],'hspace': 0.08},figsize=(1500/dpi,1000/dpi))
     ax.set_xlim(0,30000)
