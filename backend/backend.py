@@ -95,10 +95,10 @@ def load_descendants(desc_file):
       next(f)
       for line in f:
         splitline = line.strip().split('\t')
-        recomb_node_id = splitline[0]
+        node_id = splitline[0]
         descendants_string = splitline[1]
         descendants_list = descendants_string.split(', ')
-        d[recomb_node_id] = descendants_list
+        d[node_id] = descendants_list
       
     return d
 

@@ -26,7 +26,8 @@ function main() {
 	const table_button = document.querySelector('#download_table');
 	if (desc_button) {
 		desc_button.addEventListener('click', () => {
-			download_all_descendants();
+			var url = download_all_descendants();
+			window.location.href = url;
 		}, false);
 	}
 	if (table_button) {

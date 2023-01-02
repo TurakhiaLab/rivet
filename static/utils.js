@@ -61,15 +61,10 @@ function format_tsv(data) {
 function download_all_descendants() {
 	fetch('/get_all_descendants', {
 		method: 'POST',
-		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({download: 'all_descendants'})
-	}).then(res => {
-		res.json().then(data => {
-			var file_name = 'descendants.txt';
-			formatted_data = format_tsv(data);
-			serialize_object(file_name, formatted_data);
-		});
-	});
+		headers: {'Content-Type': 'text/plain'},
+		body: {download: 'all_descendants'}
+	}).then(res => {});
+	return '/get_all_descendants';
 }
 
 function download_table() {

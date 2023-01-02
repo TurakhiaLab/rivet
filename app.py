@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, Response, send_from_directory, url_for, redirect
+from flask import Flask, render_template, jsonify, request, Response, send_from_directory, url_for, redirect, send_file
 from flask_caching import Cache
 from argparse import ArgumentParser
 from collections import OrderedDict
@@ -42,16 +42,15 @@ def get_descendants():
 
     return jsonify(desc_d[node_id])
 
-
 @app.route("/get_all_descendants", methods=["POST", "GET"])
 def get_all_descendants():
     desc_file = app.config.get('desc_file')
-    desc_data = backend.parse_file(desc_file)
-    return jsonify(desc_data)
+    return send_file(desc_file, mimetype="text/plain",  as_attachment=True)
 
 @app.route("/download_table", methods=["POST", "GET"])
 def download_table():
     results_file = app.config.get('input_recombination_results')
+    # Parse results file for table download
     results_data = backend.parse_file(results_file)
     return jsonify(results_data)
 
