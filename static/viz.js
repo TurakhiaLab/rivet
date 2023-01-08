@@ -48,8 +48,8 @@ function graph() {
 		// Less than 20 snps, scale down medium track size, make base
 		// sizes slightly larger
 		if (num_snps < 20) {
-			container_width = medium_track_width / 1.5;
-			square_dims = 30;
+			container_width = medium_track_width;
+			square_dims = 40;
 		}
 		// Between 20-40 snps: Keep container width and base size fixed
 		if (num_snps >= 20 && num_snps <= 40) {
@@ -71,16 +71,16 @@ function graph() {
 				    .attr('width', container_width)
 				    .attr('height', 700);
 
-       /*
-		// Add title to SNP visualization plot
-		container.append('text')
-		    //.attr('x', container_width / 2)
-		    .attr('x', 250)
-		    .attr('y', 150)
-		    .attr('text-anchor', 'middle')
-		    .style('font-size', '30px')
-		    .text('Title');
-				*/
+		/*
+			 // Add title to SNP visualization plot
+			 container.append('text')
+			     //.attr('x', container_width / 2)
+			     .attr('x', 250)
+			     .attr('y', 150)
+			     .attr('text-anchor', 'middle')
+			     .style('font-size', '30px')
+			     .text('Title');
+					 */
 
 		var coordinate_track_list = add_coordinate_track(
 		    container, y_position, d, square_dims, container_width);
