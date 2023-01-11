@@ -10,7 +10,6 @@
 <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="background-color: #f3f2fe;">
   <div class="header">
 				<a href="{{ url_for('table') }}" class="navbar-brand mb-0 h0" style="font-size: 55px;">
-				<!-- ADD RECOMBINATION TRACKER LOGO IMAGE -->
 				<img src="static/images/rivet-icon.png" width="90" height="90"/>
         RiVeT: Recombination Viewer and Tracker
 				</a>
@@ -63,6 +62,9 @@
 				<div class="breakpoint_description">
               <h5>Description of breakpoint interval plot</h5>
 				</div>
+				<div class="breakpoint_download_button">
+           <button type="button" onclick="window.location.href='{{ url_for( 'download_breakpoint_plot') }}';" class="btn btn-outline-primary">Download Breakpoint Plot</button>
+         </div>
 
 				<!-- Breakpoint Plot -->
 <!--        <div class="center-screen" id="breakpoint_viz"></div> -->

@@ -1,4 +1,4 @@
-<img src="static/images/rivet-logo.png" width="300">
+<img src="static/images/rivet-icon.png" width="300">
 
 # RecombInation ViEwer and Tracker
 

@@ -54,6 +54,11 @@ def download_table():
     results_data = backend.parse_file(results_file)
     return jsonify(results_data)
 
+@app.route("/download_breakpoint_plot", methods=["POST", "GET"])
+def download_breakpoint_plot():
+    breakpoint_png = "static/midpoint_plot.png"
+    return send_file(breakpoint_png, mimetype="image/png",  as_attachment=True)
+
 @app.route("/get_breakpoint_data")
 def get_breakpoint_data():
     results_file = app.config.get('input_recombination_results')
