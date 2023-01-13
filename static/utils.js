@@ -118,22 +118,16 @@ function display_descendants(label_node_id) {
 			paragraph.append('foreignObject')
 			    .append('xhtml:p')
 			    .attr('font-size', font_size)
-			    .style('font-weight', 'bold')
 			    .html(desc_string);
-
-			// Write node descendants to file on
-			// button click
-			var file_name = label_node_id + '_descendants.txt';
-			var obj = format_txt(data);
 
 			const desc_button =
 			    document.querySelector('#download_descendants');
-			// Listen for download
 			if (desc_button) {
-				desc_button.addEventListener(
-				    'click',
-				    () => {serialize_object(file_name, obj)},
-				    false);
+				desc_button.addEventListener('click', () => {
+					window.location.href =
+					    '/download_select_descendants?id=' +
+					    label_node_id;
+				}, false);
 			}
 		});
 	});

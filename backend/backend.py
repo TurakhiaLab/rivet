@@ -630,3 +630,14 @@ def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, des
     data["COLOR"] = color_schema
     
     return data
+
+
+def get_node_descendants(desc_d, node_id):
+    """
+    Fetch node descendants for the selected node, up to 10k max
+    """
+    limit = 10000
+    descendant_list = desc_d[node_id]
+    if len(descendant_list) > limit:
+        return descendant_list[:limit]
+    return descendant_list

@@ -28,7 +28,7 @@ def getting_started():
 def upload():
     return render_template('upload.html')
 
-@app.route("/get_descendants", methods=["POST", "GET"])
+@app.route("/get_descendants", methods=["POST"])
 def get_descendants():
     init_data = app.config.get('init_data')
     desc_d = app.config.get('desc_data')
@@ -39,8 +39,8 @@ def get_descendants():
     else:
         # Initialize default values from input TSV
         node_id = init_data["recomb_id"]
-
-    return jsonify(desc_d[node_id])
+    d = backend.get_node_descendants(desc_d, node_id)
+    return jsonify(d)
 
 @app.route("/get_all_descendants", methods=["POST", "GET"])
 def get_all_descendants():
@@ -58,6 +58,32 @@ def download_table():
 def download_breakpoint_plot():
     breakpoint_png = "static/midpoint_plot.png"
     return send_file(breakpoint_png, mimetype="image/png",  as_attachment=True)
+
+@app.route('/download_select_descendants', methods=["POST", "GET"])
+def download_select_descendants():
+    init_data = app.config.get('init_data')
+    desc_d = app.config.get('desc_data')
+
+    content = request.args["id"]
+    if content is not None:
+        node_id = content
+    else:
+        #Initialize default values from input descendants txt file
+        node_id = init_data["recomb_id"]
+
+    # Get descendants for selected node
+    descendant_list = desc_d[node_id]
+    filename = node_id + "_descendants.txt"
+
+    def generate_descendants():
+        for d in descendant_list:
+            yield "{}\n".format(d)
+
+    return Response(
+        generate_descendants(),
+        mimetype='text/plain',
+        headers={'content-disposition': 'attachment; filename={}'.format(filename)})
+
 
 @app.route("/get_breakpoint_data")
 def get_breakpoint_data():
