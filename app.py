@@ -20,7 +20,7 @@ cache = Cache(app)
 def breakpoints():
     return render_template('breakpoints.html')
 
-@app.route("/start")
+@app.route("/about")
 def getting_started():
     return render_template('getting_started.html')
 
