@@ -58,24 +58,27 @@
     <p>RIVET is developed and maintained by researchers at <a href="https://turakhia.eng.ucsd.edu/">Turakhia Lab</a> at UC San Diego, primarily <a href="https://github.com/mrkylesmith">Kyle Smith</a> and <a href="https://github.com/yceh">Cheng Ye</a>. </p>
     <p>RIVET’s web interface allows users to explore and analyze a filtered set of SARS-CoV-2 recombinants discovered with the help of <a href="https://github.com/TurakhiaLab/rivet">RIVET’s backend pipeline</a>, which uses the <a href="https://github.com/yatisht/usher">RIPPLES</a> software. This pipeline uses a SARS-CoV-2 phylogeny of public sequences (sourced from GenBank, the China National Center for Bioinformation, and COG-UK) maintained by <a href="https://github.com/AngieHinrichs">Angie Hinrichs</a> at UC Santa Cruz using the <a href="https://github.com/yatisht/usher">UShER software</a>. </p>
     <p>Please find more details about RIVET on our <a href="https://github.com/TurakhiaLab/rivet">GitHub repository</a>. Please use <a href="https://github.com/TurakhiaLab/rivet/issues">GitHub Issues</a> to report problems or provide feedback.</p>
+
     <h2 id="video-tutorial">Video Tutorial</h2>
     <p>Coming soon!</p>
+
     <h2 id="disclaimer">Disclaimer</h2>
-    <p>The results displayed on this website have been generated using RIVET’s automated <a href="https://github.com/TurakhiaLab/rivet#rivet_backend">backend pipeline</a> and have not necessarily been curated by experts. Not all recombinants displayed on this website are necessarily real and not every recombinant is necessarily represented. </p>
-    <p>Common sources of false positive errors in RIVET’s pipeline include, but are not limited to:</p>
+    <p>The results displayed on this website have been generated using RIVET’s automated <a href="https://github.com/TurakhiaLab/rivet#rivet_backend">backend pipeline</a> and have not necessarily been curated by experts. <u>Not all recombinants displayed on this website are necessarily real and not every recombinant is necessarily represented.</u> </p>
+    <p>Common sources of <u>false positive errors</u> in RIVET’s pipeline include, but are not limited to:</p>
     <ul>
         <li>Contamination, sequencing, or assembly errors in the recombinant or parent sequences</li>
         <li>Missing sequences resulting in artificially long branches in the UCSC public tree</li>
         <li>Misalignments or phylogenetic inconsistencies</li>
     </ul>
-    <p>Common sources of false negative errors in RIVET’s pipeline include, but are not limited to:</p>
+    <p>Common sources of <u>false negative errors</u> in RIVET’s pipeline include, but are not limited to:</p>
     <ul>
         <li>Too few recombination-informative sites in the recombinant </li>
         <li>More than two breakpoints are required to explain the recombinant</li>
         <li>Too few descendants of the recombinant or its parent in the UCSC public tree</li>
         <li>Recombinant was filtered out due to putative quality issues or low confidence</li>
     </ul>
-    <p>We currently update the results on this website <strong>monthly</strong>, but we are planning to increase this frequency. </p>
+    <p>We currently update the results on this website <u>monthly</u>, but we are planning to increase this frequency. </p>
+
     <h2 id="acknowledgments">Acknowledgments</h2>
     <p>We are grateful for the feedback ad support from our following collaborators:</p>
     <ul>
@@ -85,7 +88,10 @@
         <li>Alexander Kramer (UCSC)</li>
         <li>Laura Hughes (Scripps Research)</li>
     </ul>
+
     <p>The tree display links provided through RIVET uses the Treenome Browser, developed by <a href="https://github.com/amkram">Alexander Kramer</a> and <a href="https://github.com/theosanderson">Theo Sanderson</a>. </p>
+
+
     <h2 id="citation">Citation</h2>
     <p>Please cite the following paper on RIPPLES if you found this website helpful in your research:</p>
     <ul>
@@ -93,14 +99,14 @@
     </ul>
     <p>RIVET’s preprint will be posted online soon.</p>
 
-<!--Bootstrap-->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+    <!--Bootstrap-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
 
-<!--jQuery-->
-<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css"/>
-<link rel="stylesheet" href="static/styles.css"/>
+    <!--jQuery-->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css"/>
+    <link rel="stylesheet" href="static/styles.css"/>
 
 </body>
 </html>
