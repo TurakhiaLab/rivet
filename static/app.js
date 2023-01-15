@@ -24,6 +24,7 @@ function main() {
 	// Download buttons
 	const desc_button = document.querySelector('#download_all_descendants');
 	const table_button = document.querySelector('#download_table');
+	const tree_button = document.querySelector('#download_tree');
 	if (desc_button) {
 		desc_button.addEventListener('click', () => {
 			var url = download_all_descendants();
@@ -33,6 +34,11 @@ function main() {
 	if (table_button) {
 		table_button.addEventListener('click', () => {
 			download_table();
+		}, false);
+	}
+	if (tree_button) {
+		tree_button.addEventListener('click', () => {
+			download_tree();
 		}, false);
 	}
 	// TODO: Add visualization svg download button
