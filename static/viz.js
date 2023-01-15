@@ -71,16 +71,14 @@ function graph() {
 				    .attr('width', container_width)
 				    .attr('height', 700);
 
-		/*
-			 // Add title to SNP visualization plot
-			 container.append('text')
-			     //.attr('x', container_width / 2)
-			     .attr('x', 250)
-			     .attr('y', 150)
-			     .attr('text-anchor', 'middle')
-			     .style('font-size', '30px')
-			     .text('Title');
-					 */
+		// Add title to SNP visualization plot
+		container.append('text')
+		    .attr('x', 300)
+		    .attr('y', 150)
+		    .attr('text-anchor', 'start')
+		    .style('font-size', '30px')
+		    .text(
+			'Single-nucleotide variation in the recombinant and its parents');
 
 		var coordinate_track_list = add_coordinate_track(
 		    container, y_position, d, square_dims, container_width);

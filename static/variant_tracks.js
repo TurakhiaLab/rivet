@@ -450,7 +450,7 @@ function handle_zero_snps(svg) {
 	    .attr('font-size', 60)
 	    .style('font-weight', 'bold')
 	    .style('fill', 'red')
-	    .text('No SNPS to display for the selected recombinant.');
+	    .text('No SNVs to display for the selected recombinant.');
 }
 
 function add_column_label(
@@ -504,6 +504,14 @@ function init_coordinate_track(track_svg, y_position) {
 	// New y position to update and return as new track is
 	// added above previous one
 	var new_y = y_position;
+
+	track_svg.append('text')
+	    .attr('x', 1000)
+	    .attr('y', 300)
+	    .attr('text-anchor', 'middle')
+	    .attr('font-size', 30)
+	    .style('font-weight', 'bold')
+	    .text('Select a table entry below to view  the single-nucleotide variation in the recombinant and its parents');
 
 	// Add initial genomic track
 	track_svg.append('rect')
