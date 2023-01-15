@@ -1,6 +1,6 @@
 <img src="static/images/rivet-icon.png" width="300">
 
-# RecombInation ViEwer and Tracker
+# RIVET: RecombInation ViEwer and Tracker
 
 ## Table of Contents
 - [Overview](#overview)
