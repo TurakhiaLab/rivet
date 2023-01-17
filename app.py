@@ -47,6 +47,11 @@ def get_all_descendants():
     desc_file = app.config.get('desc_file')
     return send_file(desc_file, mimetype="text/plain",  as_attachment=True)
 
+@app.route("/download_mat", methods=["POST", "GET"])
+def download_mat():
+    date = app.config.get('date')
+    return jsonify({"date": date})
+
 @app.route("/download_table", methods=["POST", "GET"])
 def download_table():
     results_file = app.config.get('input_recombination_results')
@@ -193,6 +198,7 @@ if __name__ == "__main__":
   app.config['table'] = table
   app.config['columns'] = columns
   cache.set("table", table)
+  app.config['date'] = str(config["date"])
 
   tock = time.perf_counter()
   print(f"Time elapsed: {tock-tick:.2f} seconds")

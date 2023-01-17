@@ -133,6 +133,27 @@ function display_descendants(label_node_id) {
 	});
 }
 
+function download_tree() {
+	fetch('/download_mat', {
+		method: 'POST',
+	}).then(res => {
+		res.json().then(data => {
+			// Format: year-month-date
+			var date = data['date'];
+			// Format: "public-year-month-date.all.masked.pb.gz"
+			var mat = 'public-' + date + '.all.masked.pb.gz';
+			date = date.split('-').join('/');
+			date = date + '/' + mat;
+			//  Format:
+			//  'http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/year/month/date/';
+			var mat_url =
+			    'http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/' +
+			    date;
+			window.location.href = mat_url;
+		});
+	});
+}
+
 function determine_informative(match, colors) {
 	// Matches the acceptor
 	if (match == 'A') {
