@@ -136,7 +136,7 @@ def tsv_to_dict(results_tsvfile, metadata_start_col = None):
     with open(results_tsvfile) as f:
       # Extract column headers from input results tsv file, removing extra metadata columns
       column_headers = f.readline().strip().split('\t')[:metadata_start_col - 1]
-
+      column_headers.append("Filter")
       for line in f:
         splitline = line.strip().split('\t')
         recomb_node_id = splitline[0]
@@ -145,6 +145,7 @@ def tsv_to_dict(results_tsvfile, metadata_start_col = None):
         if metadata_start_col is not None:
             # Build dictionary for data corresponding to recombinant node
             dictionary[recomb_node_id] = splitline[:metadata_start_col - 1]
+            dictionary[recomb_node_id].append(splitline[-1])
 
             # Get string of informative sites and parse each position to a list of (str) positions
             info_sites_list = splitline[metadata_start_col-1:][0].split(",")
@@ -203,6 +204,8 @@ def load_intervals(recomb_results_file):
       next(f)
       for line in f:
         splitline = line.strip().split('\t')
+        if splitline[19]!="PASS":
+            continue
         intervals.append(tuple( format_bp_interval(splitline[bp1_col_idx])))
         interval2=tuple(format_bp_interval(splitline[bp2_col_idx]))
         if (interval2[1]!=29903):
