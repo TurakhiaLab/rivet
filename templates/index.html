@@ -97,8 +97,8 @@
 
     $(document).ready(function () {
     var table = $('#datatable').DataTable({
-                          pageLength: 5,
-                          lengthMenu: [ 5, 10, 25, 50 ],
+                          pageLength: 25,
+												  lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
                           // Display table results in descending order of the recombinant ranking score (coln 15)
                           order: [[15, 'desc']],
                           autoWidth: false,
@@ -180,7 +180,7 @@
     <div class="row">
     <!--table id="datatable" class="table is-striped" style="width:100%"-->
     <!--table id="datatable" class="striped" style="width:100%"-->
-    <table id="datatable" class="striped" style="width:100%">
+		<table id="datatable" class="striped" style="width:100%">
 				 <h2>RIPPLES Dectected Recombination Events</h2>
 				 <h5>Public Tree, Last Updated: December 31, 2022</h5>
 	
