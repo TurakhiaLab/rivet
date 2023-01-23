@@ -1,72 +1,72 @@
 <html>
 <head>
-	<script src="https://d3js.org/d3.v4.min.js"></script>
-	<!-- Include bootstrap specific installs -->
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <!-- Include bootstrap specific installs -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="static/images/rivet-icon.png"/>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 
-	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
 <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="background-color: #f3f2fe;">
   <div class="header">
-				<a href="{{ url_for('table') }}" class="navbar-brand mb-0 h0" style="font-size: 55px;">
-				<img src="static/images/rivet-icon.png" width="90" height="90"/>
+        <a href="{{ url_for('table') }}" class="navbar-brand mb-0 h0" style="font-size: 55px;">
+        <img src="static/images/rivet-icon.png" width="90" height="90"/>
         RiVeT: SARS-CoV-2 Recombination Viewer and Tracker
-				</a>
-				<button
-				type="button"
-				data-bs-toggle="collapse"
-				data-bs-target="#navbarNav"
-				class="navbar-toggler"
-				aria-controls="navbarNav"
-				aria-expanded="false"
-				aria-label="Toggle navigation"
-				>
-				<span class="navbar-toggler-icon"></span>
-				</button>
+        </a>
+        <button
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        class="navbar-toggler"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+        >
+        <span class="navbar-toggler-icon"></span>
+        </button>
 
-				<div class="collapse navbar-collapse" id="navbarNav">
+        <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto">
-							<li class="nav-item active px-2">
-											<a href="{{ url_for('table') }}" class="nav-link" style="font-size: 20px;">
-															Home
-											</a>
-							<li class="nav-item active px-2">
-											<a href="{{ url_for('breakpoints') }}" class="nav-link" style="font-size: 20px;">
-															Recombination Across the Genome
-											</a>
-							<li class="nav-item active px-2">
-											<a href="{{ url_for('getting_started') }}" class="nav-link" style="font-size: 20px;">
+              <li class="nav-item active px-2">
+                      <a href="{{ url_for('table') }}" class="nav-link" style="font-size: 20px;">
+                              Home
+                      </a>
+              <li class="nav-item active px-2">
+                      <a href="{{ url_for('breakpoints') }}" class="nav-link" style="font-size: 20px;">
+                              Recombination Across the Genome
+                      </a>
+              <li class="nav-item active px-2">
+                      <a href="{{ url_for('getting_started') }}" class="nav-link" style="font-size: 20px;">
                                                             About
-											</a>
+                      </a>
               <!--
-							<li class="nav-item active">
-											<a href="{{ url_for('upload') }}" class="nav-link">
-															Upload your results
-											</a>
+              <li class="nav-item active">
+                      <a href="{{ url_for('upload') }}" class="nav-link">
+                              Upload your results
+                      </a>
               <-->
-						  <li class="navbar-brand navbar-right pull-sm-right m-r-0 px-2">
-											<a target="_blank" href="https://github.com/TurakhiaLab/rivet" class="fa fa-github">
-										  </a>
-				</div>
+              <li class="navbar-brand navbar-right pull-sm-right m-r-0 px-2">
+                      <a target="_blank" href="https://github.com/TurakhiaLab/rivet" class="fa fa-github">
+                      </a>
+        </div>
     </div>
-				
+        
 </nav>
 
 </head>
 <body>
 
-				<div class="breakpoint_title">
-				      <h1> Distribution of Breakpoints Across the Genome</h1>
-				</div>
-				<div class="breakpoint_description">
+        <div class="breakpoint_title">
+              <h1> Distribution of Breakpoints Across the Genome</h1>
+        </div>
+        <div class="breakpoint_description">
               <h5>Description of breakpoint interval plot</h5>
-				</div>
-				<div class="breakpoint_download_button">
+        </div>
+        <div class="breakpoint_download_button">
            <button type="button" onclick="window.location.href='{{ url_for( 'download_breakpoint_plot') }}';" class="btn btn-outline-primary">Download Breakpoint Plot</button>
          </div>
 
-				<!-- Breakpoint Plot -->
+        <!-- Breakpoint Plot -->
 <!--        <div class="center-screen" id="breakpoint_viz"></div> -->
 <img src="static/midpoint_plot.png" width="1500" height="1000"/>
 

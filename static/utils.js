@@ -147,7 +147,7 @@ function download_tree() {
 			//  Format:
 			//  'http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/year/month/date/';
 			var mat_url =
-			    'http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/' +
+			    'https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/' +
 			    date;
 			window.location.href = mat_url;
 		});
