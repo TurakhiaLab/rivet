@@ -137,31 +137,32 @@ def tsv_to_dict(results_tsvfile, metadata_start_col = None):
       # Extract column headers from input results tsv file, removing extra metadata columns
       column_headers = f.readline().strip().split('\t')[:metadata_start_col - 1]
       column_headers.append("Filter")
-      for line in f:
+      lines = f.readlines()
+      for index, line in enumerate(lines):
         splitline = line.strip().split('\t')
-        recomb_node_id = splitline[0]
+
         node_metadata = {}
         # Do not display extra metadata columns in results datatable
         if metadata_start_col is not None:
-            # Build dictionary for data corresponding to recombinant node
-            dictionary[recomb_node_id] = splitline[:metadata_start_col - 1]
-            dictionary[recomb_node_id].append(splitline[-1])
+            dictionary[str(index)] = splitline[:metadata_start_col - 1]
+            dictionary[str(index)].append(splitline[-1])
 
             # Get string of informative sites and parse each position to a list of (str) positions
             info_sites_list = splitline[metadata_start_col-1:][0].split(",")
             
             # Check number of informative positions matches the number of characters in ABAB string
-            err_message = "Informative sites not matching ABAB string for recomb node: {}".format(recomb_node_id)
+            err_message = "Informative sites not matching ABAB string for recomb node: {}".format(splitline[0])
             assert len(info_sites_list) == len(splitline[12]), err_message
             
             # Add informative site and informative seq to metadata
+            node_metadata["recomb_id"] = splitline[0]
             node_metadata["InfoSites"] = info_sites_list
             node_metadata["InfoSeq"] = splitline[12]
-            metadata[recomb_node_id] = node_metadata
+            metadata[str(index)] = node_metadata
         else:
             # Build dictionary with key: recomb_node_id
             # and value : corresponding data for that recombinant node
-            dictionary[recomb_node_id] = splitline 
+            dictionary[str(index)] = splitline 
     return dictionary, column_headers, metadata
 
 
@@ -331,10 +332,10 @@ def label_informative_sites(metadata):
     and label each position as either matching the "D" (Donor), or "A" (Acceptor)
     """
     info_node_matches = {}
-    # Iterate through the recombinant nodes
-    for node in metadata.keys():
-        info_positions = metadata[node]["InfoSites"]
-        info_seq = metadata[node]["InfoSeq"]
+    # Iterate through list of recombination results
+    for (key,value) in metadata.items():
+        info_positions = value["InfoSites"]
+        info_seq = value["InfoSeq"]
         i = 0
         positions = {}
         for pos in info_positions:
@@ -347,8 +348,7 @@ def label_informative_sites(metadata):
 
             # Move to next sequence in ABAB string
             i+=1
-
-        info_node_matches[node] = positions
+        info_node_matches[key] = positions
     return info_node_matches
 
 
@@ -376,6 +376,8 @@ def build_table(results_dict, columns, config):
             except IndexError:
                 pass
         row.append(generate_taxonium_link(value[0], value[1], value[2], get_treeview_host(config["date"])))
+        # Add unique row key as first element in each row
+        row.insert(0,key)
         table.append(row)
 
         # Iterate row for error message
@@ -391,12 +393,12 @@ def load_table(results_file, config):
     if not isinstance(config["date"], datetime.date):
         raise RuntimeError(colored("[ERROR]: Check formatting of MAT 'date' field provided in config.yaml file (-c). Expected format: year-month-day"), 'red', attrs=['reverse'])
 
-    #Convert final recombination results file to dictionary indexed by recomb_node_id
+    #Convert final recombination results file to dictionary indexed by row_id
     # Extract datatable column headers also
     results_dict, columns, metadata = tsv_to_dict(results_file, 19)
 
     # Add additional column for Taxodium tree view links
-    # Last column in datatable by default
+    # Last visible column in datatable by default
     columns.append("Click to View")
 
     # Check header information present in file
@@ -404,6 +406,9 @@ def load_table(results_file, config):
         raise RuntimeError(colored("[ERROR]: Check input results file: {}. Empty file or missing header information".format(results_file), 'red', attrs=['reverse']))
 
     table = build_table(results_dict, columns, config)
+
+    # Add first hidden column with row ids to datatable
+    columns.insert(0,"Row")
 
     return table, columns, metadata
 
@@ -530,7 +535,7 @@ def get_positions(snp_data):
         pos.add(value[0])
     return pos
 
-def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only):
+def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only, row_id):
     """
     Pass in dictionary of snp data for all nodes.
     Lookup and format into smaller dictionary containing 
@@ -627,7 +632,7 @@ def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, des
     data["DESCENDANTS"] = descendants
 
     # Add recombinant-informative metadata to track data
-    data["INFO_SITES"] = info_sites[recomb_id]
+    data["INFO_SITES"] = info_sites[row_id]
 
     # Add color_schema from input config file to track data
     data["COLOR"] = color_schema

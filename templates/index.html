@@ -100,41 +100,46 @@
                           pageLength: 25,
                           lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
                           // Display table results in descending order of the recombinant ranking score (coln 15)
-                          order: [[15, 'desc']],
+                          order: [[16, 'desc']],
                           autoWidth: false,
                           scrollX: true,
                           // Color recombinants that have passed filration checks green
                           rowCallback: function(row, data, index) {
-                               if (data[18].toString() == "PASS") {
+                               if (data[19].toString() == "PASS") {
                                    row.style.backgroundColor = '#abf7b1';
                                }
                           },
                           columnDefs: [
-                          // Hide breakpoint interval columns from results table
+                          // Hide row id column from results table
                           {
-                               target: 3,
+                               target: 0,
                                visible: false,
-                               searchable: true,
+                               searchable: false,
                            },
-                           {
+                          // Hide breakpoint interval columns from results table, still searchable
+                          {
                                target: 4,
                                visible: false,
                                searchable: true,
                            },
-																							/*
                            {
-                               target: 18,
+                               target: 5,
                                visible: false,
                                searchable: true,
                            },
-					 */
                          ],
+                          "initComplete": function(settings, json) {
+                                let tableSelect = document.getElementById("table_container");
+																tableSelect.removeAttribute("hidden");
+															  $("#datatable").show();
+																$("#datatable").DataTable().columns.adjust();
+                           },
                        });
 
        $('#datatable tbody').on('click', 'tr', function () {
          var row = table.row( this ).data();
          //TODO: Get parsed input file header information ahead of time
-         var data = {"recomb_id" :row[0], "breakpoint1" : row[3], "breakpoint2": row[4], "donor_id" : row[1], "acceptor_id" : row[2], "descendant": row[11]};
+         var data = {"row_id": row[0], "recomb_id" :row[1], "breakpoint1" : row[4], "breakpoint2": row[5], "donor_id" : row[2], "acceptor_id" : row[3], "descendant": row[12]};
          var endpoints = ["/get_data"];
          $.each(endpoints, function(i,u){
          $.ajax({
@@ -159,9 +164,13 @@
             $(this).addClass('selected');
         }
     });
-   });
+ });
+
+
 
     </script>
+
+    
 
 
 <!-- TODO: Remove right side offcanvas panel for now, update visualization settings as more visualization interactive features added
@@ -189,11 +198,11 @@
 <-->
 
 
- <div class="container">
+ <div class="container" id="table_container" hidden>
     <div class="row">
     <!--table id="datatable" class="table is-striped" style="width:100%"-->
     <!--table id="datatable" class="striped" style="width:100%"-->
-    <table id="datatable" class="striped" style="width:100%">
+		<table id="datatable" class="striped" style="width:100%">
          <h2>RIPPLES Dectected Recombination Events</h2>
          <h5>Public Tree, Last Updated: December 31, 2022</h5>
   

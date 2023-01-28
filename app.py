@@ -103,6 +103,7 @@ def get_breakpoint_data():
 def get_data():
   content = request.get_json()
   if content is not None:
+      row_id = content["row_id"]
       recomb_id = content["recomb_id"]
       donor_id = content["donor_id"]
       acceptor_id = content["acceptor_id"]
@@ -113,6 +114,7 @@ def get_data():
       # Fetch init data on startup, to initialize visualization
       # before user selected input
       init_data = app.config.get('init_data')
+      row_id = "0"
       recomb_id = init_data["recomb_id"]
       donor_id = init_data["donor_id"]
       acceptor_id = init_data["acceptor_id"]
@@ -120,19 +122,15 @@ def get_data():
       breakpoint2 = init_data["breakpoint2"]
       descendants = init_data["descendants"]
 
-  #TODO: Add back visualization settings side panel toggle
   recomb_informative_only = False
-      
   d = app.config.get('snp_data')
   positions = app.config.get('positions')
   info_sites = app.config.get('info_sites')
   color_schema = app.config.get('color_schema')
 
   track_data =  OrderedDict()
-  #TODO: Add back functionality to this function for displaying recombinant informative snps only
-  track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only)
+  track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only, row_id)
   print("TRIO DATA SELECTED: ", track_data)
-
   return jsonify(track_data)
 
 @app.route('/')
