@@ -8,7 +8,7 @@
     - [RIVET Frontend Setup](#rivet_frontend_setup)
     - [Viewing your own recombinants with RIVET on a local HTTP server](#rivet_example)
 - [RIVET Backend](#rivet_backend)
-    - [Recombination Backend Setup](#rivet_backend_setup)
+    - [RIVET Backend Setup](#rivet_backend_setup)
     - [RIVET Backend Pipeline Results](#rivet_backend_results)
 - [Citing RIVET](#cite_rivet)
 
