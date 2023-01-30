@@ -10,8 +10,6 @@ base_matching_reference: '#dadada'
 reference_track: '#333333'
 
 # Recombinant-Informative Coloring for polygons/position column labels
-#recomb_match_acceptor: '#BDDDF5'
-#recomb_match_donor: '#4169E1'
 recomb_match_acceptor: '#2879C0'
 recomb_match_donor: '#F9521E'
 non_informative_site: '#dadada'
