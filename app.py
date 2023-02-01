@@ -28,6 +28,16 @@ def getting_started():
 def upload():
     return render_template('upload.html')
 
+@app.route("/search_by_sample_id", methods=['POST'])
+def search_by_sample_id():
+    # Get input search query from user
+    query = request.form['query']
+    # Load the set of recombinant node ids
+    recomb_desc_d = app.config.get('recomb_desc')
+    # Return set of recombinant nodes that return true for substring membership query
+    recomb_nodes = backend.search_by_sample(query,recomb_desc_d)
+    return jsonify({"recomb_nodes": recomb_nodes})
+
 @app.route("/get_descendants", methods=["POST"])
 def get_descendants():
     init_data = app.config.get('init_data')
@@ -190,6 +200,8 @@ if __name__ == "__main__":
   table, columns, metadata = backend.load_table(recomb_results, config)
   # Preprocess informative site information for snp plot
   info_sites = backend.label_informative_sites(metadata)
+  recomb_node_set = set([cell[1] for cell in table])
+  recomb_desc_dict = backend.load_recombinant_descendants(desc_file, recomb_node_set)
 
   app.config['color_schema'] = color_schema
   app.config['info_sites'] = info_sites
@@ -197,6 +209,7 @@ if __name__ == "__main__":
   app.config['columns'] = columns
   cache.set("table", table)
   app.config['date'] = str(config["date"])
+  app.config['recomb_desc'] = recomb_desc_dict
 
   tock = time.perf_counter()
   print(f"Time elapsed: {tock-tick:.2f} seconds")

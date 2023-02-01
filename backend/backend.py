@@ -649,3 +649,32 @@ def get_node_descendants(desc_d, node_id):
     if len(descendant_list) > limit:
         return descendant_list[:limit]
     return descendant_list
+
+def search_by_sample(substr, recomb_desc_dict):
+    """
+    """
+    filtered_results = {}
+    recomb_nodes = set()
+    pattern = substr.lower()
+    for key,value in recomb_desc_dict.items():
+        if pattern in value[0].lower():
+            filtered_results[key] = value
+            recomb_nodes.add(key)
+    return list(recomb_nodes)
+
+def load_recombinant_descendants(desc_file, recomb_node_set):
+    """
+    """
+    with open(desc_file) as f:
+      d = {}
+      # Skip over column headers (assuming one)
+      next(f)
+      for line in f:
+        splitline = line.strip().split('\t')
+        node_id = splitline[0]
+        if node_id not in recomb_node_set:
+            continue
+        descendants_string = splitline[1]
+        descendants_list = descendants_string.split(', ')
+        d[node_id] = descendants_list
+    return d

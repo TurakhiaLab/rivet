@@ -95,6 +95,13 @@
    </div>
     <script>
 
+    function reset_search(table) {
+          // Refresh datatable results
+          table.search("").draw();
+          // Reset flag
+          reset_flag = false;
+    }
+
     $(document).ready(function () {
     var table = $('#datatable').DataTable({
                           pageLength: 25,
@@ -103,6 +110,7 @@
                           order: [[16, 'desc']],
                           autoWidth: false,
                           scrollX: true,
+                          searching:true,
                           // Color recombinants that have passed filration checks green
                           rowCallback: function(row, data, index) {
                                if (data[19].toString() == "PASS") {
@@ -135,6 +143,65 @@
                                 $("#datatable").DataTable().columns.adjust();
                            },
                        });
+
+       // Default search configuration on page load
+       var reset_flag = false; 
+       var search_by_sample;
+
+       let search_by_sample_button = document.querySelector('#search_by_sample_button');
+       if (search_by_sample_button) {
+           search_by_sample_button.addEventListener('click', () => { 
+           // Refresh datatable results
+           table = $('#datatable').DataTable();
+           table.search('').columns().search('').draw();
+           // Search by sample button clicked, reset table 
+           reset_flag = true;
+           query = null;
+
+           if (search_by_sample_button.checked) {
+              search_by_sample = true;
+           }
+           else {
+              search_by_sample = false;
+           }
+           }, false);
+       } 
+       $('.dataTables_filter input').unbind().keyup(function() {
+           // Refresh datatable results
+           table.search('').columns().search('').draw();
+
+           // Unselect current row while searching 
+           table.$('tr.selected').removeClass('selected');
+           $(this).addClass('selected');
+
+           var query = $(this).val();
+           // User search by sample id
+           if (search_by_sample && $(this).val().length >= 3) {
+                    $.post("/search_by_sample_id", {"query": $(this).val()}, function(response) {
+                    var node_ids = response["recomb_nodes"]
+                    if (node_ids.length == 0) {
+                        table.search("NO RESULTS").draw();
+                    } else {
+                    table.column(1).search(node_ids.join("|"), true, false).draw();
+                    }
+                 });
+
+           }
+           else if (search_by_sample && $(this).val().length < 3) {
+                 table.search("NO RESULTS").draw();
+           }
+           else {
+                 //$.fn.dataTable.ext.search.pop();
+                 if (reset_flag) {
+                     // Refresh datatable results
+                     $('.bs-filters').val('');
+                     table.search('').columns().search('').draw();
+                     // Reset flag 
+                     reset_flag = false;
+                 }
+                 table.search($(this).val()).draw();
+           }
+       });
 
        $('#datatable tbody').on('click', 'tr', function () {
          var row = table.row( this ).data();
@@ -210,6 +277,11 @@
            <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>
            <button type="button" class="btn btn-outline-primary" id="download_table">Download Table</button>
            <button type="button" class="btn btn-outline-primary" id="download_tree">Download MAT</button>
+         </div>
+
+         <div class="form-check form-switch" id="search">
+             <input class="form-check-input" id="search_by_sample_button" type="checkbox" id="flexSwitchCheckDefault">
+             <label class="form-check-label" for="flexSwitchCheckDefault">Search by sample</label>
          </div>
 
         <thead>
