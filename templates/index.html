@@ -107,16 +107,18 @@
                           pageLength: 25,
                           lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
                           // Display table results in descending order of the recombinant ranking score (coln 15)
-                          order: [[16, 'desc']],
+                          order: [[17, 'desc']],
                           autoWidth: false,
                           scrollX: true,
                           searching:true,
+                          /*
                           // Color recombinants that have passed filration checks green
                           rowCallback: function(row, data, index) {
                                if (data[19].toString() == "PASS") {
                                    row.style.backgroundColor = '#abf7b1';
                                }
                           },
+                          */
                           columnDefs: [
                           // Hide row id column from results table
                           {
@@ -271,7 +273,7 @@
     <!--table id="datatable" class="striped" style="width:100%"-->
     <table id="datatable" class="striped" style="width:100%">
          <h2>RIPPLES Dectected Recombination Events</h2>
-         <h5>Public Tree, Last Updated: January 15, 2023</h5>
+         <h5>Public Tree, Last Updated: January 31, 2023</h5>
   
          <div class="download_button" id="download">
            <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>

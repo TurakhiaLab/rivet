@@ -1,0 +1,286 @@
+<html>
+<head>
+ <script src="https://d3js.org/d3.v4.min.js"></script> 
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="static/images/rivet-icon.png"/>
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="background-color: #f3f2fe;">
+  <div class="header">
+      <a href="{{ url_for('table') }}" class="navbar-brand mb-0 h0" style="font-size: 55px;">
+         <img src="static/images/rivet-icon.png" width="90" height="90"/>
+        RiVeT: SARS-CoV-2 Recombination Viewer and Tracker
+        </a>
+        <button
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        class="navbar-toggler"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+        >
+        <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+              <li class="nav-item active px-2">
+                      <a href="{{ url_for('table') }}" class="nav-link" style="font-size: 20px;">
+                              Home
+                      </a>
+							<!--		
+              <li class="nav-item active px-2">
+                      <a href="{{ url_for('breakpoints') }}" class="nav-link" style="font-size: 20px;">
+                              Recombination Across the Genome
+                      </a>
+              <li class="nav-item active px-2">
+                      <a href="{{ url_for('getting_started') }}" class="nav-link" style="font-size: 20px;">
+                                                            About
+                      </a>
+              <li class="navbar-brand navbar-right pull-sm-right m-r-0 px-2">
+                      <a target="_blank" href="https://github.com/TurakhiaLab/rivet" class="fa fa-github">
+                      </a>
+							-->
+        </div>
+    </div>
+</nav>
+
+
+</head>
+<body>
+
+<!--Bootstrap-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+
+<!--jQuery-->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css"/>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+
+<!-- Visualizations -->
+<script src="static/app.js"></script>
+<script src="static/variant_tracks.js"></script>
+<script src="static/viz.js"></script>
+<script src="static/utils.js"></script>
+<link rel="stylesheet" href="static/styles.css"/>
+
+  <div class="grid-container">
+    <div class="grid-child vis" id="visualization">
+        <div class="viz" id="tracks" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+<div class="offcanvas offcanvas-start" style="width: 1000px" id="off_canvas_left" data-bs-keyboard="true" data-bs-scroll="false" data-bs-backdrop="true" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+  <div class="offcanvas-header">
+     <div class="header-title">
+        <h3 class="offcanvas-title" id="offcanvasScrollingLabel">Selected Node Descendants:</h3>
+        <p style="font-weight:bold">Up to 10k descendants are displayed below. Click "Download Descendants" to download all.</p>
+     </div>
+     <div class="download_button">
+          <button type="button" class="btn btn-outline-primary" id="download_descendants">Download Descendants</button>
+     </div>
+     <div class="close">
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+  </div>
+  <div class="offcanvas-body" id="off_canvas_left_body" style="width: 950px">
+  </div>
+</div>
+   </div>
+    <script>
+
+    function reset_search(table) {
+          // Refresh datatable results
+          table.search("").draw();
+          // Reset flag
+          reset_flag = false;
+    }
+
+    $(document).ready(function () {
+    var table = $('#local_datatable').DataTable({
+                          pageLength: 25,
+                          lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
+                          // Display table results in descending order of the recombinant ranking score (coln 15)
+                          //order: [[17, 'desc']],
+                          autoWidth: true,
+                          scrollX: true,
+                          searching:true,
+                          /*
+                          // Color recombinants that have passed filration checks green
+                          rowCallback: function(row, data, index) {
+                               if (data[19].toString() == "PASS") {
+                                   row.style.backgroundColor = '#abf7b1';
+                               }
+                          },
+                          */
+                          "initComplete": function(settings, json) {
+                                let tableSelect = document.getElementById("table_container");
+                                tableSelect.removeAttribute("hidden");
+                                $("#local_datatable").show();
+                                $("#local_datatable").DataTable().columns.adjust();
+                           },
+                       });
+
+       // Default search configuration on page load
+       var reset_flag = false; 
+       var search_by_sample;
+
+       let search_by_sample_button = document.querySelector('#search_by_sample_button');
+       if (search_by_sample_button) {
+           search_by_sample_button.addEventListener('click', () => { 
+           // Refresh datatable results
+           table = $('#local_datatable').DataTable();
+           table.search('').columns().search('').draw();
+           // Search by sample button clicked, reset table 
+           reset_flag = true;
+           query = null;
+
+           if (search_by_sample_button.checked) {
+              search_by_sample = true;
+           }
+           else {
+              search_by_sample = false;
+           }
+           }, false);
+       } 
+       $('.dataTables_filter input').unbind().keyup(function() {
+           // Refresh datatable results
+           table.search('').columns().search('').draw();
+
+           // Unselect current row while searching 
+           table.$('tr.selected').removeClass('selected');
+           $(this).addClass('selected');
+
+           var query = $(this).val();
+           // User search by sample id
+           if (search_by_sample && $(this).val().length >= 3) {
+                    $.post("/search_by_sample_id", {"query": $(this).val()}, function(response) {
+                    var node_ids = response["recomb_nodes"]
+                    if (node_ids.length == 0) {
+                        table.search("NO RESULTS").draw();
+                    } else {
+                    table.column(1).search(node_ids.join("|"), true, false).draw();
+                    }
+                 });
+
+           }
+           else if (search_by_sample && $(this).val().length < 3) {
+                 table.search("NO RESULTS").draw();
+           }
+           else {
+                 //$.fn.dataTable.ext.search.pop();
+                 if (reset_flag) {
+                     // Refresh datatable results
+                     $('.bs-filters').val('');
+                     table.search('').columns().search('').draw();
+                     // Reset flag 
+                     reset_flag = false;
+                 }
+                 table.search($(this).val()).draw();
+           }
+       });
+
+       $('#local_datatable tbody').on('click', 'tr', function () {
+         var row = table.row( this ).data();
+         //TODO: Get parsed input file header information ahead of time
+				 var data = {"row_id": row[0], "recomb_id" :row[1], "donor_id" : row[2], "acceptor_id" : row[3]};
+         var endpoints = ["/get_data"];
+         $.each(endpoints, function(i,u){
+         $.ajax({
+         url: u,
+         type: 'POST',
+         contentType: "application/json",
+         dataType: "json",
+         data: JSON.stringify(data),
+         processData: false,
+         success: function(response){
+             $('#main').text(response)
+                 console.log("RESPONSE: ", response);
+                             track(response);
+             }
+         })  
+       });
+
+          if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+        } else {
+            table.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    });
+ });
+    </script>
+
+<!-- TODO: Remove right side offcanvas panel for now, update visualization settings as more visualization interactive features added
+  <button class="btn btn-secondary" id="visual_settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Visualization Settings</button>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" data-bs-scroll="true" data-bs-keyboard="true" data-bs-backdrop="false" aria-labelledby="offcanvasRightLabel">
+  <div class="offcanvas-header">
+    <h3 id="offcanvasRightLabel">Visualization Settings</h3>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body" id="off_canvas_right_body">
+          <p>Toggle between viewing all SNPS for each node and recombination-informative SNPS only (default).</p>
+         <button type="button" class="btn btn-outline-dark btn-sm" id="recomb_info_only" data-toggle="button" aria-pressed="false">
+         Show Recombination-Informative Only
+         </button>
+
+         <button type="button" class="btn btn-outline-dark btn-sm" id="all_snps" data-toggle="button" aria-pressed="false">
+         Show all SNPS
+         </button>
+   </div>
+  </div>
+</div>
+
+<-->
+ <div class="container" id="table_container" hidden>
+    <div class="row">
+    <!--table id="datatable" class="table is-striped" style="width:100%"-->
+    <!--table id="datatable" class="striped" style="width:100%"-->
+    <table id="local_datatable" class="striped" style="width:100%">
+         <div class="download_button" id="download">
+           <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>
+           <button type="button" class="btn btn-outline-primary" id="download_table">Download Table</button>
+           <button type="button" class="btn btn-outline-primary" id="download_tree">Download MAT</button>
+         </div>
+
+         <div class="form-check form-switch" id="search">
+             <input class="form-check-input" id="search_by_sample_button" type="checkbox" id="flexSwitchCheckDefault">
+             <label class="form-check-label" for="flexSwitchCheckDefault">Search by sample</label>
+         </div>
+
+        <thead>
+            <tr>
+               {% for header in headings %}
+               <th>{{ header }}</th>
+               {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+                    <tr>
+                        {% for cell in row %}
+                            <td class="table__cell" style="background-color:none">{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+            {% endfor %}
+
+        </tbody>
+        <!--TODO: For table footer, if necessary
+        <tfoot>
+            <tr>
+               {% for header in headings %}
+               <th>{{ header }}</th>
+               {% endfor %}
+            </tr>
+        </tfoot>
+        <-->
+    </table>
+    </div>
+  </div>
+
+</body>
+</html>

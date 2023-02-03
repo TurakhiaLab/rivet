@@ -1,5 +1,4 @@
 # Configuration file for RIVET
-
 ### Color Schema Options ####
 # Base coloring 
 a: '#cc0000'
@@ -23,3 +22,6 @@ genomic_regions: '#33333'
 ### Taxonium Tree View Options ###
 date: 2022-12-31
 bucket_name: public_trees
+
+### Server settings ###
+environment: production

@@ -1,0 +1,3 @@
+Recombinant Node ID	Donor Node ID	Acceptor Node ID
+node_1156861	node_1155169	node_1167556
+node_1067629	node_1021823	node_1156861

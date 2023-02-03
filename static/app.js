@@ -25,7 +25,13 @@ function main() {
 	const desc_button = document.querySelector('#download_all_descendants');
 	const table_button = document.querySelector('#download_table');
 	const tree_button = document.querySelector('#download_tree');
-	if (desc_button) {
+	const search = document.querySelector('#search');
+
+  var buttons = [desc_button, tree_button, search];
+  // Determine and setup production or local RIVET
+  init_env(buttons);
+
+	if (desc_button.style.visibility != 'hidden') {
 		desc_button.addEventListener('click', () => {
 			var url = download_all_descendants();
 			window.location.href = url;
@@ -36,7 +42,7 @@ function main() {
 			download_table();
 		}, false);
 	}
-	if (tree_button) {
+	if (tree_button.style.visibility != 'hidden') {
 		tree_button.addEventListener('click', () => {
 			download_tree();
 		}, false);

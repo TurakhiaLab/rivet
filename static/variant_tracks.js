@@ -511,7 +511,8 @@ function init_coordinate_track(track_svg, y_position) {
 	    .attr('text-anchor', 'middle')
 	    .attr('font-size', 30)
 	    .style('font-weight', 'bold')
-	    .text('Select a table entry below to view  the single-nucleotide variation in the recombinant and its parents');
+	    .text(
+		'Select a table entry below to view  the single-nucleotide variation in the recombinant and its parents');
 
 	// Add initial genomic track
 	track_svg.append('rect')
@@ -674,7 +675,9 @@ function add_track_label(
 				.delay(10)
 		    });
 	}
-	if (label_text == 'Acceptor') {
+	if (label_text == 'Acceptor' &&
+	    document.querySelector('#download_all_descendants')
+		    .style.visibility != 'hidden') {
 		// Add text instuctions above tracks
 		track_svg.append('text')
 		    .attr('x', label_x_offset + label_width)
@@ -682,7 +685,8 @@ function add_track_label(
 		    .text('Click below to view descendants')
 		    // TODO: Uniquely label text that will not be included in
 		    // SVG download, only for browser interactivity
-		    .attr('id', label_text)
+		    //.attr('id', label_text)
+		    .attr('id', 'click_desc_label')
 		    .attr('text-anchor', 'end')
 		    .attr('dominant-baseline', 'central')
 		    .attr('font-weight', 400)

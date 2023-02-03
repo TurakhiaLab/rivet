@@ -20,6 +20,10 @@ from matplotlib.collections import LineCollection
 import sys
 import seaborn as sns
 import matplotlib.patches as patches
+import gzip
+import csv
+import io
+import os
 
 
 def parse_config(config_file):
@@ -67,7 +71,7 @@ def check_column_format(row):
     return True
 
 
-def init_data(results_file):
+def init_data(results_file, env):
     """
     Grab first line of data from input results file to initialize visualization.
     """
@@ -81,14 +85,51 @@ def init_data(results_file):
         d["recomb_id"] = splitline[0]
         d["donor_id"] = splitline[1]
         d["acceptor_id"] = splitline[2]
+        if env.lower() == "local":
+            continue
         d["breakpoint1"] = splitline[3]
         d["breakpoint2"] = splitline[4]
         d["descendants"] = "NA"
         return d
 
-def load_descendants(desc_file):
+def load_descendants(desc_file, recomb_node_set):
     """
     """
+    tick = time.perf_counter()
+    # TODO: Load a more succinct lookup table for all descendants
+    # and for each recombinant node store an index into descendants table
+    if desc_file is None:
+        return None, None
+    BUF_SIZE = 1048576 # Read 1MB at a time
+    if desc_file.endswith(".gz"):
+        f = io.TextIOWrapper(io.BufferedReader(gzip.open(desc_file, 'rb'), buffer_size=BUF_SIZE))
+    else:
+        f = open(desc_file, 'r', buffering=BUF_SIZE)
+    d = {}
+    recomb_to_d = {}
+
+    # Skip over column headers (assuming one)
+    f.readline()
+    for line in f:
+        splitline = line.strip().split('\t')
+        node_id = splitline[0]
+        descendants_string = splitline[1]
+        descendants_list = descendants_string.split(', ')
+        d[node_id] = descendants_list
+        if node_id not in recomb_node_set:
+            continue
+        recomb_to_d[node_id] = descendants_list
+
+    f.close()
+    tock = time.perf_counter()
+    print(f"Time elapsed loading desc file: {tock-tick:.2f} seconds")
+    return d, recomb_to_d
+
+def load_recombinant_descendants(desc_file, recomb_node_set):
+    """
+    """
+    if desc_file == None:
+        return None
     with open(desc_file) as f:
       d = {}
       # Skip over column headers (assuming one)
@@ -96,10 +137,11 @@ def load_descendants(desc_file):
       for line in f:
         splitline = line.strip().split('\t')
         node_id = splitline[0]
+        if node_id not in recomb_node_set:
+            continue
         descendants_string = splitline[1]
         descendants_list = descendants_string.split(', ')
         d[node_id] = descendants_list
-      
     return d
 
 def tsv_to_json(results_tsvfile):
@@ -205,7 +247,8 @@ def load_intervals(recomb_results_file):
       next(f)
       for line in f:
         splitline = line.strip().split('\t')
-        if splitline[19]!="PASS":
+        #if splitline[19]!="PASS":
+        if splitline[len(splitline)-1]!="PASS":
             continue
         intervals.append(tuple( format_bp_interval(splitline[bp1_col_idx])))
         interval2=tuple(format_bp_interval(splitline[bp2_col_idx]))
@@ -351,6 +394,55 @@ def label_informative_sites(metadata):
         info_node_matches[key] = positions
     return info_node_matches
 
+def determine_informative(recomb_snp, donor_snp, acceptor_snp):
+    """
+    Return "D" if the recombinant matched only the donor
+    Return "A" if the recombinant matched only the acceptor
+    Return None if not an informative SNV position
+    """
+    if donor_snp == acceptor_snp:
+        return None
+    if recomb_snp == donor_snp:
+        return "D"
+    if recomb_snp == acceptor_snp:
+        return "A"
+
+def label_informative_sites_from_vcf(snp_dict, positions, table, ref_positions):
+    """
+    For each recombinant node, check VCF to see if position is recombinant-informative site
+    and label each position as either matching the "D" (Donor), or "A" (Acceptor)
+    """
+    info_node_matches = {}
+    row_ids = [cell[0] for cell in table]
+    recomb_ids = [cell[1] for cell in table]
+    donor_ids = [cell[2] for cell in table]
+    acceptor_ids = [cell[3] for cell in table]
+    for index in range(0,len(row_ids)):
+        _id = row_ids[index]
+        recomb_id = recomb_ids[index]
+        donor_id = donor_ids[index]
+        acceptor_id = acceptor_ids[index]
+        pos = {}
+        for p in positions:
+            if p in snp_dict[recomb_id]:
+                r_allele = snp_dict[recomb_id][p]
+            else:
+                r_allele = ref_positions[p]
+            if p in snp_dict[donor_id]:
+                d_allele = snp_dict[donor_id][p]
+            else:
+                d_allele = ref_positions[p]
+            if p in snp_dict[acceptor_id]:
+                a_allele = snp_dict[acceptor_id][p]
+            else:
+                a_allele = ref_positions[p]
+
+            char = determine_informative(r_allele, d_allele, a_allele)
+            if char:
+                pos[p] = char
+        info_node_matches[str(index)] = pos
+    return info_node_matches
+
 
 def build_table(results_dict, columns, config):
     """
@@ -385,6 +477,38 @@ def build_table(results_dict, columns, config):
 
     return table
 
+def load_local_table(results_file, config):
+    """
+    Create table for displaying results locally.
+    """
+    results_dict = {}
+    with open(results_file) as f:
+      # Extract column headers from input results tsv file
+      column_headers = f.readline().strip().split('\t')
+      lines = f.readlines()
+      for index, line in enumerate(lines):
+        # Assumes recomb_id, donor_id, acceptor_id are first 3 columns in results file
+        splitline = line.strip().split('\t')
+        results_dict[str(index)] = splitline 
+    table = []
+    row_num = 1 
+    for [key, value] in results_dict.items():
+        # Check that first 3 columns are node_ids
+        if(check_column_format(value)):
+            raise RuntimeError(colored("[ERROR]: First 3 columns must be: recomb_node_id\t donor_node_id\t acceptor_node_id.  Formatting error occurring at line: {}".format(row_num), 'red', attrs=['reverse']))
+            
+        row = [value[i] for i in range(0,len(column_headers))]
+        # Add unique row key as first element in each row
+        row.insert(0,key)
+        table.append(row)
+
+        # Iterate row for error message
+        row_num +=1
+    # Add first hidden column with row ids to datatable
+    column_headers.insert(0,"Row")
+    return table, column_headers
+
+
 def load_table(results_file, config):
     """
     Create table from dictionary. Return table and columns as separate lists.
@@ -395,7 +519,7 @@ def load_table(results_file, config):
 
     #Convert final recombination results file to dictionary indexed by row_id
     # Extract datatable column headers also
-    results_dict, columns, metadata = tsv_to_dict(results_file, 19)
+    results_dict, columns, metadata = tsv_to_dict(results_file, 20)
 
     # Add additional column for Taxodium tree view links
     # Last visible column in datatable by default
@@ -501,6 +625,7 @@ def vcf_to_dict(vcf_file):
   vcf_reader = VCF(vcf_file)
   samples = vcf_reader.samples
   positions = []
+  ref_positions = {} 
 
   # Create dictionary of all node_ids (recomb/donor/acceptor) (samples from VCF file).
   # Then the value at each node id, is an OrderedDict with the genotypes at each position, 
@@ -514,6 +639,7 @@ def vcf_to_dict(vcf_file):
       # Record reference allele at each genomic position
       nodes_ids["Reference"][str(record.POS)] = str(record.REF)
       positions.append(str(record.POS))
+      ref_positions[str(record.POS)] = str(record.REF)
 
       position = str(record.POS)
       alleles_indexes = np.nonzero(record.gt_types)
@@ -524,7 +650,7 @@ def vcf_to_dict(vcf_file):
           nodes_ids[sample_name][position] = genotype_array[i]
 
   # Return nested dictionary contaning all nodes and corresponding snps
-  return nodes_ids, positions
+  return nodes_ids, positions, ref_positions
 
 
 def get_positions(snp_data):
@@ -535,7 +661,7 @@ def get_positions(snp_data):
         pos.add(value[0])
     return pos
 
-def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only, row_id):
+def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only, row_id, env):
     """
     Pass in dictionary of snp data for all nodes.
     Lookup and format into smaller dictionary containing 
@@ -606,30 +732,31 @@ def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, des
 
     breakpoints = {}
     # TODO: Clean up
-    try:
-        breakpoint1 = breakpoint1[1:len(breakpoint1)-1]
-        interval1 = {}
-        intervals1 = breakpoint1.split(",")
-        interval1["xpos"] = intervals1[0]
-        interval1["end"] = intervals1[1]
-        breakpoints["breakpoint1"] = interval1
-    except IndexError:
-        pass
+    if env != "local":
+      try:
+          breakpoint1 = breakpoint1[1:len(breakpoint1)-1]
+          interval1 = {}
+          intervals1 = breakpoint1.split(",")
+          interval1["xpos"] = intervals1[0]
+          interval1["end"] = intervals1[1]
+          breakpoints["breakpoint1"] = interval1
+      except IndexError:
+          pass
 
-    try:
-        breakpoint2 = breakpoint2[1:len(breakpoint2)-1]
-        interval2 = {}
-        intervals2 = breakpoint2.split(",")
-        interval2["xpos"] = intervals2[0]
-        interval2["end"] = intervals2[1]
-        breakpoints["breakpoint2"] = interval2
-    except IndexError:
-        pass
+      try:
+          breakpoint2 = breakpoint2[1:len(breakpoint2)-1]
+          interval2 = {}
+          intervals2 = breakpoint2.split(",")
+          interval2["xpos"] = intervals2[0]
+          interval2["end"] = intervals2[1]
+          breakpoints["breakpoint2"] = interval2
+      except IndexError:
+          pass
 
-    # Now add breakpoints to the rest of the data
-    data["BREAKPOINTS"] = breakpoints
+      # Now add breakpoints to the rest of the data
+      data["BREAKPOINTS"] = breakpoints
+      data["DESCENDANTS"] = descendants
     data["NODE_IDS"] = node_ids
-    data["DESCENDANTS"] = descendants
 
     # Add recombinant-informative metadata to track data
     data["INFO_SITES"] = info_sites[row_id]
@@ -661,20 +788,3 @@ def search_by_sample(substr, recomb_desc_dict):
             filtered_results[key] = value
             recomb_nodes.add(key)
     return list(recomb_nodes)
-
-def load_recombinant_descendants(desc_file, recomb_node_set):
-    """
-    """
-    with open(desc_file) as f:
-      d = {}
-      # Skip over column headers (assuming one)
-      next(f)
-      for line in f:
-        splitline = line.strip().split('\t')
-        node_id = splitline[0]
-        if node_id not in recomb_node_set:
-            continue
-        descendants_string = splitline[1]
-        descendants_list = descendants_string.split(', ')
-        d[node_id] = descendants_list
-    return d

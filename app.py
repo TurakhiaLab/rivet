@@ -28,6 +28,11 @@ def getting_started():
 def upload():
     return render_template('upload.html')
 
+@app.route("/init", methods=['POST'])
+def init():
+    env = app.config.get('environment')
+    return jsonify({"env": env})
+
 @app.route("/search_by_sample_id", methods=['POST'])
 def search_by_sample_id():
     # Get input search query from user
@@ -42,7 +47,8 @@ def search_by_sample_id():
 def get_descendants():
     init_data = app.config.get('init_data')
     desc_d = app.config.get('desc_data')
-
+    if desc_d is None:
+        return jsonify(None)
     content = request.get_json()
     if content is not None:
         node_id = content["node"]
@@ -112,14 +118,17 @@ def get_breakpoint_data():
 @app.route('/get_data', methods=['GET', 'POST'])
 def get_data():
   content = request.get_json()
+  env = app.config.get('environment').lower()
+  breakpoint1, breakpoint2, descendants = None, None, None
   if content is not None:
       row_id = content["row_id"]
       recomb_id = content["recomb_id"]
       donor_id = content["donor_id"]
       acceptor_id = content["acceptor_id"]
-      breakpoint1 = content["breakpoint1"]
-      breakpoint2 = content["breakpoint2"]
-      descendants = content["descendant"]
+      if env.lower() != "local":
+          breakpoint1 = content["breakpoint1"]
+          breakpoint2 = content["breakpoint2"]
+          descendants = content["descendant"]
   else:
       # Fetch init data on startup, to initialize visualization
       # before user selected input
@@ -128,9 +137,10 @@ def get_data():
       recomb_id = init_data["recomb_id"]
       donor_id = init_data["donor_id"]
       acceptor_id = init_data["acceptor_id"]
-      breakpoint1 = init_data["breakpoint1"]
-      breakpoint2 = init_data["breakpoint2"]
-      descendants = init_data["descendants"]
+      if env != "local":
+          breakpoint1 = init_data["breakpoint1"]
+          breakpoint2 = init_data["breakpoint2"]
+          descendants = init_data["descendants"]
 
   recomb_informative_only = False
   d = app.config.get('snp_data')
@@ -139,7 +149,7 @@ def get_data():
   color_schema = app.config.get('color_schema')
 
   track_data =  OrderedDict()
-  track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only, row_id)
+  track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only, row_id, env)
   print("TRIO DATA SELECTED: ", track_data)
   return jsonify(track_data)
 
@@ -151,16 +161,24 @@ def table():
   if table == None:
       table = app.config.get('table')
   columns = app.config.get('columns')
+  env = app.config.get('environment')
+  print("ENV: ", env)
+  template = 'index.html'
+  if env.lower() == "local":
+      template = 'local.html'
+  print(template)
+  print(table)
+  print(columns)
   results["columns"] = columns
   results["data"] = table
-  return render_template('index.html', headings=columns, data=table)
+  return render_template(template, headings=columns, data=table)
 
 
 if __name__ == "__main__":
   parser = ArgumentParser()
   parser.add_argument("-v", "--vcf", required=True, type=str, help="Give input VCF containing snps of all recombinant/donor/acceptor trio nodes.")
   parser.add_argument("-r", "--recombinant_results", required=True, type=str, help="Give input recombination results file")
-  parser.add_argument("-d", "--descendants_file", required=True, type=str, help="File continaing descendants (up to 10k) for each node in VCF")
+  parser.add_argument("-d", "--descendants_file", required=False, type=str, help="File continaing descendants (up to 10k) for each node in VCF")
   parser.add_argument("-c", "--config", required=True, type=str, help="Configuration file for defining custom color schema for visualizations.")
   args = parser.parse_args()
 
@@ -178,30 +196,33 @@ if __name__ == "__main__":
    
   # Load recombination results file and get initial data
   recomb_results = args.recombinant_results
-  init_data = backend.init_data(recomb_results)
+  init_data = backend.init_data(recomb_results, config["environment"])
   app.config['init_data'] = init_data
   app.config['input_recombination_results'] = recomb_results
-  backend.make_plot(recomb_results,"static/midpoint_plot.png")
 
   # Load VCF file
   tick = time.perf_counter()
   vcf_file = args.vcf
-  snp_dict, positions = backend.vcf_to_dict(vcf_file)
+  snp_dict, positions, ref_positions = backend.vcf_to_dict(vcf_file)
   app.config['snp_data'] = snp_dict
   app.config['positions'] = positions
 
+  # Load table 
+  if config["environment"].lower() == "local":
+      table, columns = backend.load_local_table(recomb_results, config) 
+      info_sites = backend.label_informative_sites_from_vcf(snp_dict, positions, table, ref_positions)
+  else:
+      table, columns, metadata = backend.load_table(recomb_results, config)
+      # Preprocess informative site information for snp plot
+      info_sites = backend.label_informative_sites(metadata)
+      backend.make_plot(recomb_results,"static/midpoint_plot.png")
+
   # Load descendants file
   desc_file = args.descendants_file
-  desc_dict = backend.load_descendants(desc_file)
-  app.config['desc_data'] = desc_dict
-  app.config['desc_file'] = desc_file
-
-  # Load table 
-  table, columns, metadata = backend.load_table(recomb_results, config)
-  # Preprocess informative site information for snp plot
-  info_sites = backend.label_informative_sites(metadata)
   recomb_node_set = set([cell[1] for cell in table])
-  recomb_desc_dict = backend.load_recombinant_descendants(desc_file, recomb_node_set)
+  if desc_file is not None:
+      print("Loading provided descendants file: ", desc_file)
+  desc_dict, recomb_desc_dict = backend.load_descendants(desc_file, recomb_node_set)
 
   app.config['color_schema'] = color_schema
   app.config['info_sites'] = info_sites
@@ -210,6 +231,9 @@ if __name__ == "__main__":
   cache.set("table", table)
   app.config['date'] = str(config["date"])
   app.config['recomb_desc'] = recomb_desc_dict
+  app.config['desc_data'] = desc_dict
+  app.config['desc_file'] = desc_file
+  app.config['environment'] = config["environment"]
 
   tock = time.perf_counter()
   print(f"Time elapsed: {tock-tick:.2f} seconds")

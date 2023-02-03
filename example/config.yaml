@@ -1,0 +1,27 @@
+# Configuration file for RIVET
+### Color Schema Options ####
+# Base coloring 
+a: '#cc0000'
+g: '#003366'
+c: '#57026f'
+t: '#338333'
+base_matching_reference: '#dadada'
+reference_track: '#333333'
+
+# Recombinant-Informative Coloring for polygons/position column labels
+recomb_match_acceptor: '#2879C0'
+recomb_match_donor: '#F9521E'
+non_informative_site: '#dadada'
+
+# Breakpoint Intervals
+breakpoint_intervals: '#800000'
+
+# Genomic Coordinate Track (default all genomic regions are same color)
+genomic_regions: '#33333'
+
+### Taxonium Tree View Options ###
+date: 2022-12-31
+bucket_name: public_trees
+
+### Server settings ###
+environment: local

@@ -13,6 +13,22 @@ function format_txt(data) {
 	return [obj];
 }
 
+function init_env(buttons) {
+	fetch('/init', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({init: 'init'})
+	}).then(res => {
+		res.json().then(data => {
+			if (data['env'].toLowerCase() == 'local') {
+				buttons.forEach((item) => {
+					item.setAttribute('hidden', true);
+				});
+			}
+		});
+	});
+}
+
 function serialize_object(file_name, obj) {
 	// Create download file
 	const file = new File(obj, file_name);
@@ -92,6 +108,11 @@ function display_descendants(label_node_id) {
 		body: JSON.stringify({node: label_node_id})
 	}).then(res => {
 		res.json().then(data => {
+			// Remove query descendants functionality for local
+			// server
+			if (!data) {
+				return;
+			}
 			// First remove previously fetched list
 			// of descendants
 			d3.select('#desc').remove();
