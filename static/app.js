@@ -25,9 +25,10 @@ function main() {
 	const desc_button = document.querySelector('#download_all_descendants');
 	const table_button = document.querySelector('#download_table');
 	const tree_button = document.querySelector('#download_tree');
+	const taxonium_button = document.querySelector('#download_taxonium');
 	const search = document.querySelector('#search');
 
-  var buttons = [desc_button, tree_button, search];
+  var buttons = [desc_button, tree_button, taxonium_button, search];
   // Determine and setup production or local RIVET
   init_env(buttons);
 
@@ -45,6 +46,11 @@ function main() {
 	if (tree_button.style.visibility != 'hidden') {
 		tree_button.addEventListener('click', () => {
 			download_tree();
+		}, false);
+	}
+	if (taxonium_button.style.visibility != 'hidden') {
+		taxonium_button.addEventListener('click', () => {
+			download_taxonium();
 		}, false);
 	}
 	// TODO: Add visualization svg download button

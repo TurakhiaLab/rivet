@@ -20,8 +20,8 @@ breakpoint_intervals: '#800000'
 genomic_regions: '#33333'
 
 ### Taxonium Tree View Options ###
-date: 2022-12-31
+date: 2023-01-31
 bucket_name: public_trees
 
 ### Server settings ###
-environment: production
+environment: local

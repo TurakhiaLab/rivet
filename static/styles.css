@@ -128,10 +128,6 @@ header { padding-bottom: 20px; }
 				text-align:center;
 }
 
-body { 
-				padding-top: 20px;
-				padding-right: 200px; 
-}
 
 .upload_title {
 				padding-top: 100px;
@@ -182,11 +178,12 @@ body {
 #content div {
 				padding: 50px;
 }
-
+/*
 div.container {
 				display: grid;
 				grid-template-columns: 70% 30%;
 }
+*/
 
 div.container.space {
 				background: #eee;

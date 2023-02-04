@@ -68,6 +68,11 @@ def download_mat():
     date = app.config.get('date')
     return jsonify({"date": date})
 
+@app.route("/download_taxonium", methods=["POST", "GET"])
+def download_taxonium():
+    date = app.config.get('date')
+    return jsonify({"date": date})
+
 @app.route("/download_table", methods=["POST", "GET"])
 def download_table():
     results_file = app.config.get('input_recombination_results')

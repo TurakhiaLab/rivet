@@ -153,6 +153,21 @@ function display_descendants(label_node_id) {
 		});
 	});
 }
+function download_taxonium() {
+	fetch('/download_taxonium', {
+		method: 'POST',
+	}).then(res => {
+		res.json().then(data => {
+			// Format: year-month-date
+			var date = data['date'];
+			//  NOTE: storage bucket public_trees is hardcoded
+			var url =
+			    'https://storage.googleapis.com/public_trees/' +
+			    date + '.taxonium.jsonl.gz'
+			window.location.href = url;
+		});
+	});
+}
 
 function download_tree() {
 	fetch('/download_mat', {
