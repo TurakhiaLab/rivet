@@ -35,17 +35,15 @@ RIVET can also be run locally to visualize SNVs of potential recombinant sequenc
 
 - `results.txt`: a tab-separated file with one recombinant sequence per row, that must contain your recombinant node id, donor node id and acceptor node id as the first three column entires, as seen below.  Additional columns after the first three can be added to this results file, which will be rendered in the UI table.<br>
 
-| Recombinant Node ID       | Donor Node ID | Acceptor Node ID |
-| ------------------------- | -----------   | ---------------- |
-| node_1156861              | node_1155169  | node_1167556     |
-| node_1067629              | node_1021823  | node_1156861     |
+    | Recombinant Node ID       | Donor Node ID | Acceptor Node ID |
+    | ------------------------- | -----------   | ---------------- |
+    | node_1156861              | node_1155169  | node_1167556     |
+    | node_1067629              | node_1021823  | node_1156861     |
 <br>
 
-- `VCF` file containing SNVs for all trio nodes. Each node (recomb/donor/acceptor) in the first three columns of every row in your results tsv file, should be included in this VCF file. Please note, when constructing your `VCF` file, that currently RIVET only supports viewing SNVs, and not indels or SVs.
+- `VCF` file containing SNVs for all trio nodes. Each node (recomb/donor/acceptor) in the first three columns of every row in your results tsv file, should be included in this VCF file. Please note, when constructing your `VCF` file, that currently RIVET only supports viewing SNVs, and not indels or SVs. Please see the following workflow to [create a VCF](docs/create_vcf.md) for uploading to RIVET locally.
 
-Please see the following workflow for creating a `VCF` file to upload to RIVET locally.
-TODO: Add docs with short VCF generation workflow
-
+<br>
 
 - `config.yaml`: A config file is provided for running RIVET locally. **The default `environment` field is set to `local` and should not be changed for running RIVET as a local HTTP server.** . Additional fields in the config file are provided to the user to customize various elements of the SNV plot coloring, such as the color of nucleotide bases or the color of the highlighted recombinant-informative sites in the visual. Please feel free to change these colorings according to your own preference. 
 
@@ -94,7 +92,8 @@ Copy the config template into the current directory to customize for your curren
 cp template/ripples.yaml .
 ```
 Add all RIVET runtime parameters and GCP machine configurations to your ripples.yaml file.
-```
+
+```yaml
 # GCP credentials
 bucket_id: 
 project_id: 
