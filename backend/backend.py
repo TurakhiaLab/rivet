@@ -21,6 +21,7 @@ import sys
 import seaborn as sns
 import matplotlib.patches as patches
 import gzip
+import lzma
 import csv
 import io
 import os
@@ -101,7 +102,9 @@ def load_descendants(desc_file, recomb_node_set):
     if desc_file is None:
         return None, None
     BUF_SIZE = 1048576 # Read 1MB at a time
-    if desc_file.endswith(".gz"):
+    if desc_file.endswith(".xz"):
+        f = io.TextIOWrapper(io.BufferedReader(lzma.open(desc_file, 'rb'), buffer_size=BUF_SIZE))
+    elif desc_file.endswith(".gz"):
         f = io.TextIOWrapper(io.BufferedReader(gzip.open(desc_file, 'rb'), buffer_size=BUF_SIZE))
     else:
         f = open(desc_file, 'r', buffering=BUF_SIZE)
