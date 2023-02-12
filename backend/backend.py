@@ -181,7 +181,10 @@ def tsv_to_dict(results_tsvfile, metadata_start_col = None):
     with open(results_tsvfile) as f:
       # Extract column headers from input results tsv file, removing extra metadata columns
       column_headers = f.readline().strip().split('\t')[:metadata_start_col - 1]
-      column_headers.append("Filter")
+      column_headers.append("Quality Control (QC) Flags")
+      #for i,name in enumerate(column_headers):
+      #  if(name=="Filter"):
+      #      column_headers[i]="Quality Control (QC) Flags"
       lines = f.readlines()
       for index, line in enumerate(lines):
         splitline = line.strip().split('\t')
@@ -488,6 +491,9 @@ def load_local_table(results_file, config):
     with open(results_file) as f:
       # Extract column headers from input results tsv file
       column_headers = f.readline().strip().split('\t')
+      for i,name in enumerate(column_headers):
+        if(name=="Filter"):
+            column_headers[i]="Quality Control (QC) Flags"
       lines = f.readlines()
       for index, line in enumerate(lines):
         # Assumes recomb_id, donor_id, acceptor_id are first 3 columns in results file
