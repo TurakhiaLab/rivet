@@ -86,6 +86,18 @@
                     <li>Recombinant was filtered out due to putative quality issues or low confidence</li>
                 </ul>
                 <p>We currently update the results on this website <u>monthly</u>, but we are planning to increase this frequency. </p>
+                <br><br>
+                <h2 id="">Description of Quality Control (QC) flags</h2>
+                <ul>
+                    <li><b>3SeqP02:</b> P-value from 3-seq > 0.2. </li>
+                    <li><b>russPval005:</b> FDR of the parsimony improvement > 0.05. (See text S3 of <a href="https://www.nature.com/articles/s41586-022-05189-9#MOESM1">RIPPLES</a> for details of the null model.)   </li>
+                    <li><b>Alt:</b> Other recombination trios with the same recombination node have more parsimony improvement, fewer possible breakpoint intervals, or better P-values. </li>
+                    <li><b>cluster:</b> All recombination informative mutations occur within a span of 20 nucleotides.</li>
+                    <li><b>redundant:</b> More than two of the recombination node, donor node, and acceptor node appear in that of another trios.</li>
+                    <li><b>Informative_sites_clump:</b> More than 5 recombination-informative mutations in a 20-nucleotide span.</li>
+                    <li><b>Suspicious_mutation_clump:</b> More than 6 mutations (or 3 near indels) in a 20-nucleotide span on any of the donor node, the aceptor node or the recombination node. </li>
+                    <li><b>Too_many_mutations_near_INDELs:</b> Too many mutations on 100-nt spans near indels or a string of Ns.</li>
+                </ul>
 
                 <br><br>
                 <h2 id="acknowledgments">Acknowledgments</h2>
