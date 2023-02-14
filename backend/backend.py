@@ -284,7 +284,6 @@ def place_intervals(intervals):
 def make_plot(recomb_results_file, plot_file):
     dpi=96
     intervals=load_intervals(recomb_results_file)
-    #print(intervals)
     (max_height,segments_to_plot)=place_intervals(intervals)
     fig,[ax,region_plot_ax] = plt.subplots(2,1,sharex=True,gridspec_kw={'height_ratios': [20, 1],'hspace': 0.08},figsize=(1500/dpi,1000/dpi))
     ax.set_xlim(0,30000)
@@ -311,8 +310,8 @@ def make_plot(recomb_results_file, plot_file):
         rect=patches.Rectangle((region[1]["xpos"],0),region[1]["end"]-region[1]["xpos"],1,color=region[1]["color"])
         region_plot_ax.add_patch(rect)
         region_plot_ax.text(calculate_midpoint(region[1]["xpos"],region[1]["end"])-200,0.2,region[0],size='large')
-
     plt.savefig(plot_file)
+    plt.savefig(plot_file, format='svg', dpi=1200)
 
 def find_recomb_midpoints(recomb_results_file):
     midpoints=[]
@@ -371,6 +370,8 @@ def generate_taxonium_link(recomb_id, donor_id, acceptor_id, HOST):
     link += '"}]'
     # Enable mulitple search parameters
     link += '&enabled={"aa1":true, "bb2":true, "cc3":true}'
+    # Enable mutation types to show in tree
+    link += '&mutationTypesEnabled={"aa":true, "nt":true}'
     # Enable treenome by default
     link += '&treenomeEnabled=true'
     return link

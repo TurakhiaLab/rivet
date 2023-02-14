@@ -220,7 +220,7 @@ if __name__ == "__main__":
       table, columns, metadata = backend.load_table(recomb_results, config)
       # Preprocess informative site information for snp plot
       info_sites = backend.label_informative_sites(metadata)
-      backend.make_plot(recomb_results,"static/midpoint_plot.png")
+      backend.make_plot(recomb_results,"static/midpoint_plot.svg")
 
   # Load descendants file
   desc_file = args.descendants_file
