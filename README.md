@@ -56,11 +56,11 @@ conda activate rivet
 Example data files are provided under the `example` directory.
 Run the following command and past the URL to your local web-browser to see the RIVET UI locally.
 ```
-python3 app.py -v example/trios_example.vcf -r example/final_recombinants_example.txt -c config.yaml
+python3 rivet-frontend.py -v example/trios_example.vcf -r example/final_recombinants_example.txt -c config.yaml
 ```
 Type the following help command to see these the options and their descriptions:
 ```
-python3 app.py --help
+python3 rivet-frontend.py --help
 ```
 
 
