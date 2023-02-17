@@ -26,9 +26,6 @@ We routinely run RIVET's backend pipeline on the [SARS-CoV-2 global MAT](https:/
 
 ## <a name="rivet_frontend"></a> RIVET Frontend
 
-- TODO:  Add results table documentation link, providing more information about each column in the RIVET results datatable.
-
-
 ### <a name="rivet_local"></a>Viewing your own recombinants with RIVET on a local HTTP server
 
 RIVET can also be run locally to visualize SNVs of potential recombinant sequences, with the recombinant-informative sites highlighted.  The following two files are minimally required to run RIVET locally: <br>
