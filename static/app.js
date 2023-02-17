@@ -21,9 +21,9 @@ function main() {
 
 	// SNV plot svg download and copy buttons setup
 	var copy_snv_button =
-	    create_button('copy_svg', 'Copy SNV Plot', 1200, 375);
+	    create_button('copy_svg', 'Copy SNV Plot', 1200, 275);
 	var download_snv_button =
-	    create_button('download_svg', 'Download SVG', 1340, 375);
+	    create_button('download_svg', 'Download SVG', 1340, 275);
 	var download_svg = document.querySelector('#download_svg');
 	var copy_svg = document.querySelector('#copy_svg');
 	document.getElementById('download_svg').style.visibility = 'hidden';

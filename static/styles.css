@@ -239,7 +239,6 @@ div#descendants {
 }
 
 .grid-container {
-		padding-top: 100px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-gap: 20px;
