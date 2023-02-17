@@ -881,37 +881,39 @@ function add_bases_to_track(
 			    .attr('y', y_pos)
 			    .attr('height', square_dims)
 			    .attr('width', square_dims)
-			    .attr('fill', color)
-			    .on('mouseover',
-				function(d) {
-					d3.selectAll('.bases')
-					    .style('opacity', '0.2')
-					    .filter(function() {
-						    return !this.classList
-								.contains(
-								    'active')
-					    })
-					d3.select(this)
-					    .style('stroke', '#4169E1')
-					    .attr('stroke-width', '2')
-					    .style('opacity', '1')
-				})
-			    .on('mousemove',
-				function(d) {
-					// TODO
-				})
-			    .on('mouseleave',
-				function(d) {
-					Tooltip.style('opacity', 0)
-					d3.select(this).style('stroke', 'none')
-					d3.selectAll('.bases').style(
-					    'opacity', '1')
-				})
-			    .on('click', function(d, i) {
-				    // TODO
-				    console.log(d);
-				    console.log(i);
-			    });
+			    .attr('fill', color);
+			/* TODO: Add interactivity to each SNV position
+					    .on('mouseover',
+						function(d) {
+							d3.selectAll('.bases')
+							    .style('opacity',
+			   '0.2') .filter(function() { return !this.classList
+										.contains(
+										    'active')
+							    })
+							d3.select(this)
+							    .style('stroke',
+			   '#4169E1') .attr('stroke-width', '2')
+							    .style('opacity',
+			   '1')
+						})
+					    .on('mousemove',
+						function(d) {
+							// TODO
+						})
+					    .on('mouseleave',
+						function(d) {
+							Tooltip.style('opacity',
+			   0) d3.select(this).style('stroke', 'none')
+							d3.selectAll('.bases').style(
+							    'opacity', '1')
+						})
+					    .on('click', function(d, i) {
+						    // TODO
+						    console.log(d);
+						    console.log(i);
+					    });
+							*/
 
 			// Add base text inside the square
 			svg.append('text')
@@ -1380,6 +1382,7 @@ function add_trio_track(
 		    }
 		    return color;
 	    });
+	track_svg.selectAll('.topAxis path').style('stroke', '#FFFFFF');
 	/* TODO: Mouseover/click to column position labels
 		.on('mouseover',
 		    function(d) {

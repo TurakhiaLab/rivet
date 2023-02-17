@@ -80,6 +80,20 @@ function graph() {
 		    .text(
 			'Single-nucleotide variation in the recombinant and its parents');
 
+		document.getElementById('download_svg').style.visibility =
+		    'visible';
+		// document.getElementById('copy_svg').style.visibility =
+		//'visible';
+
+		if (download_svg) {
+			download_svg.addEventListener('click', () => {
+				var inner =
+				    document.getElementById('inner_SVG');
+				download_snv_plot(
+				    inner, d['NODE_IDS']['Recomb']);
+			}, {once: true});
+		}
+
 		var coordinate_track_list = add_coordinate_track(
 		    container, y_position, d, square_dims, container_width);
 

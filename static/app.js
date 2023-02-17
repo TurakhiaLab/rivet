@@ -19,6 +19,16 @@ function main() {
 	// Initialize a starting coordinate track
 	init_coordinate_track(svg.append('svg'), init_track_width);
 
+	// SNV plot svg download and copy buttons setup
+	var copy_snv_button =
+	    create_button('copy_svg', 'Copy SNV Plot', 1200, 375);
+	var download_snv_button =
+	    create_button('download_svg', 'Download SVG', 1340, 375);
+	var download_svg = document.querySelector('#download_svg');
+	var copy_svg = document.querySelector('#copy_svg');
+	document.getElementById('download_svg').style.visibility = 'hidden';
+	document.getElementById('copy_svg').style.visibility = 'hidden';
+
 	track = graph().svg(svg).div(selection);
 
 	// Download buttons
@@ -28,9 +38,9 @@ function main() {
 	const taxonium_button = document.querySelector('#download_taxonium');
 	const search = document.querySelector('#search');
 
-  var buttons = [desc_button, tree_button, taxonium_button, search];
-  // Determine and setup production or local RIVET
-  init_env(buttons);
+	var buttons = [desc_button, tree_button, taxonium_button, search];
+	// Determine and setup production or local RIVET
+	init_env(buttons);
 
 	if (desc_button.style.visibility != 'hidden') {
 		desc_button.addEventListener('click', () => {
@@ -53,5 +63,4 @@ function main() {
 			download_taxonium();
 		}, false);
 	}
-	// TODO: Add visualization svg download button
 }

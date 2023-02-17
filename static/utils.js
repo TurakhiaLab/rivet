@@ -29,6 +29,52 @@ function init_env(buttons) {
 	});
 }
 
+function create_button(id, name, pos_left, pos_top, hidden = false) {
+	let button = document.createElement('button');
+	button.innerHTML = name;
+	button.setAttribute('id', id);
+	button.type = 'button';
+	button.name = 'formBtn';
+	button.className = 'btn btn-outline-primary'
+	button.style.position = 'absolute';
+	button.style.left = pos_left;
+	button.style.top = pos_top;
+	document.body.appendChild(button);
+	return button;
+}
+
+function download_snv_plot(inner_svg, node_name) {
+	if (inner_svg) {
+		var copied_svg = inner_svg.cloneNode(true);
+		document.body.appendChild(copied_svg);
+		const g = copied_svg.querySelector('g')
+		// Adjust for genomic
+		// coordinate track axis offset
+		g.setAttribute('transform', 'translate(0,600)')
+		// Add extra space on end for rotated
+		// column position labels
+		copied_svg.setAttribute(
+		    'width', copied_svg.getBBox().width + 20)
+		copied_svg.setAttribute(
+		    'height', copied_svg.getBBox().height + 200)
+		var svgAsXML =
+		    (new XMLSerializer).serializeToString(copied_svg);
+		var svgData =
+		    `data:image/svg+xml,${encodeURIComponent(svgAsXML)}`
+		var link = document.createElement('a');
+		document.body.appendChild(link);
+		link.setAttribute('href', svgData);
+		link.setAttribute('download', node_name + '_trio.svg');
+		link.click();
+		document.body.removeChild(copied_svg);
+		URL.revokeObjectURL(link.href);
+		document.body.removeChild(link);
+		link.remove();
+	}
+}
+
+
+
 function serialize_object(file_name, obj) {
 	// Create download file
 	const file = new File(obj, file_name);
@@ -177,7 +223,7 @@ function download_tree() {
 			// Format: year-month-date
 			var date = data['date'];
 			// Format: "public-year-month-date.all.masked.pb.gz"
-			var mat = 'public-' + date + '.all.masked.pb.gz';
+			var mat = 'public-' + date + '.all.masked.nextclade.pangolin.pb.gz'
 			date = date.split('-').join('/');
 			date = date + '/' + mat;
 			//  Format:
