@@ -134,8 +134,8 @@ num_descendants: 5
 - `mat`: Obtain a [SARS-CoV-2 global MAT](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/)
 - `metadata`: Obtain [metadata](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/) matching the input MAT
 - `raw sequence files:` Downloadable at the following links, for a given `$TREE_DATE`:
-    - `https://hgwdev.gi.ucsc.edu/~angie/sarscov2phylo/ncbi.$TREE_DATE/cog_all.fasta.xz`
-    - `https://hgwdev.gi.ucsc.edu/~angie/sarscov2phylo/cogUk.$TREE_DATE/genbank.fa.xz`
+    - `https://hgwdev.gi.ucsc.edu/~angie/sarscov2phylo/ncbi.$TREE_DATE/genbank.fa.xz`
+    - `https://hgwdev.gi.ucsc.edu/~angie/sarscov2phylo/cogUk.$TREE_DATE/cog_all.fasta.xz`
 
 <br>
 
