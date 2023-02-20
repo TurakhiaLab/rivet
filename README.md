@@ -79,7 +79,7 @@ To launch a Docker shell, run the following two commands.
 - Note: Put your GCP service account key file (obtained following the docs linked above) in the corresponding location as the command below or update the location in the command below:
 ```
 KEY=~/.config/gcloud/<key_file.json>
-docker run -it -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/<key_file.json> -v ${KEY}:/tmp/keys/<key_file.json>:ro mrkylesmith/ripples_pipeline_dev:latest
+docker run -it -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/<key_file.json> -v ${KEY}:/tmp/keys/<key_file.json>:ro mrkylesmith/ripples_pipeline:latest
 ```
 
 This will drop you into Docker shell where you can launch a RIVET job on GCP.<br>
