@@ -175,12 +175,11 @@ function graph() {
 
 
 		if (download_svg) {
-			download_svg.addEventListener('click', () => {
-				var inner =
-				    document.getElementById('inner_SVG');
+			var inner = document.getElementById('inner_SVG');
+			download_svg.onclick = function() {
 				download_snv_plot(
 				    inner, d['NODE_IDS']['Recomb']);
-			}, {once: true});
+			};
 		}
 
 		var coordinate_track_list = add_coordinate_track(
