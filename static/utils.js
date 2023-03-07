@@ -13,6 +13,30 @@ function format_txt(data) {
 	return [obj];
 }
 
+function append_text(div, text) {
+	var tag = document.createElement('p');
+	tag.setAttribute('id', 'overview_text');
+	tag.appendChild(document.createTextNode(text));
+	div.appendChild(tag);
+}
+
+function append_list(div, list) {
+	var tag = document.createElement('ul');
+	tag.setAttribute('id', 'overview_text');
+	list.forEach((element) => {
+		var li = document.createElement('li');
+		li.setAttribute('class', 'item');
+		tag.appendChild(li);
+		li.innerHTML = li.innerHTML + element;
+	});
+	div.appendChild(tag);
+
+	// Add linebreak after last element for Taxonium button
+	linebreak = document.createElement('br');
+	linebreak.style.lineHeight = '3';
+	div.appendChild(linebreak);
+}
+
 function init_env(buttons) {
 	fetch('/init', {
 		method: 'POST',
@@ -223,7 +247,8 @@ function download_tree() {
 			// Format: year-month-date
 			var date = data['date'];
 			// Format: "public-year-month-date.all.masked.pb.gz"
-			var mat = 'public-' + date + '.all.masked.nextclade.pangolin.pb.gz'
+			var mat = 'public-' + date +
+			    '.all.masked.nextclade.pangolin.pb.gz'
 			date = date.split('-').join('/');
 			date = date + '/' + mat;
 			//  Format:

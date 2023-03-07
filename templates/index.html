@@ -70,11 +70,12 @@
 <script src="static/utils.js"></script>
 <link rel="stylesheet" href="static/styles.css"/>
 
-  <div class="grid-container">
-    <div class="grid-child vis" id="visualization">
-        <div class="viz" id="tracks" style="overflow-x:auto"></div>
+   <div class="parent" id="parent" style="width: 100%;">
+    <div class="child" id="visualization" style="width: 80%;">
+        <div class="viz" id="tracks"></div>
     </div>
-  </div>
+    <div class="child" style="width: 20%; float: right;" id="summary" hidden></div>
+   </div>
 
 <div class="offcanvas offcanvas-start" style="width: 1000px" id="off_canvas_left" data-bs-keyboard="true" data-bs-scroll="false" data-bs-backdrop="true" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
   <div class="offcanvas-header">

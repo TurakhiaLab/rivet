@@ -71,6 +71,11 @@ def check_column_format(row):
           return False
     return True
 
+def fetch_row_data(table, row_id):
+    """
+    Fetch data from table for a given row id
+    """
+    return [row[row_id] for row in table]
 
 def init_data(results_file, env):
     """
@@ -773,6 +778,7 @@ def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, des
 
     # Add color_schema from input config file to track data
     data["COLOR"] = color_schema
+    data["ID"] = row_id
     
     return data
 

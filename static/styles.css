@@ -8,7 +8,36 @@ button:focus{
 div#tracks {
    max-width: 1910px;
    overflow-x: auto;
-  }
+}
+
+.parent {
+  padding: 1rem 1rem;
+}
+.child {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 1rem 1rem;
+  word-wrap: break-word;
+  top: 10rem;
+}
+div#summary {
+  background-color: #dadada;
+  position: relative;
+}
+
+#overview_text {
+  padding-bottom: 10px;
+}
+
+#view_tree {
+  position:absolute;
+  bottom: 15;
+  left: 10;
+}
+
+#overview_header {
+  padding-bottom: 20px;
+}
 
 div#off_canvas_right_body {
 				background-color: #a9a9a9;

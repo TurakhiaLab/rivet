@@ -33,6 +33,32 @@ def init():
     env = app.config.get('environment')
     return jsonify({"env": env})
 
+@app.route("/get_tree_view", methods=['POST'])
+def get_tree_view():
+    content = request.get_json()
+    date = app.config.get('date')
+    HOST = backend.get_treeview_host(date)
+    url = backend.generate_taxonium_link(content["Recomb"], content["Donor"], content["Acceptor"], HOST)
+    return jsonify({"url": url})
+
+@app.route("/get_overview", methods=['POST'])
+def get_overview():
+    content = request.get_json()
+    table = app.config.get('table')
+    row_id = int(content["id"])
+    # NOTE: Column values hardcoded
+    recomb_lineage = table[row_id][7]
+    recomb_date = table[row_id][16]
+    donor_lineage = table[row_id][9]
+    acceptor_lineage = table[row_id][11]
+    qc_flags = table[row_id][20]
+    d = {"recomb_lineage": recomb_lineage,
+         "recomb_date": recomb_date,
+         "donor_lineage": donor_lineage,
+         "acceptor_lineage": acceptor_lineage,
+         "qc_flags": util.css_to_list(qc_flags)}
+    return jsonify({"overview": d})
+
 @app.route("/search_by_sample_id", methods=['POST'])
 def search_by_sample_id():
     # Get input search query from user

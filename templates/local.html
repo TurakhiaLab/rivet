@@ -115,6 +115,13 @@
                                }
                           },
                           */
+                          columnDefs: [
+                          // Hide row id column from results table
+                          {
+                               target: 0,
+                               visible: false,
+                               searchable: false,
+                           }],
                           "initComplete": function(settings, json) {
                                 let tableSelect = document.getElementById("table_container");
                                 tableSelect.removeAttribute("hidden");

@@ -13,6 +13,15 @@ def check_file_exists(file_path):
         print(colored("ERROR: {} file not found in current directory.".format(file_path), 'red', attrs=['reverse']))
         exit(1);
 
+def css_to_list(css_string):
+    """
+    Convert a comma separated string to a list
+    """
+    lst = css_string.split(',')
+    if (css_string[-1] == ","):
+        del lst[-1]
+    return lst
+
 def generate_key():
     """
     """
