@@ -147,7 +147,7 @@ function graph() {
 		overview_tree_button.setAttribute(
 		    'class', 'btn btn-outline-primary');
 		overview_tree_button.setAttribute('id', 'view_tree');
-		const tree_btn_text = document.createTextNode('View Taxonium');
+		const tree_btn_text = document.createTextNode('View Taxonium Tree');
 		overview_tree_button.appendChild(tree_btn_text);
 		overview.appendChild(overview_tree_button);
 
