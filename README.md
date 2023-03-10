@@ -156,9 +156,8 @@ The pipeline will automatically output the following four files within your loca
 
 
 ## <a name="cite_rivet"></a> Citing RIVET
+Please cite the following papers if you found this website helpful in your research:
 
-RIVET’s preprint will be posted online soon.
-
-In the meantime, please cite the following paper on RIPPLES if you found this website helpful in your research:
-
+- Kyle Smith, Cheng Ye, Yatish Turakhia, "Tracking and curating putative SARS-CoV-2 recombinants with RIVET", bioRxiv (2023), https://doi.org/10.1101/2023.02.17.529036.
+<br>
 - Yatish Turakhia*, Bryan Thornlow*, Angie S. Hinrichs, Jakob McBroome, Nicolas Ayala, Cheng Ye, Kyle Smith, Nicola De Maio, David Haussler, Robert Lanfear, Russell Corbett-Detig, "Pandemic-Scale Phylogenomics Reveals The SARS-CoV-2 Recombination Landscape", Nature (2022), https://doi.org/10.1038/s41586-022-05189-9.
