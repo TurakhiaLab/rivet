@@ -74,7 +74,7 @@ function graph() {
 		// Add title to SNP visualization plot
 		container.append('text')
 		    .attr('x', 300)
-		    .attr('y', 150)
+		    .attr('y', 120)
 		    .attr('text-anchor', 'start')
 		    .style('font-size', '30px')
 		    .text(
@@ -84,6 +84,10 @@ function graph() {
 		    'visible';
 		// document.getElementById('copy_svg').style.visibility =
 		//'visible';
+		document.getElementById('next_button').style.visibility =
+		    'visible';
+		document.getElementById('previous_button').style.visibility =
+		    'visible';
 
 		// Summary side panel generated for each selected row
 		const overview = document.getElementById('summary');
@@ -147,7 +151,8 @@ function graph() {
 		overview_tree_button.setAttribute(
 		    'class', 'btn btn-outline-primary');
 		overview_tree_button.setAttribute('id', 'view_tree');
-		const tree_btn_text = document.createTextNode('View Taxonium Tree');
+		const tree_btn_text =
+		    document.createTextNode('View Taxonium Tree');
 		overview_tree_button.appendChild(tree_btn_text);
 		overview.appendChild(overview_tree_button);
 
@@ -173,6 +178,28 @@ function graph() {
 		// Make summary visible
 		overview.removeAttribute('hidden');
 
+		// Handle next/prev result button input
+		if (next_button) {
+			var next_element = next_button.onclick = function() {
+				next_result(d['ID']);
+			}
+		}
+		if (previous_button) {
+			var previous_element =
+			    previous_button.onclick = function() {
+				    previous_result(d['ID'])
+			    }
+		}
+		// Handle next/prev result arrow key input
+		document.onkeydown =
+		    function(e) {
+			var keyCode = e.keyCode;
+			if (keyCode == 37) {
+				previous_element();
+			} else if (keyCode == 39) {
+				next_element();
+			}
+		}
 
 		if (download_svg) {
 			var inner = document.getElementById('inner_SVG');
@@ -210,11 +237,9 @@ function graph() {
 		div = value;
 		return track;
 	};
-
 	track.legend = function(value) {
 		legend = value;
 		return track;
 	};
-
 	return track;
 }

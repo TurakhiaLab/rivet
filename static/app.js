@@ -20,15 +20,25 @@ function main() {
 	init_coordinate_track(svg.append('svg'), init_track_width);
 
 	// SNV plot svg download and copy buttons setup
-	var copy_snv_button =
-	    create_button('copy_svg', 'Copy SNV Plot', 1200, 275);
-	var download_snv_button =
-	    create_button('download_svg', 'Download SVG', 1340, 275);
-	var download_svg = document.querySelector('#download_svg');
-	var copy_svg = document.querySelector('#copy_svg');
-	document.getElementById('download_svg').style.visibility = 'hidden';
-	document.getElementById('copy_svg').style.visibility = 'hidden';
+	/*
+var copy_snv_button =
+create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
+*/
 
+	var download_snv_button =
+	    create_button('download_svg', 'Download SNV', 1250, 280);
+	var download_svg = document.querySelector('#download_svg');
+	// var copy_svg = document.querySelector('#copy_svg');
+	download_svg.style.visibility = 'hidden';
+	// copy_svg.style.visibility = 'hidden';
+
+	var next_button = create_button('next_button', 'Next', 1700, 280);
+	var previous_button =
+	    create_button('previous_button', 'Previous', 1600, 280);
+	previous_button.style.visibility = 'hidden';
+	next_button.style.visibility = 'hidden';
+
+	// Create SNV plot visualization
 	track = graph().svg(svg).div(selection);
 
 	// Download buttons
@@ -37,6 +47,13 @@ function main() {
 	const tree_button = document.querySelector('#download_tree');
 	const taxonium_button = document.querySelector('#download_taxonium');
 	const search = document.querySelector('#search');
+
+	// Left and right arrow keys reserved for scrolling between results
+	window.addEventListener('keydown', function(e) {
+		if (['ArrowLeft', 'ArrowRight'].indexOf(e.code) > -1) {
+			e.preventDefault();
+		}
+	}, false);
 
 	var buttons = [desc_button, tree_button, taxonium_button, search];
 	// Determine and setup production or local RIVET

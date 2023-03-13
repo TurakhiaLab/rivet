@@ -13,6 +13,90 @@ function format_txt(data) {
 	return [obj];
 }
 
+function next_result(id) {
+	// Get current result table page length
+	var pageLength = ($('#datatable').DataTable().page() + 1) *
+	    $('#datatable').DataTable().page.len();
+
+	fetch('/get_data', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({'row_id': id, 'click': 'next'})
+	}).then(res => {
+		res.json().then(data => {
+			track(data);
+			var row = data['ID'];
+			$(document).ready(function() {
+				var table = $('#datatable').DataTable();
+				var row_idx = parseInt(row) - 1;
+				var next_idx = parseInt(row);
+
+				if ($('#datatable tbody tr')
+					.hasClass('selected')) {
+					if (next_idx == pageLength) {
+						// Move to next page
+						$('#datatable')
+						    .DataTable()
+						    .page('next')
+						    .draw(false);
+					}
+					// Remove previously selected
+					$('#datatable tbody tr')
+					    .removeClass('selected');
+				}
+				$($('#datatable')
+				      .DataTable()
+				      .row(next_idx)
+				      .node())
+				    .addClass('selected');
+			});
+		});
+	});
+}
+
+function previous_result(id) {
+	// Get current result table page length
+	var pageLength = ($('#datatable').DataTable().page() + 1) *
+	    $('#datatable').DataTable().page.len();
+
+	fetch('/get_data', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({'row_id': id, 'click': 'previous'})
+	}).then(res => {
+		res.json().then(data => {
+			track(data);
+			var row = data['ID'];
+			$(document).ready(function() {
+				var table = $('#datatable').DataTable();
+				var current_idx = parseInt(row) + 1;
+				var prev_idx = parseInt(row);
+
+				if (prev_idx ==
+				    ((pageLength - 1) -
+				     $('#datatable').DataTable().page.len())) {
+					// Move to next page
+					$('#datatable')
+					    .DataTable()
+					    .page('previous')
+					    .draw(false);
+				}
+				if ($('#datatable tbody tr')
+					.hasClass('selected')) {
+					// Remove previously selected row
+					$('#datatable tbody tr')
+					    .removeClass('selected');
+				}
+				$($('#datatable')
+				      .DataTable()
+				      .row(prev_idx)
+				      .node())
+				    .addClass('selected');
+			});
+		});
+	});
+}
+
 function append_text(div, text) {
 	var tag = document.createElement('p');
 	tag.setAttribute('id', 'overview_text');

@@ -142,8 +142,6 @@ def get_breakpoint_data():
     results_file = app.config.get('input_recombination_results')
     midpoints_dict = backend.generate_breakpoint_data(results_file)
     midpoint_lst = backend.format_bp_data(midpoints_dict)
-    print(midpoint_lst)
-    
     return jsonify(midpoint_lst)
 
 @app.route('/get_data', methods=['GET', 'POST'])
@@ -151,7 +149,32 @@ def get_data():
   content = request.get_json()
   env = app.config.get('environment').lower()
   breakpoint1, breakpoint2, descendants = None, None, None
-  if content is not None:
+  if content is not None and len(content.keys()) == 2:
+      table = app.config.get('table')
+      if content['click'] == "next":
+          # Unless index at last row, move to next row
+          index = int(content["row_id"]) + 1
+          if index < len(table):
+              row_data = table[index]
+          else:
+              row_data = table[int(content["row_id"])]
+      elif content['click'] == "previous":
+          # Unless index at first row, move to prev row
+          index = int(content["row_id"]) - 1
+          if not index < 0:
+              row_data = table[index]
+          else:
+              row_data = table[int(content["row_id"])]
+      row_id = row_data[0]
+      recomb_id = row_data[1]
+      donor_id = row_data[2]
+      acceptor_id = row_data[3]
+      if env.lower() != "local":
+          breakpoint1 = row_data[4]
+          breakpoint2 = row_data[5]
+          descendants = row_data[12]
+
+  elif content is not None:
       row_id = content["row_id"]
       recomb_id = content["recomb_id"]
       donor_id = content["donor_id"]
@@ -181,7 +204,6 @@ def get_data():
 
   track_data =  OrderedDict()
   track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only, row_id, env)
-  print("TRIO DATA SELECTED: ", track_data)
   return jsonify(track_data)
 
 @app.route('/')
@@ -193,13 +215,9 @@ def table():
       table = app.config.get('table')
   columns = app.config.get('columns')
   env = app.config.get('environment')
-  print("ENV: ", env)
   template = 'index.html'
   if env.lower() == "local":
       template = 'local.html'
-  print(template)
-  print(table)
-  print(columns)
   results["columns"] = columns
   results["data"] = table
   return render_template(template, headings=columns, data=table)
