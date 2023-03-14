@@ -89,94 +89,107 @@ function graph() {
 		document.getElementById('previous_button').style.visibility =
 		    'visible';
 
-		// Summary side panel generated for each selected row
-		const overview = document.getElementById('summary');
-		// Clear any previous text elements from overview div
-		overview.textContent = '';
+		// Disable overview side panel for local rivet for now
+		if (d['COLOR']['environment'] == 'production') {
+			// Summary side panel generated for each selected row
+			const overview = document.getElementById('summary');
+			// Clear any previous text elements from overview div
+			overview.textContent = '';
 
-		// Append overview header
-		var overview_header = document.createElement('h3');
-		const header_text = document.createTextNode('Overview');
-		overview_header.setAttribute('id', 'overview_header');
-		overview_header.appendChild(header_text);
-		overview.appendChild(overview_header);
+			// Append overview header
+			var overview_header = document.createElement('h3');
+			const header_text = document.createTextNode('Overview');
+			overview_header.setAttribute('id', 'overview_header');
+			overview_header.appendChild(header_text);
+			overview.appendChild(overview_header);
 
-		// Get data from table for each of these fields
-		fetch('/get_overview', {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({'id': d['ID']})
-		}).then(res => {
-			res.json().then(data => {
-				append_text(
-				    overview,
-				    'Recombinant Node ID: ' +
-					d['NODE_IDS']['Recomb']);
-				append_text(
-				    overview,
-				    'Current Recombinant Lineage Designation: ' +
-					data['overview']['recomb_lineage']);
-				append_text(
-				    overview,
-				    'Recombinant Origin Date: ' +
-					data['overview']['recomb_date']);
-				append_text(
-				    overview,
-				    'Recombinant Between: ' +
-					data['overview']['donor_lineage'] +
-					' and ' +
-					data['overview']['acceptor_lineage']);
+			// Get data from table for each of these fields
+			fetch('/get_overview', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({'id': d['ID']})
+			}).then(res => {
+				res.json().then(data => {
+					append_text(
+					    overview,
+					    'Recombinant Node ID: ' +
+						d['NODE_IDS']['Recomb']);
+					append_text(
+					    overview,
+					    'Current Recombinant Lineage Designation: ' +
+						data['overview']
+						    ['recomb_lineage']);
+					append_text(
+					    overview,
+					    'Recombinant Origin Date: ' +
+						data['overview']
+						    ['recomb_date']);
+					append_text(
+					    overview,
+					    'Recombinant Between: ' +
+						data['overview']
+						    ['donor_lineage'] +
+						' and ' +
+						data['overview']
+						    ['acceptor_lineage']);
 
-				// TODO: Add
-				/*
-								append_text(overview,
-				   'Earliest Sequence: '); append_text(overview,
-				   'Most Recent Sequence: '); append_text(
-								    overview,
-				   'Countries Circulating: ');
-										*/
+					// TODO: Add
+					/*
+									append_text(overview,
+					   'Earliest Sequence: ');
+					   append_text(overview, 'Most Recent
+					   Sequence: '); append_text( overview,
+					   'Countries Circulating: ');
+											*/
 
-				append_text(overview, 'QC Flags: ');
-				append_list(
-				    overview, data['overview']['qc_flags']);
+					append_text(overview, 'QC Flags: ');
+					append_list(
+					    overview,
+					    data['overview']['qc_flags']);
 
-				// TODO: Add
-				// append_text(overview, 'Defining Mutations:
-				// ');
-			});
-		});
-
-		// Append "Tree View" button in overview section
-		var overview_tree_button = document.createElement('button');
-		overview_tree_button.setAttribute(
-		    'class', 'btn btn-outline-primary');
-		overview_tree_button.setAttribute('id', 'view_tree');
-		const tree_btn_text =
-		    document.createTextNode('View Taxonium Tree');
-		overview_tree_button.appendChild(tree_btn_text);
-		overview.appendChild(overview_tree_button);
-
-		var view_tree_button = document.querySelector('#view_tree');
-		if (view_tree_button) {
-			view_tree_button.onclick = function() {
-				fetch('/get_tree_view', {
-					method: 'POST',
-					headers: {
-						'Content-Type':
-						    'application/json'
-					},
-					body: JSON.stringify(d['NODE_IDS'])
-				}).then(res => {
-					res.json().then(data => {
-						window.open(
-						    data['url'], '_blank');
-					});
+					// TODO: Add
+					// append_text(overview, 'Defining
+					// Mutations:
+					// ');
 				});
-			}
-		}
+			});
 
-		// Make summary visible
-		overview.removeAttribute('hidden');
+			// Append "Tree View" button in overview section
+			var overview_tree_button =
+			    document.createElement('button');
+			overview_tree_button.setAttribute(
+			    'class', 'btn btn-outline-primary');
+			overview_tree_button.setAttribute('id', 'view_tree');
+			const tree_btn_text =
+			    document.createTextNode('View Taxonium Tree');
+			overview_tree_button.appendChild(tree_btn_text);
+			overview.appendChild(overview_tree_button);
+
+			var view_tree_button =
+			    document.querySelector('#view_tree');
+			if (view_tree_button) {
+				view_tree_button.onclick = function() {
+					fetch('/get_tree_view', {
+						method: 'POST',
+						headers: {
+							'Content-Type':
+							    'application/json'
+						},
+						body: JSON.stringify(
+						    d['NODE_IDS'])
+					}).then(res => {
+						res.json().then(data => {
+							window.open(
+							    data['url'],
+							    '_blank');
+						});
+					});
+				}
+			}
+
+			// Make summary visible
+			overview.removeAttribute('hidden');
+		}
 
 		// Handle next/prev result button input
 		if (next_button) {
