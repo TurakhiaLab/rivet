@@ -1,15 +1,7 @@
-
-button:focus{
-    color: #fff;
-    background-color: #343a40;
-    border-color: #343a40;
-}
-
 div#tracks {
    max-width: 1910px;
    overflow-x: auto;
 }
-
 .parent {
   padding: 1rem 1rem;
 }
@@ -137,14 +129,34 @@ div#download_visual_body.copy_visual {
 				padding-top: 100px;
 				padding-left: 150px; 
 				padding-right: 100px; 
-				padding-bottom: 20px; 
 }
-
+/*
 .breakpoint_description {
 				padding-left: 150px; 
 				padding-right: 100px; 
 				padding-bottom: 50px; 
 }
+*/
+
+#cases_histogram{
+  padding-bottom: 100px;
+	padding-left: 40px;
+	padding-right: 40px;
+}
+
+.histogram_title {
+				padding-top: 100px;
+				padding-left: 150px; 
+				padding-right: 100px; 
+        padding-bottom: 50px;
+
+}
+.histogram_description {
+				padding-left: 150px; 
+				padding-right: 100px; 
+				padding-bottom: 50px; 
+}
+
 
 div.dataTables_wrapper {
         /*width: 2500px; */

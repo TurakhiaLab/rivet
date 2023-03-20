@@ -52,6 +52,86 @@ def get_treeview_host(date):
     HOST += "/".join([BUCKET_NAME,OBJECT_NAME])
     return HOST
 
+def format_histogram_data(months, recomb_counts, count_list, label):
+    """
+    """
+    data = []
+    for i in range(len(months)):
+        data.append({
+                "month": months[i],
+                "values":
+                    [
+                      {"key": label, "value": count_list[i]},
+                      {"key": "Recombinants Count", "value": recomb_counts[i]}
+                    ]
+                  })
+    return data
+
+def create_month_bins():
+    years = ["2020", "2021", "2022", "2023"]
+    months =["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+    month_bins = {}
+    for y in years:
+        for m in months:
+            # Stop at current month (2023_02)
+            if y == "2023" and m == "03":
+                return month_bins
+            month_bins[y + "_" + m] = set()
+
+def build_counts_histogram(results_file):
+    """
+    """
+    month_bins = create_month_bins()
+
+    #Month counts for new infections
+    #Data(daily global time - series)
+    # obtained from : https:  // github.com/CSSEGISandData/COVID-19
+    #Separate scripts used to process this data by month
+    month_counts_new_infections = {"2020_01": 9927, "2020_02": 76096, "2020_03": 783348, "2020_04": 2412716, "2020_05": 2901229, "2020_06": 4292072, "2020_07": 7118656, "2020_08": 7941296, "2020_09": 8498335, "2020_10": 12122070, "2020_11": 17266494, "2020_12": 20356383, "2021_01": 19546070, "2021_02": 11253786,
+        "2021_03": 14772312, "2021_04": 22542204, "2021_05": 19347136, "2021_06": 11472596, "2021_07": 15676958, "2021_08": 19894993, "2021_09": 16061455,
+        "2021_10": 13064658, "2021_11": 15702891, "2021_12": 25614610, "2022_01": 90483564, "2022_02": 58251972, "2022_03": 51347034, "2022_04": 25217142,
+        "2022_05": 16213566, "2022_06": 17732748, "2022_07": 29650733, "2022_08": 25713990, "2022_09": 14721332, "2022_10": 12795215, "2022_11": 12388536,
+        "2022_12": 17219669, "2023_01": 10270797, "2023_02": 4587649}
+
+    #Month counts for sequences added to the MAT
+    #New sequenced genomes each month obtained from public metadata
+    # file : https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/
+    month_new_seq_counts = {"2020_01": 368, "2020_02": 622, "2020_03": 28008, "2020_04": 32225, "2020_05": 15548, "2020_06": 15521, "2020_07": 17312,
+        "2020_08": 19188, "2020_09": 26088, "2020_10": 48073, "2020_11": 59890, "2020_12": 75421, "2021_01": 126779, "2021_02": 137727,
+        "2021_03": 214674, "2021_04": 210270, "2021_05": 146672, "2021_06": 152416, "2021_07": 303144, "2021_08": 470300, "2021_09": 458061,
+        "2021_10": 453609, "2021_11": 581793, "2021_12": 529523, "2022_01": 471163, "2022_02": 435674, "2022_03": 466953, "2022_04": 217273,
+        "2022_05": 162331, "2022_06": 172118, "2022_07": 186467, "2022_08": 129673, "2022_09": 85326, "2022_10": 77278, "2022_11": 71777,
+        "2022_12": 86676, "2023_01": 59626, "2023_02": 18069}
+
+    #Months is ticks on x - axis
+    months = list(month_bins.keys())
+
+    #Case counts(right y - axis, for plot 1)
+    month_infection_counts = list([x for x in month_counts_new_infections.values()])
+
+    #New sequence counts(right y - axis, for plot 2)
+    month_sequence_counts = list([x for x in month_new_seq_counts.values()])
+
+    f = open(results_file, "r")
+    recomb_id_to_date = dict()
+    next(f)
+    for line in f:
+        splitline = line.strip().split('\t')
+        recomb_id = splitline[0]
+        recomb_date = splitline[15]
+        parsed_date = recomb_date.split('-')
+        year = str(parsed_date[0])
+        month = str(parsed_date[1])
+        joined_date = "_".join([year, month])
+        if joined_date not in month_bins.keys():
+            print("[ERROR] CHECK Formatting: {}".format(joined_date))
+            exit(1)
+        month_bins[joined_date].add(recomb_id)
+    recomb_counts = list([len(x) for x in month_bins.values()])
+    f.close()
+    return months, month_infection_counts, month_sequence_counts, recomb_counts
+
+
 def parse_file(file):
     """
     """
@@ -115,6 +195,7 @@ def load_descendants(desc_file, recomb_node_set):
         f = open(desc_file, 'r', buffering=BUF_SIZE)
     d = {}
     recomb_to_d = {}
+    sample_counts = {}
 
     # Skip over column headers (assuming one)
     f.readline()
@@ -127,11 +208,12 @@ def load_descendants(desc_file, recomb_node_set):
         if node_id not in recomb_node_set:
             continue
         recomb_to_d[node_id] = descendants_list
+        sample_counts[node_id] = len(descendants_list)
 
     f.close()
     tock = time.perf_counter()
     print(f"Time elapsed loading desc file: {tock-tick:.2f} seconds")
-    return d, recomb_to_d
+    return d, recomb_to_d, sample_counts
 
 def load_recombinant_descendants(desc_file, recomb_node_set):
     """

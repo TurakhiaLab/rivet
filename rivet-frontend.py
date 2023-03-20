@@ -10,6 +10,8 @@ import time
 from time import sleep
 import json
 import csv
+import os
+import sys
 
 app = Flask(__name__) 
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -41,10 +43,26 @@ def get_tree_view():
     url = backend.generate_taxonium_link(content["Recomb"], content["Donor"], content["Acceptor"], HOST)
     return jsonify({"url": url})
 
+@app.route("/get_count_data", methods=['POST'])
+def get_count_data():
+    content = request.get_json()
+    plot_type = str(content["id"])
+    months = app.config.get('months')
+    recomb_counts = app.config.get('recomb_counts')
+    if plot_type == "plot2":
+        axis_data = app.config.get('month_seq_counts')
+        hist_data = backend.format_histogram_data(months, recomb_counts, app.config.get('month_seq_counts'), "New Sequences")
+    else:
+        axis_data = app.config.get('month_case_counts')
+        hist_data = backend.format_histogram_data(months, recomb_counts, app.config.get('month_case_counts'), "New Cases")
+    return jsonify({"data": hist_data, "month_data": axis_data,  "recomb_counts": recomb_counts})
+
 @app.route("/get_overview", methods=['POST'])
 def get_overview():
     content = request.get_json()
     table = app.config.get('table')
+    sample_counts = app.config.get('sample_counts')
+    #metadata = app.config.get('metadata')
     row_id = int(content["id"])
     # NOTE: Column values hardcoded
     recomb_lineage = table[row_id][7]
@@ -52,11 +70,19 @@ def get_overview():
     donor_lineage = table[row_id][9]
     acceptor_lineage = table[row_id][11]
     qc_flags = table[row_id][20]
+    #earliest_seq = metadata[str(row_id)]["Earliest_seq"]
+    #latest_seq = metadata[str(row_id)]["Latest_seq"]
+    #countries = metadata[str(row_id)]["countries"]
+    num_desc = sample_counts[table[row_id][1]]
     d = {"recomb_lineage": recomb_lineage,
          "recomb_date": recomb_date,
          "donor_lineage": donor_lineage,
          "acceptor_lineage": acceptor_lineage,
-         "qc_flags": util.css_to_list(qc_flags)}
+         "qc_flags": util.css_to_list(qc_flags),
+         #"earliest_seq": earliest_seq,
+         #"latest_seq": latest_seq,
+         #"countries": countries,
+         "num_desc": num_desc}
     return jsonify({"overview": d})
 
 @app.route("/search_by_sample_id", methods=['POST'])
@@ -266,16 +292,25 @@ if __name__ == "__main__":
       info_sites = backend.label_informative_sites(metadata)
       backend.make_plot(recomb_results,"static/midpoint_plot.svg")
 
+      # Load data for recombination counts histogram
+      months, month_case_counts, month_seq_counts, recomb_counts =  backend.build_counts_histogram(recomb_results)
+      app.config['months'] = months
+      app.config['month_case_counts'] = month_case_counts
+      app.config['month_seq_counts'] = month_seq_counts
+      app.config['recomb_counts'] = recomb_counts
+
   # Load descendants file
   desc_file = args.descendants_file
   recomb_node_set = set([cell[1] for cell in table])
   if desc_file is not None:
       print("Loading provided descendants file: ", desc_file)
-  desc_dict, recomb_desc_dict = backend.load_descendants(desc_file, recomb_node_set)
+  desc_dict, recomb_desc_dict, sample_counts = backend.load_descendants(desc_file, recomb_node_set)
 
   app.config['color_schema'] = color_schema
   app.config['info_sites'] = info_sites
   app.config['table'] = table
+  #app.config['metadata'] = metadata
+  app.config['sample_counts'] = sample_counts
   app.config['columns'] = columns
   cache.set("table", table)
   app.config['date'] = str(config["date"])

@@ -132,15 +132,25 @@ function graph() {
 						' and ' +
 						data['overview']
 						    ['acceptor_lineage']);
-
-					// TODO: Add
-					/*
-									append_text(overview,
-					   'Earliest Sequence: ');
-					   append_text(overview, 'Most Recent
-					   Sequence: '); append_text( overview,
-					   'Countries Circulating: ');
-											*/
+					append_text(
+					    overview,
+					    'Number Sequences: ' +
+						data['overview']['num_desc'].toLocaleString());
+/*
+					append_text(
+					    overview,
+					    'Earliest Sequence: ' +
+						data['overview']
+						    ['earliest_seq']);
+					append_text(
+					    overview,
+					    'Most Recent Sequence: ' +
+						data['overview']['latest_seq']);
+					append_text(
+					    overview,
+					    'Countries Detected: ' +
+						data['overview']['countries']);
+						*/
 
 					append_text(overview, 'QC Flags: ');
 					append_list(

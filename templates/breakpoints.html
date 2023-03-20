@@ -68,7 +68,27 @@
 
         <!-- Breakpoint Plot -->
 <!--        <div class="center-screen" id="breakpoint_viz"></div> -->
-<img src="static/midpoint_plot.svg" width="1500" height="1000"/>
+<img class="center-screen" src="static/midpoint_plot.svg" width="1500" height="1000"/>
+
+
+<div class="histogram_title">
+    <h1> SARS-CoV-2 Recombinantion Events Inferred Monthly</h1>
+ <div class="btn-group btn-group-toggle" data-toggle="buttons">
+    <label class="btn btn-outline-primary active" id="plot1">
+      <input type="radio" name="options" id="plot1" autocomplete="off" onclick="draw_histogram('plot1')" checked> vs. Number of new infections
+    </label>
+    <label class="btn btn-outline-primary" id="plot2">
+      <input type="radio" name="options" id="plot2" autocomplete="off" onclick="draw_histogram('plot2')"> vs. Number of new genome sequences
+    </label>
+ </div>
+</div>
+
+<div id="recomb_over_time"></div>
+<div id="cases_histogram"> </div>
+
+<div class="histogram_description">
+    <p>Dataset used for number of new infections: "JHU CSSE COVID-19 Data"<a target="_blank" href="https://github.com/CSSEGISandData/COVID-19">https://github.com/CSSEGISandData/COVID-19</a>
+</div>
 
 <!--Bootstrap-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
@@ -81,6 +101,7 @@
 
 <!-- Visualizations -->
 <!-- <script src="static/breakpoint_vis.js"></script> -->
+<script src="static/histograms.js"></script>
 
 </body>
 </html>
