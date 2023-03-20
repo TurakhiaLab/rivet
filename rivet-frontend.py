@@ -18,9 +18,9 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config.from_mapping(util.get_cache_config())
 cache = Cache(app)
 
-@app.route("/breakpoints")
-def breakpoints():
-    return render_template('breakpoints.html')
+@app.route("/analysis")
+def analysis():
+    return render_template('analysis.html')
 
 @app.route("/about")
 def getting_started():
