@@ -4,7 +4,6 @@ from argparse import ArgumentParser
 from collections import OrderedDict
 from backend import backend
 from backend import util
-import pandas as pd
 import requests
 import time
 from time import sleep
@@ -42,6 +41,16 @@ def get_tree_view():
     HOST = backend.get_treeview_host(date)
     url = backend.generate_taxonium_link(content["Recomb"], content["Donor"], content["Acceptor"], HOST)
     return jsonify({"url": url})
+
+@app.route("/get_relative_data", methods=['POST'])
+def get_relative_data():
+    content = request.get_json()
+    plot_type = str(content["id"])
+    months = app.config.get('months')
+    recomb_counts = app.config.get('recomb_counts')
+    axis_data = app.config.get('relative_recombinants')
+    return jsonify({"months": months, "axis_data": axis_data})
+
 
 @app.route("/get_count_data", methods=['POST'])
 def get_count_data():
@@ -293,18 +302,20 @@ if __name__ == "__main__":
       backend.make_plot(recomb_results,"static/midpoint_plot.svg")
 
       # Load data for recombination counts histogram
-      months, month_case_counts, month_seq_counts, recomb_counts =  backend.build_counts_histogram(recomb_results)
+      months, month_case_counts, month_seq_counts, recomb_counts, relative_recombinants =  backend.build_counts_histogram(recomb_results)
       app.config['months'] = months
       app.config['month_case_counts'] = month_case_counts
       app.config['month_seq_counts'] = month_seq_counts
       app.config['recomb_counts'] = recomb_counts
+      app.config['relative_recombinants'] = relative_recombinants
 
   # Load descendants file
   desc_file = args.descendants_file
-  recomb_node_set = set([cell[1] for cell in table])
+  recomb_node_set, recomb_desc_dict, desc_dict, sample_counts = None,None,None,None
   if desc_file is not None:
       print("Loading provided descendants file: ", desc_file)
-  desc_dict, recomb_desc_dict, sample_counts = backend.load_descendants(desc_file, recomb_node_set)
+      recomb_node_set = set([cell[1] for cell in table])
+      desc_dict, recomb_desc_dict, sample_counts = backend.load_descendants(desc_file, recomb_node_set)
 
   app.config['color_schema'] = color_schema
   app.config['info_sites'] = info_sites

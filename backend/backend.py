@@ -2,7 +2,6 @@
 Backend functions for RIVET UI
 """
 
-import pandas as pd 
 import numpy as np
 import json
 import yaml
@@ -129,8 +128,13 @@ def build_counts_histogram(results_file):
         month_bins[joined_date].add(recomb_id)
     recomb_counts = list([len(x) for x in month_bins.values()])
     f.close()
-    return months, month_infection_counts, month_sequence_counts, recomb_counts
 
+    # Proportion of new recombinants relative to new genome sequences added to the MAT each month
+    relative_recombinants = []
+    for i in range(len(recomb_counts)):
+        relative = (recomb_counts[i]/month_sequence_counts[i])*1000
+        relative_recombinants.append(relative)
+    return months, month_infection_counts, month_sequence_counts, recomb_counts, relative_recombinants
 
 def parse_file(file):
     """
@@ -777,7 +781,7 @@ def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, des
         positions = positions.union(get_positions(d[snps]))
     pos = list(positions)
     pos.sort()
-    print("Number of positions: ", len(pos))
+    #print("Number of positions: ", len(pos))
 
     # Iterate wrt genomic positions
     for p in pos:
