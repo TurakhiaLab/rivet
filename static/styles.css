@@ -2,6 +2,25 @@ div#tracks {
    max-width: 1910px;
    overflow-x: auto;
 }
+
+div#full_table{
+	 padding-right:50px;
+	 padding-left:50px;
+	 padding-bottom:50px;
+}
+
+div#table_title {
+	 padding-right:50px;
+	 padding-left:50px;
+	 padding-bottom:50px;
+}
+
+div#table_container{
+	 padding-right:50px;
+	 padding-left:50px;
+	 padding-bottom:50px;
+}
+
 .parent {
   padding: 1rem 1rem;
 }
@@ -12,6 +31,7 @@ div#tracks {
   word-wrap: break-word;
   top: 10rem;
 }
+
 div#summary {
   background-color: #dadada;
   position: relative;
@@ -20,32 +40,47 @@ div#summary {
 #overview_text {
   padding-bottom: 10px;
 }
-
-#view_tree {
+#info {
   position:absolute;
-  bottom: 15;
+  top: 15;
+  right: 10;
+}
+
+#view_usher {
+  position:absolute;
+  bottom: 165;
   left: 10;
 }
+#view_tree {
+  position:absolute;
+  bottom: 115;
+  left: 10;
+}
+#show_mutations {
+  position:absolute;
+  bottom: 65;
+  left: 10;
+}
+
 
 #overview_header {
   padding-bottom: 20px;
 }
 
+/*
 div#off_canvas_right_body {
 				background-color: #a9a9a9;
 }
+*/
 
 div#search {
-        margin-left: 1100px;
+        margin-left: 1550px;
 }
 
 #download_visual_body{
 				margin-left: 1200px;
 }
 
-#visual_settings{
-				margin-left: 1200px;
-}
 
 div#download_visual_body.download_button{
 				margin-left: 150px;
@@ -55,25 +90,13 @@ div#download_visual_body.download_button{
 div#download_visual_body.download_visual {
 				padding-right:50px;
 				padding-left:50px;
-				/*padding-top:50px; */
 				padding-bottom:20px;
 }
 
 div#download_visual_body.copy_visual {
 				padding-right:50px;
 				padding-left:50px;
-				/*padding-top:50px; */
 				padding-bottom:20px;
-}
-
-#datatable_wrapper {
-				margin-right:100px;
-				padding-right:200px;
-				padding-left:50px;
-				padding-top:50px;
-				padding-bottom:200px;
-				min-width: 1500px;
-				max-width: 1500px;
 }
 
 #visualization div {
@@ -130,6 +153,7 @@ div#download_visual_body.copy_visual {
 				padding-left: 150px; 
 				padding-right: 100px; 
 }
+
 /*
 .breakpoint_description {
 				padding-left: 150px; 
@@ -219,26 +243,12 @@ header { padding-bottom: 20px; }
 #content div {
 				padding: 50px;
 }
-/*
-div.container {
-				display: grid;
-				grid-template-columns: 70% 30%;
-}
-*/
-
-div.container.space {
-				background: #eee;
-				padding: 1em;
-        width: 800px;
-        margin: 0 auto;
-}
 
 .thumbnail {
     border: 3px solid black;
     box-shadow: none;
 		padding: 10px;
 }
-
 
 div.tooltip {	
     position: absolute;			
@@ -273,14 +283,7 @@ div.tooltip {
 div#descendants {
     height: 400px;
     width: 500px;
-		/*padding-left: 100px; */
 		padding-top: 50px;
 		padding-bottom: 50px;
     overflow: scroll;
-}
-
-.grid-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 20px;
 }

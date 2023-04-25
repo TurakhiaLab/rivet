@@ -6,6 +6,7 @@ function main() {
 	var border_width = 1900;
 	var border_height = 700;
 	var init_track_width = 1750;
+	// var init_track_width = 1250;
 
 	var selection = d3.select('#tracks').append('div');
 
@@ -43,7 +44,11 @@ create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 
 	// Download buttons
 	const desc_button = document.querySelector('#download_all_descendants');
+	const full_tree_desc_button =
+	    document.querySelector('#full_table_download_all_descendants');
 	const table_button = document.querySelector('#download_table');
+	const full_table_button =
+	    document.querySelector('#download_full_table');
 	const tree_button = document.querySelector('#download_tree');
 	const taxonium_button = document.querySelector('#download_taxonium');
 	const search = document.querySelector('#search');
@@ -65,11 +70,38 @@ create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 			window.location.href = url;
 		}, false);
 	}
-	if (table_button) {
-		table_button.addEventListener('click', () => {
-			download_table();
+
+	if (full_tree_desc_button.style.visibility != 'hidden') {
+		full_tree_desc_button.addEventListener('click', () => {
+			// TODO: Fix for full tree
+			var url = download_all_descendants();
+			window.location.href = url;
 		}, false);
 	}
+
+	// let private_table_select = document.getElementById('full_table');
+	if (table_button) {
+		table_button.addEventListener('click', () => {
+			download_table('public');
+			/*
+if (private_table_select.hidden) {
+	// Downloading public tree results table
+} else {
+	// Downloading full tree results table
+	console.log('FULL TREE DOWNLOAD SELECTED');
+	download_table('full');
+}
+*/
+		}, false);
+	}
+	if (full_table_button) {
+		full_table_button.addEventListener('click', () => {
+			// Downloading full tree results table
+			download_table('full');
+			console.log('FULL TREE DOWNLOAD SELECTED');
+		}, false);
+	}
+
 	if (tree_button.style.visibility != 'hidden') {
 		tree_button.addEventListener('click', () => {
 			download_tree();

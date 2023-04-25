@@ -135,68 +135,137 @@ function graph() {
 					append_text(
 					    overview,
 					    'Number Sequences: ' +
-						data['overview']['num_desc'].toLocaleString());
-/*
-					append_text(
-					    overview,
-					    'Earliest Sequence: ' +
-						data['overview']
-						    ['earliest_seq']);
-					append_text(
-					    overview,
-					    'Most Recent Sequence: ' +
-						data['overview']['latest_seq']);
-					append_text(
-					    overview,
-					    'Countries Detected: ' +
-						data['overview']['countries']);
-						*/
+						data['overview']['num_desc']
+						    .toLocaleString());
 
-					append_text(overview, 'QC Flags: ');
-					append_list(
-					    overview,
-					    data['overview']['qc_flags']);
-
-					// TODO: Add
-					// append_text(overview, 'Defining
-					// Mutations:
-					// ');
+					// Adding linebreaks for additional
+					// buttons
+					var linebreak =
+					    document.createElement('br');
+					linebreak.style.lineHeight = '14';
+					overview.appendChild(linebreak);
 				});
 			});
 
-			// Append "Tree View" button in overview section
-			var overview_tree_button =
+			// Append "More info" button in overview section
+			var overview_info_button =
 			    document.createElement('button');
-			overview_tree_button.setAttribute(
+			overview_info_button.setAttribute(
 			    'class', 'btn btn-outline-primary');
-			overview_tree_button.setAttribute('id', 'view_tree');
-			const tree_btn_text =
-			    document.createTextNode('View Taxonium Tree');
-			overview_tree_button.appendChild(tree_btn_text);
-			overview.appendChild(overview_tree_button);
+			overview_info_button.setAttribute('id', 'info');
+			const info_btn_text =
+			    document.createTextNode('More Info');
+			overview_info_button.appendChild(info_btn_text);
+			overview.appendChild(overview_info_button);
 
-			var view_tree_button =
-			    document.querySelector('#view_tree');
-			if (view_tree_button) {
-				view_tree_button.onclick = function() {
-					fetch('/get_tree_view', {
-						method: 'POST',
-						headers: {
-							'Content-Type':
-							    'application/json'
-						},
-						body: JSON.stringify(
-						    d['NODE_IDS'])
-					}).then(res => {
-						res.json().then(data => {
-							window.open(
-							    data['url'],
-							    '_blank');
-						});
-					});
-				}
+			// Toggle offcanvas right
+			// Handle next/prev result button input
+			if (overview_info_button) {
+				var overview_info =
+				    overview_info_button.onclick = function() {
+					    var myOffcanvas =
+						document.getElementById(
+						    'off_canvas_right')
+					    var bsOffcanvas =
+						new bootstrap.Offcanvas(
+						    myOffcanvas);
+					    bsOffcanvas.show();
+					    get_detailed_overview(overview, d);
+				    }
 			}
 
+			// Append "View UShER" button in overview section
+			var overview_usher_button =
+			    document.createElement('button');
+			overview_usher_button.setAttribute(
+			    'class', 'btn btn-outline-primary');
+			overview_usher_button.setAttribute('id', 'view_usher');
+			const usher_btn_text =
+			    document.createTextNode('View UShER Tree');
+			overview_usher_button.appendChild(usher_btn_text);
+			overview.appendChild(overview_usher_button);
+
+			const tooltip =
+			    d3.select('#view_usher')
+				.append('div')
+				.style('position', 'absolute')
+				.style('visibility', 'hidden')
+				.style('padding', '15px')
+				.style('background', 'rgba(0,0,0,0.6)')
+				.style('border-radius', '5px')
+				.style('color', 'white');
+
+			if (overview_usher_button) {
+				overview_usher_button.onclick = function() {
+					view_usher_tree(d);
+				};
+
+				/*
+	overview_usher_button.addEventListener(
+	    'mouseover', function() {
+		    usher_button_info_display(tooltip);
+	    }, false);
+
+	overview_usher_button.addEventListener(
+	    'mouseout', function() {
+		    usher_button_info_hide(tooltip);
+	    }, false);
+			*/
+			}
+
+
+			let private_table_select =
+			    document.getElementById('full_table');
+			if (private_table_select.hidden) {
+				// Append "Tree View" button in overview section
+				var overview_tree_button =
+				    document.createElement('button');
+				overview_tree_button.setAttribute(
+				    'class', 'btn btn-outline-primary');
+				overview_tree_button.setAttribute(
+				    'id', 'view_tree');
+				const tree_btn_text = document.createTextNode(
+				    'View Taxonium Tree');
+				overview_tree_button.appendChild(tree_btn_text);
+				overview.appendChild(overview_tree_button);
+
+				var view_tree_button =
+				    document.querySelector('#view_tree');
+				if (view_tree_button) {
+					view_tree_button.onclick = function() {
+						fetch('/get_tree_view', {
+							method: 'POST',
+							headers: {
+								'Content-Type':
+								    'application/json'
+							},
+							body: JSON.stringify(
+							    d['NODE_IDS'])
+						}).then(res => {
+							res.json().then(data => {
+								window.open(
+								    data['url'],
+								    '_blank');
+							});
+						});
+					}
+				}
+
+				// Append "Show Defining Mutations" button in
+				// overview section
+				var overview_mutations_button =
+				    document.createElement('button');
+				overview_mutations_button.setAttribute(
+				    'class', 'btn btn-outline-primary');
+				overview_mutations_button.setAttribute(
+				    'id', 'show_mutations');
+				const mutations_btn_text =
+				    document.createTextNode(
+					'Show Defining Mutations');
+				overview_mutations_button.appendChild(
+				    mutations_btn_text);
+				overview.appendChild(overview_mutations_button);
+			}
 			// Make summary visible
 			overview.removeAttribute('hidden');
 		}

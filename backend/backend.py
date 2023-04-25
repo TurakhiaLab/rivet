@@ -16,6 +16,7 @@ from alive_progress import alive_bar, alive_it
 import heapq
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
+from urllib.parse import quote_plus
 import sys
 import seaborn as sns
 import matplotlib.patches as patches
@@ -51,6 +52,13 @@ def get_treeview_host(date):
     HOST += "/".join([BUCKET_NAME,OBJECT_NAME])
     return HOST
 
+def usher_upload(samples):
+    """
+    """
+    USHER_WEB_BASE = "https://genome.ucsc.edu/cgi-bin/hgPhyloPlace?db=wuhCor1&subtreeSize=1000&phyloPlaceTree=hgPhyloPlaceData/wuhCor1/public.plusGisaid.latest.masked.pb&namesOrIds="
+    url = USHER_WEB_BASE + quote_plus('\n'.join(samples))
+    return url
+
 def format_histogram_data(months, recomb_counts, count_list, label):
     """
     """
@@ -81,6 +89,7 @@ def build_counts_histogram(results_file):
     """
     """
     month_bins = create_month_bins()
+    #TODO: Load this data from an additional file
 
     #Month counts for new infections
     #Data(daily global time - series)
@@ -284,7 +293,10 @@ def tsv_to_dict(results_tsvfile, metadata_start_col = None):
         # Do not display extra metadata columns in results datatable
         if metadata_start_col is not None:
             dictionary[str(index)] = splitline[:metadata_start_col - 1]
-            dictionary[str(index)].append(splitline[-1])
+            #print(splitline[:metadata_start_col - 1])
+            #NOTE: Expecting Filter/QC annotations to be at column 20 in results file
+            # Get QC annotations from results file
+            dictionary[str(index)].append(splitline[20])
 
             # Get string of informative sites and parse each position to a list of (str) positions
             info_sites_list = splitline[metadata_start_col-1:][0].split(",")
@@ -297,6 +309,11 @@ def tsv_to_dict(results_tsvfile, metadata_start_col = None):
             node_metadata["recomb_id"] = splitline[0]
             node_metadata["InfoSites"] = info_sites_list
             node_metadata["InfoSeq"] = splitline[12]
+            if len(splitline) > 21:
+                node_metadata["Earliest_seq"] = splitline[21]
+                node_metadata["Latest_seq"] = splitline[22]
+                node_metadata["countries"] = splitline[23]
+            
             metadata[str(index)] = node_metadata
         else:
             # Build dictionary with key: recomb_node_id
@@ -733,7 +750,7 @@ def vcf_to_dict(vcf_file):
   # ordered by increasing genomic position.
   nodes_ids = {key: OrderedDict() for key in samples}
   nodes_ids["Reference"] = OrderedDict()
-  print("Loading VCF file.")
+  print("Loading input VCF file: {}".format(vcf_file))
 
   # Iterate over genomic positions
   for record in alive_it(vcf_reader):
