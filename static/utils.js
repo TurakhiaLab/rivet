@@ -13,6 +13,130 @@ function format_txt(data) {
 	return [obj];
 }
 
+function usher_button_info_hide(tooltip) {
+	tooltip.html(``).style('visibility', 'hidden');
+}
+
+function usher_button_info_display(tooltip) {
+	var value = ' ';
+	var name = ' : ';
+	tooltip.html(`${name}: ${value}`)
+	    .style('visibility', 'visible')
+	    .style(
+		'right',
+		'50' +
+		    'px')
+	    .style(
+		'top',
+		'100' +
+		    'px');
+}
+
+function view_usher_tree(d) {
+	fetch('/get_usher_link', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify(d['NODE_IDS'])
+	}).then(res => {
+		res.json().then(data => {
+			// Open usher.bio link in new tab
+			window.open(data['url'], '_blank');
+		});
+	});
+}
+
+function get_detailed_overview(overview, d) {
+	// Get data from table for each of these fields
+	fetch('/get_overview', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({'id': d['ID']})
+	}).then(res => {
+		res.json().then(data => {
+			console.log('OVERVIEW DATA: ', data);
+			console.log('OVERVIEW DATA: ', data);
+
+			// d3.select('#off_canvas_right_body').remove();
+			document.getElementById('off_canvas_right_body')
+			    .textContent = '';
+
+			const detailed_overview =
+			    document.getElementById('off_canvas_right_body');
+
+			append_text(
+			    detailed_overview,
+			    'Recombinant Node ID: ' + d['NODE_IDS']['Recomb']);
+			append_text(
+			    detailed_overview,
+			    'Current Recombinant Lineage Designation: ' +
+				data['overview']['recomb_lineage']);
+			append_text(
+			    detailed_overview,
+			    'Recombinant Origin Date: ' +
+				data['overview']['recomb_date']);
+
+			append_text(
+			    detailed_overview,
+			    'Recombinant Between: ' +
+				data['overview']['donor_lineage'] + ' and ' +
+				data['overview']['acceptor_lineage']);
+
+			append_text(
+			    detailed_overview,
+			    'Number Sequences: ' +
+				data['overview']['num_desc'].toLocaleString());
+
+			append_text(
+			    detailed_overview,
+			    'Earliest Sequence: ' +
+				data['overview']['earliest_seq']);
+
+			append_text(
+			    detailed_overview,
+			    'Most Recent Sequence: ' +
+				data['overview']['latest_seq']);
+			append_text(
+			    detailed_overview,
+			    'Countries Detected: ' +
+				data['overview']['countries']);
+
+			append_text(detailed_overview, 'QC Flags: ');
+			append_list(
+			    detailed_overview, data['overview']['qc_flags']);
+			// TODO: Add
+			// append_text(overview,
+			// 'Defining
+			// Mutations:
+			// ');
+		});
+	});
+}
+
+function render_table(selected_tree) {
+	let private_table_select = document.getElementById('full_table');
+	let public_table_select = document.getElementById('table_container');
+	if (selected_tree == 'public') {
+		$('#full_tree').removeClass('active');
+		$('#public_tree').addClass('active');
+		console.log('Loading public tree');
+		private_table_select.hidden = true;
+
+		if (public_table_select.hidden) {
+			public_table_select.removeAttribute('hidden');
+			$('#datatable').show();
+			$('#datatable').DataTable().columns.adjust();
+		}
+	} else {
+		$('#public_tree').removeClass('active');
+		$('#full_tree').addClass('active');
+		console.log('Loading private tree');
+		public_table_select.hidden = true;
+		private_table_select.removeAttribute('hidden');
+		$('#full_datatable').show();
+		$('#full_datatable').DataTable().columns.adjust();
+	}
+}
+
 function next_result(id) {
 	// Get current result table page length
 	var pageLength = ($('#datatable').DataTable().page() + 1) *
@@ -114,10 +238,9 @@ function append_list(div, list) {
 		li.innerHTML = li.innerHTML + element;
 	});
 	div.appendChild(tag);
-
 	// Add linebreak after last element for Taxonium button
 	linebreak = document.createElement('br');
-	linebreak.style.lineHeight = '3';
+	linebreak.style.lineHeight = '5';
 	div.appendChild(linebreak);
 }
 
@@ -181,8 +304,6 @@ function download_snv_plot(inner_svg, node_name) {
 	}
 }
 
-
-
 function serialize_object(file_name, obj) {
 	// Create download file
 	const file = new File(obj, file_name);
@@ -228,7 +349,7 @@ function format_tsv(data) {
 	return [obj];
 }
 
-function download_all_descendants() {
+function download_all_descendants(tree_type) {
 	fetch('/get_all_descendants', {
 		method: 'POST',
 		headers: {'Content-Type': 'text/plain'},
@@ -237,11 +358,11 @@ function download_all_descendants() {
 	return '/get_all_descendants';
 }
 
-function download_table() {
+function download_table(tree_type) {
 	fetch('/download_table', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({download: 'table'})
+		body: JSON.stringify({'tree_type': tree_type})
 	}).then(res => {
 		res.json().then(data => {
 			var file_name = 'recombination_results.txt';
@@ -307,6 +428,7 @@ function display_descendants(label_node_id) {
 		});
 	});
 }
+
 function download_taxonium() {
 	fetch('/download_taxonium', {
 		method: 'POST',
@@ -418,4 +540,3 @@ function display_legend(svg, colors) {
 	    .attr('text-anchor', 'left')
 	    .style('alignment-baseline', 'middle');
 }
-

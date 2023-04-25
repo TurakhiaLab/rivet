@@ -8,9 +8,11 @@ function draw_histogram(plot) {
 	var right_yAxis_name = 'New Cases';
 	if (plot == 'plot1') {
 		$('#plot2').removeClass('active');
+		$('#plot3').removeClass('active');
 		$('#plot1').addClass('active');
 	} else if (plot == 'plot2') {
 		$('#plot1').removeClass('active');
+		$('#plot3').removeClass('active');
 		$('#plot2').addClass('active');
 		right_yAxis_name = 'New Sequences';
 	} else {
@@ -38,6 +40,22 @@ function draw_histogram(plot) {
 				'New Sequences':
 				    'Number of new genome sequences added'
 			};
+			if (plot == 'plot1') {
+				var corr = ss.sampleCorrelation(
+						 data['recomb_counts'],
+						 data['month_data'])
+					       .toFixed(2);
+				console.log(
+				    'correlation coefficient plot 1: ', corr);
+			}
+			if (plot == 'plot2') {
+				var corr = ss.sampleCorrelation(
+						 data['recomb_counts'],
+						 data['month_data'])
+					       .toFixed(2);
+				console.log(
+				    'correlation coefficient plot 2: ', corr);
+			}
 			var margin =
 				{top: 100, right: 110, bottom: 60, left: 80},
 			    width = 2000 - margin.left - margin.right,
@@ -237,6 +255,170 @@ function draw_histogram(plot) {
 			    .style('text-anchor', 'start')
 			    .text(function(d) {
 				    return d;
+			    });
+		});
+	});
+}
+
+function draw_relative_histogram(plot) {
+	var right_yAxis_name = 'New Cases';
+	if (plot == 'plot3') {
+		$('#plot1').removeClass('active');
+		$('#plot2').removeClass('active');
+		$('#plot3').addClass('active');
+	}
+
+	fetch('/get_relative_data', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({'id': plot})
+	}).then(res => {
+		res.json().then(data => {
+			var div = document.getElementById('cases_histogram');
+			if (div) {
+				// Clear previous track visualization
+				// elements
+				d3.selectAll('svg').remove();
+			}
+			var months = [];
+			for (var i = 0; i < data['months'].length; ++i) {
+				months[i] = data['months'][i];
+			}
+			plot_data = [];
+			for (var i = 0; i < months.length; ++i) {
+				plot_data[i] = {
+					'month': months[i],
+					'value':
+					    Math.round(
+						data['axis_data'][i] * 10000) /
+					    10000
+				};
+			}
+			var plot_labels = {
+				'New Cases':
+				    'Number of new infections reported',
+				'New Sequences':
+				    'Number of new genome sequences added'
+			};
+			var margin =
+				{top: 100, right: 110, bottom: 60, left: 80},
+			    width = 2000 - margin.left - margin.right,
+			    height = 900 - margin.top - margin.bottom;
+
+			var svg =
+			    d3.select('#cases_histogram')
+				.append('svg')
+				.attr(
+				    'width', width + margin.left + margin.right)
+				.attr(
+				    'height',
+				    height + margin.top + margin.bottom)
+				.append('g')
+				.attr(
+				    'transform',
+				    'translate(' + margin.left + ',' +
+					margin.top + ')');
+
+			var x0 = d3.scaleBand()
+				     .domain(months)
+				     .range([0, width])
+				     .paddingInner(0.5);
+
+			// Left side y-axis for number of recombinant
+			// events
+			var yLeft =
+			    d3.scaleLinear()
+				.domain([0.0, d3.max(data['axis_data'])])
+				.range([height, 0]);
+
+			const xAxis = d3.axisBottom(x0);
+			const yLeftAxis = d3.axisLeft(yLeft).ticks(20);
+			svg.append('g')
+			    .attr('class', 'bottomAxis')
+			    .attr('transform', 'translate(0,' + height + ')')
+			    .data([months])
+			    .call(d3.axisBottom(x0))
+			    .selectAll('text')
+			    .style('text-anchor', 'end')
+			    .attr('dx', '-.8em')
+			    .attr('dy', '.15em')
+			    .attr('transform', 'rotate(-65)');
+
+			svg.append('g')
+			    .attr('class', 'y0 axis')
+			    .call(yLeftAxis)
+			    .append('text')
+			    .attr('transform', 'rotate(-90)')
+			    .attr('x', -85)
+			    .attr('y', -60)
+			    .attr('dominant-baseline', 'central')
+			    .style('font-size', '24px')
+			    .style('fill', '#89ABE3FF')
+			    .text('Proportion of new recombination events');
+
+			const tooltip =
+			    d3.select('#cases_histogram')
+				.append('div')
+				.style('position', 'absolute')
+				.style('visibility', 'hidden')
+				.style('padding', '15px')
+				.style('background', 'rgba(0,0,0,0.6)')
+				.style('border-radius', '5px')
+				.style('color', 'white');
+
+			svg.selectAll('rect')
+			    .data(data['axis_data'])
+			    .enter()
+			    .append('rect')
+			    .attr('width', x0.bandwidth())
+			    .attr(
+				'x',
+				function(d, i) {
+					return x0(months[i]);
+				})
+			    .attr(
+				'y',
+				function(d) {
+					return yLeft(d)
+				})
+			    .attr(
+				'height',
+				function(d, i) {
+					console.log('data: ', d.value);
+					return height - yLeft(d);
+				})
+			    .style(
+				'fill',
+				function(d) {
+					return '#89ABE3FF';
+				})
+			    .on('mouseover',
+				function(d) {
+					var value = d.toLocaleString();
+					var name = 'test';
+					tooltip.html(`${name}: ${value}`)
+					    .style('visibility', 'visible');
+					d3.select(this)
+					    .style('fill', '#1fd655')
+					    .attr('stroke-width', '1')
+					    .attr('stroke', 'black');
+				})
+			    .on('mousemove',
+				function() {
+					tooltip
+					    .style(
+						'top',
+						(event.pageY - 10) + 'px')
+					    .style(
+						'left',
+						(event.pageX + 10) + 'px');
+				})
+			    .on('mouseout', function() {
+				    tooltip.html(``).style(
+					'visibility', 'hidden');
+				    d3.select(this)
+					.attr('stroke-width', '0')
+					.style('fill', '#89ABE3FF');
 			    });
 		});
 	});
