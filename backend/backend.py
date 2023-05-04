@@ -26,6 +26,78 @@ import csv
 import io
 import os
 
+def get_sampled_desc(results_file, node_id):
+    """
+    """
+    BUF_SIZE = 1048576 # Read 1MB at a time
+    f = open(results_file, 'r', buffering=BUF_SIZE)
+    d = {}
+    # Skip over column headers (assuming one)
+    header = f.readline()
+    # Check to make sure results file contains sampled descendants field
+    if header.strip().split('\t')[-1] != "Sampled Descendants":
+        return None
+    for line in f:
+        splitline = line.strip().split('\t')
+        sampled_desc_list = list(filter(None,splitline[-1].split(',')))
+        if node_id == splitline[0]:
+            return sampled_desc_list
+    # Error, node_id not found in results file
+    return None
+
+def query_desc_file(desc_file, desc_lookup_table, node_id):
+    """
+    """
+    #tick = time.perf_counter()
+    # TODO: Integrate queries for compressed files, decompression too slow
+    #f = lzma.open(desc_file, 'rb')
+    f = open(desc_file, 'r')
+    # Line byte offset + size of node_id + 1 for '\t' character
+    pos = desc_lookup_table[node_id][0]
+    f.seek(pos)
+    #tock = time.perf_counter()
+    #print(f"Time elapsed querying desc file: {tock-tick:.2f} seconds")
+    # Read size of the descendants_string bytes from the file
+    desc_string = f.read(desc_lookup_table[node_id][1] - desc_lookup_table[node_id][0])
+    # Split comma separated string into a list of descendants
+    desc_list = desc_string.split(',')
+    #TODO: Decoding too slow currently
+    #desc_list = desc_string.decode('ascii').split(',')
+    # Return descendant list, up to max limit size
+    limit = 10000
+    if len(desc_list) > limit:
+        return desc_list[:limit]
+    return desc_list
+
+def parse_translation_files(coding_mutations_file, recomb_node_set):
+    """
+    Input translation file format:
+        #node_id	aa_mutations	nt_mutations	codon_changes	leaves_sharing_mutations
+    """
+    BUF_SIZE = 1048576 # Read 1MB at a time
+    f = open(coding_mutations_file, 'r', buffering=BUF_SIZE)
+
+    d = {}
+    # Skip over column headers (assuming one)
+    f.readline()
+    for line in f:
+        splitline = line.strip().split('\t')
+        if "node_" not in splitline[0] or splitline[0] not in recomb_node_set:
+            continue
+        node_id = splitline[0]
+        aa = list(splitline[1].split(";"))
+        nt = list(splitline[2].split(";"))
+        # NOTE: If there are mulitple nucleotide mutations in one node affecting a single codon (rare),
+        # they will be separated by commas in the nt_mutations column.
+        # TODO: You will need to parse these slightly diffferently for SNV plot
+        codon = splitline[3]
+        leaves_sharing_mutations = splitline[4]
+        inner = dict()
+        inner["aa_mutations"] = aa
+        inner["nt_mutations"] = nt
+        inner["codon_changes"] = codon
+        d[node_id] = inner
+    return d
 
 def parse_config(config_file):
     """
@@ -191,12 +263,57 @@ def init_data(results_file, env):
         d["descendants"] = "NA"
         return d
 
+def preprocess_desc_file(desc_file, recomb_node_set):
+    """
+    """
+    tick = time.perf_counter()
+    BUF_SIZE = 1048576 # Read 1MB at a time
+    if desc_file.endswith(".xz"):
+        f = io.TextIOWrapper(io.BufferedReader(lzma.open(desc_file, 'rb'), buffer_size=BUF_SIZE))
+    elif desc_file.endswith(".gz"):
+        f = io.TextIOWrapper(io.BufferedReader(gzip.open(desc_file, 'rb'), buffer_size=BUF_SIZE))
+    else:
+        f = open(desc_file, 'r', buffering=BUF_SIZE)
+    # Store map from node_id to tuple with start,end byte offset positions of descendants string in file
+    # ie) {node_id: (start_byte, end_byte)}
+
+    desc_pos_table = {}
+    sample_counts = {}
+    # Skip over column headers (assuming one)
+    line = f.readline()
+    while line:
+        splitline = line.strip().split('\t')
+        node_id = splitline[0]
+
+        if "node_" not in node_id:
+            line = f.readline()
+            continue
+        #if node_id not in recomb_node_set:
+        #    line = f.readline()
+        #    continue
+        descendants_string = splitline[1]
+        node_id_start_byte = f.tell() - len(line)
+        # Starting byte position of descendants string for given node_id
+        # Starting byte position of node_id + number of characters in node_id + 1 for '\t' character
+        desc_string_start_byte_pos = node_id_start_byte + len(node_id) + 1
+        desc_string_end_byte_pos = desc_string_start_byte_pos + len(descendants_string)
+        desc_pos_table[node_id] = (desc_string_start_byte_pos, desc_string_end_byte_pos)
+
+        # Record number of samples for a given recombinant node
+        sample_counts[node_id] = len(splitline[1].split(","))
+
+        # Move to next line in file
+        line = f.readline()
+
+    f.close()
+    tock = time.perf_counter()
+    print(f"Time elapsed pre-processing descendants file: {tock-tick:.2f} seconds")
+    return desc_pos_table, sample_counts
+
 def load_descendants(desc_file, recomb_node_set):
     """
     """
     tick = time.perf_counter()
-    # TODO: Load a more succinct lookup table for all descendants
-    # and for each recombinant node store an index into descendants table
     if desc_file is None:
         return None, None
     BUF_SIZE = 1048576 # Read 1MB at a time
@@ -293,7 +410,6 @@ def tsv_to_dict(results_tsvfile, metadata_start_col = None):
         # Do not display extra metadata columns in results datatable
         if metadata_start_col is not None:
             dictionary[str(index)] = splitline[:metadata_start_col - 1]
-            #print(splitline[:metadata_start_col - 1])
             #NOTE: Expecting Filter/QC annotations to be at column 20 in results file
             # Get QC annotations from results file
             dictionary[str(index)].append(splitline[20])
@@ -361,8 +477,8 @@ def load_intervals(recomb_results_file):
       next(f)
       for line in f:
         splitline = line.strip().split('\t')
-        #if splitline[19]!="PASS":
-        if splitline[len(splitline)-1]!="PASS":
+        #if splitline[len(splitline)-1]!="PASS":
+        if splitline[20]!="PASS":
             continue
         intervals.append(tuple( format_bp_interval(splitline[bp1_col_idx])))
         interval2=tuple(format_bp_interval(splitline[bp2_col_idx]))
@@ -559,7 +675,7 @@ def label_informative_sites_from_vcf(snp_dict, positions, table, ref_positions):
     return info_node_matches
 
 
-def build_table(results_dict, columns, config):
+def build_table(results_dict, columns, config, full_tree=False):
     """
     Build a table from a dictionary.
     """
@@ -582,7 +698,8 @@ def build_table(results_dict, columns, config):
                         row[i]="-"
             except IndexError:
                 pass
-        row.append(generate_taxonium_link(value[0], value[1], value[2], get_treeview_host(config["date"])))
+        if not full_tree:
+            row.append(generate_taxonium_link(value[0], value[1], value[2], get_treeview_host(config["date"])))
         # Add unique row key as first element in each row
         row.insert(0,key)
         table.append(row)
@@ -627,7 +744,7 @@ def load_local_table(results_file, config):
     return table, column_headers
 
 
-def load_table(results_file, config):
+def load_table(results_file, config, full_tree=False):
     """
     Create table from dictionary. Return table and columns as separate lists.
     """
@@ -639,15 +756,22 @@ def load_table(results_file, config):
     # Extract datatable column headers also
     results_dict, columns, metadata = tsv_to_dict(results_file, 20)
 
+
+    # TODO: Disable Taxonium feature for full tree
     # Add additional column for Taxodium tree view links
-    # Last visible column in datatable by default
-    columns.append("Click to View")
+    # Last visible column in datatable by default, for public tree results only
+    if not full_tree:
+        columns.append("Click to View")
 
     # Check header information present in file
     if(len(columns) == 0):
         raise RuntimeError(colored("[ERROR]: Check input results file: {}. Empty file or missing header information".format(results_file), 'red', attrs=['reverse']))
 
-    table = build_table(results_dict, columns, config)
+    if not full_tree:
+        table = build_table(results_dict, columns, config)
+    # Disable Taxonium link generation for full tree
+    #else:
+    #    table = build_table(results_dict, columns, config, True)
 
     # Add first hidden column with row ids to datatable
     columns.insert(0,"Row")
@@ -798,7 +922,6 @@ def get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, des
         positions = positions.union(get_positions(d[snps]))
     pos = list(positions)
     pos.sort()
-    #print("Number of positions: ", len(pos))
 
     # Iterate wrt genomic positions
     for p in pos:

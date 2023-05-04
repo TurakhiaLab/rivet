@@ -42,6 +42,33 @@ def get_tree_view():
     url = backend.generate_taxonium_link(content["Recomb"], content["Donor"], content["Acceptor"], HOST)
     return jsonify({"url": url})
 
+@app.route("/get_usher_link", methods=['POST'])
+def get_usher_link():
+    content = request.get_json()
+    results_file = None
+    if content is not None:
+        if content["tree"] == 'public':
+            results_file = app.config.get('input_recombination_results')
+        else:
+            results_file = app.config.get('fulltree_recombination_results')
+        #TODO: Handle for local version 
+        #    return jsonify(None)
+        node_id = content["node"]
+    else:
+        # Initialize default values from input TSV
+        node_id = init_data["recomb_id"]
+
+    samples = backend.get_sampled_desc(results_file, node_id)
+    if not samples:
+        print("[Error] {} not found in results file.".format(node_id))
+        samples = ["England/PHEP-YYGTYSK/2023|2023-03-18", 
+                   "England/PHEP-YYGO141/2023|2023-03-13", 
+                   "OX449571.1|2023-03-01", 
+                   "England/PHEP-YYGPO9T/2023|2023-02-28"]
+    # Generate UShER Bio url with samples to place
+    url = backend.usher_upload(samples)
+    return jsonify({"url": url})
+
 @app.route("/get_relative_data", methods=['POST'])
 def get_relative_data():
     content = request.get_json()
@@ -66,12 +93,41 @@ def get_count_data():
         hist_data = backend.format_histogram_data(months, recomb_counts, app.config.get('month_case_counts'), "New Cases")
     return jsonify({"data": hist_data, "month_data": axis_data,  "recomb_counts": recomb_counts})
 
+@app.route("/get_detailed_overview", methods=['POST'])
+def get_detailed_overview():
+    content = request.get_json()
+    table = app.config.get('table')
+    sample_counts = app.config.get('sample_counts')
+    metadata = app.config.get('metadata')
+    row_id = int(content["id"])
+    # NOTE: Column values hardcoded
+    recomb_lineage = table[row_id][7]
+    recomb_date = table[row_id][16]
+    donor_lineage = table[row_id][9]
+    acceptor_lineage = table[row_id][11]
+    num_desc = sample_counts[table[row_id][1]]
+    qc_flags = table[row_id][20]
+    earliest_seq = metadata[str(row_id)]["Earliest_seq"]
+    latest_seq = metadata[str(row_id)]["Latest_seq"]
+    countries = metadata[str(row_id)]["countries"]
+    d = {"recomb_lineage": recomb_lineage,
+         "recomb_date": recomb_date,
+         "donor_lineage": donor_lineage,
+         "acceptor_lineage": acceptor_lineage,
+         "num_desc": num_desc, 
+         "qc_flags": util.css_to_list(qc_flags),
+         "earliest_seq": earliest_seq,
+         "latest_seq": latest_seq,
+         "countries": countries
+         }
+    return jsonify({"overview": d})
+
 @app.route("/get_overview", methods=['POST'])
 def get_overview():
     content = request.get_json()
     table = app.config.get('table')
     sample_counts = app.config.get('sample_counts')
-    #metadata = app.config.get('metadata')
+    metadata = app.config.get('metadata')
     row_id = int(content["id"])
     # NOTE: Column values hardcoded
     recomb_lineage = table[row_id][7]
@@ -79,18 +135,18 @@ def get_overview():
     donor_lineage = table[row_id][9]
     acceptor_lineage = table[row_id][11]
     qc_flags = table[row_id][20]
-    #earliest_seq = metadata[str(row_id)]["Earliest_seq"]
-    #latest_seq = metadata[str(row_id)]["Latest_seq"]
-    #countries = metadata[str(row_id)]["countries"]
+    earliest_seq = metadata[str(row_id)]["Earliest_seq"]
+    latest_seq = metadata[str(row_id)]["Latest_seq"]
     num_desc = sample_counts[table[row_id][1]]
+    countries = util.format_css(metadata[str(row_id)]["countries"])
     d = {"recomb_lineage": recomb_lineage,
          "recomb_date": recomb_date,
          "donor_lineage": donor_lineage,
          "acceptor_lineage": acceptor_lineage,
          "qc_flags": util.css_to_list(qc_flags),
-         #"earliest_seq": earliest_seq,
-         #"latest_seq": latest_seq,
-         #"countries": countries,
+         "earliest_seq": earliest_seq,
+         "latest_seq": latest_seq,
+         "countries": countries,
          "num_desc": num_desc}
     return jsonify({"overview": d})
 
@@ -107,17 +163,36 @@ def search_by_sample_id():
 @app.route("/get_descendants", methods=["POST"])
 def get_descendants():
     init_data = app.config.get('init_data')
-    desc_d = app.config.get('desc_data')
-    if desc_d is None:
-        return jsonify(None)
     content = request.get_json()
+    desc_lookup_table, desc_file = None, None
     if content is not None:
+        if content["tree"] == 'public':
+            desc_lookup_table = app.config.get('desc_data')
+            desc_file = app.config.get('desc_file')
+        else:
+            desc_lookup_table = app.config.get('full_tree_desc_data')
+            desc_file = app.config.get('full_tree_desc_file')
+        # If descendants file not provided in local mode, disable feature
+        if desc_lookup_table is None:
+            print("NONE")
+            return jsonify(None)
         node_id = content["node"]
     else:
         # Initialize default values from input TSV
         node_id = init_data["recomb_id"]
-    d = backend.get_node_descendants(desc_d, node_id)
+    d = backend.query_desc_file(desc_file, desc_lookup_table, node_id)
+    #TODO: Add unit tests
+    #d = backend.get_node_descendants(desc_d, node_id)
     return jsonify(d)
+
+@app.route("/get_aa_mutations", methods=["POST"])
+def get_aa_mutations():
+    content = request.get_json()
+    recomb_node_id = content["recomb_node_id"]
+    translation_data = app.config.get('translation_data')
+    aa_mutations = translation_data[recomb_node_id]["aa_mutations"]
+    nt_mutations = translation_data[recomb_node_id]["nt_mutations"]
+    return jsonify({"aa": aa_mutations, "nt": nt_mutations})
 
 @app.route("/get_all_descendants", methods=["POST", "GET"])
 def get_all_descendants():
@@ -136,7 +211,14 @@ def download_taxonium():
 
 @app.route("/download_table", methods=["POST", "GET"])
 def download_table():
-    results_file = app.config.get('input_recombination_results')
+    # TODO: Send file directly
+    content = request.get_json()
+    tree_type = content["tree_type"]
+    results_file = None
+    if tree_type == "public":
+        results_file = app.config.get('input_recombination_results')
+    else:
+        results_file = app.config.get('fulltree_recombination_results')
     # Parse results file for table download
     results_data = backend.parse_file(results_file)
     return jsonify(results_data)
@@ -171,13 +253,74 @@ def download_select_descendants():
         mimetype='text/plain',
         headers={'content-disposition': 'attachment; filename={}'.format(filename)})
 
-
 @app.route("/get_breakpoint_data")
 def get_breakpoint_data():
     results_file = app.config.get('input_recombination_results')
     midpoints_dict = backend.generate_breakpoint_data(results_file)
     midpoint_lst = backend.format_bp_data(midpoints_dict)
     return jsonify(midpoint_lst)
+
+@app.route('/get_data_full_tree', methods=['GET', 'POST'])
+def get_data_full_tree():
+  content = request.get_json()
+  env = app.config.get('environment').lower()
+  breakpoint1, breakpoint2, descendants = None, None, None
+  if content is not None and len(content.keys()) == 2:
+      full_table = app.config.get('full_tree_table')
+      if content['click'] == "next":
+          # Unless index at last row, move to next row
+          index = int(content["row_id"]) + 1
+          if index < len(full_table):
+              row_data = full_table[index]
+          else:
+              row_data = full_table[int(content["row_id"])]
+      elif content['click'] == "previous":
+          # Unless index at first row, move to prev row
+          index = int(content["row_id"]) - 1
+          if not index < 0:
+              row_data = full_table[index]
+          else:
+              row_data = full_table[int(content["row_id"])]
+      row_id = row_data[0]
+      recomb_id = row_data[1]
+      donor_id = row_data[2]
+      acceptor_id = row_data[3]
+      if env.lower() != "local":
+          breakpoint1 = row_data[4]
+          breakpoint2 = row_data[5]
+          descendants = row_data[12]
+
+  elif content is not None:
+      row_id = content["row_id"]
+      recomb_id = content["recomb_id"]
+      donor_id = content["donor_id"]
+      acceptor_id = content["acceptor_id"]
+      if env.lower() != "local":
+          breakpoint1 = content["breakpoint1"]
+          breakpoint2 = content["breakpoint2"]
+          descendants = content["descendant"]
+  else:
+      # Fetch init data on startup, to initialize visualization
+      # before user selected input
+      init_data = app.config.get('init_data')
+      row_id = "0"
+      recomb_id = init_data["recomb_id"]
+      donor_id = init_data["donor_id"]
+      acceptor_id = init_data["acceptor_id"]
+      if env != "local":
+          breakpoint1 = init_data["breakpoint1"]
+          breakpoint2 = init_data["breakpoint2"]
+          descendants = init_data["descendants"]
+
+  recomb_informative_only = False
+  d = app.config.get('full_tree_snp_data')
+  full_tree_positions = app.config.get('full_tree_positions')
+  full_tree_info_sites = app.config.get('full_tree_info_sites')
+  color_schema = app.config.get('color_schema')
+
+  track_data =  OrderedDict()
+  track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, full_tree_info_sites, color_schema, d, recomb_informative_only, row_id, env)
+  return jsonify(track_data)
 
 @app.route('/get_data', methods=['GET', 'POST'])
 def get_data():
@@ -233,7 +376,7 @@ def get_data():
 
   recomb_informative_only = False
   d = app.config.get('snp_data')
-  positions = app.config.get('positions')
+  #positions = app.config.get('positions')
   info_sites = app.config.get('info_sites')
   color_schema = app.config.get('color_schema')
 
@@ -246,16 +389,22 @@ def get_data():
 def table():
   results = {} 
   table = cache.get('table')
+  full_table = cache.get('full_tree_table')
   if table == None:
       table = app.config.get('table')
+  if full_table == None:
+      full_table = app.config.get('full_tree_table')
   columns = app.config.get('columns')
+  full_tree_columns = app.config.get('full_tree_columns')
   env = app.config.get('environment')
   template = 'index.html'
   if env.lower() == "local":
       template = 'local.html'
   results["columns"] = columns
   results["data"] = table
-  return render_template(template, headings=columns, data=table)
+  results["full_columns"] = full_tree_columns
+  results["full_data"] = full_table
+  return render_template(template, headings=columns, data=table, full_headings=columns, full_data=full_table)
 
 
 if __name__ == "__main__":
@@ -264,6 +413,7 @@ if __name__ == "__main__":
   parser.add_argument("-r", "--recombinant_results", required=True, type=str, help="Give input recombination results file")
   parser.add_argument("-d", "--descendants_file", required=False, type=str, help="File continaing descendants (up to 10k) for each node in VCF")
   parser.add_argument("-c", "--config", required=True, type=str, help="Configuration file for defining custom color schema for visualizations.")
+  parser.add_argument("-t", "--translate", required=False, type=str, help="matUtils translate file for visualizing amino acid information.")
   args = parser.parse_args()
 
   # Load and parse config file
@@ -279,19 +429,37 @@ if __name__ == "__main__":
   #    color_schema = backend.default_color_schema()
    
   # Load recombination results file and get initial data
-  recomb_results = args.recombinant_results
+  results_files = args.recombinant_results.split(",")
+  recomb_results = results_files[0]
+  fulltree_results = None
+  if len(results_files) > 1:
+      fulltree_results = results_files[1]
   init_data = backend.init_data(recomb_results, config["environment"])
   app.config['init_data'] = init_data
+  # Input recombination results files
   app.config['input_recombination_results'] = recomb_results
+  app.config['fulltree_recombination_results'] = fulltree_results
 
   # Load VCF file
   tick = time.perf_counter()
-  vcf_file = args.vcf
+  vcf_files = args.vcf.split(",")
+  vcf_file = vcf_files[0]
+
+  # Load VCF data for public tree
   snp_dict, positions, ref_positions = backend.vcf_to_dict(vcf_file)
   app.config['snp_data'] = snp_dict
   app.config['positions'] = positions
 
+  full_tree_vcf, full_tree_snp_dict, full_tree_positions = None, None, None
+  if len(vcf_files) > 1:
+      full_tree_vcf = vcf_files[1]
+      # Load VCF data for full tree
+      full_tree_snp_dict, full_tree_positions, full_tree_positions = backend.vcf_to_dict(full_tree_vcf)
+  app.config['full_tree_snp_data'] = full_tree_snp_dict
+  app.config['full_tree_positions'] = full_tree_positions
+
   # Load table 
+  full_tree_table, full_tree_columns, metadata, full_tree_metadata, full_tree_info_sites = None, None, None, None, None
   if config["environment"].lower() == "local":
       table, columns = backend.load_local_table(recomb_results, config) 
       info_sites = backend.label_informative_sites_from_vcf(snp_dict, positions, table, ref_positions)
@@ -299,9 +467,15 @@ if __name__ == "__main__":
       table, columns, metadata = backend.load_table(recomb_results, config)
       # Preprocess informative site information for snp plot
       info_sites = backend.label_informative_sites(metadata)
-      backend.make_plot(recomb_results,"static/midpoint_plot.svg")
+      #backend.make_plot(recomb_results,"static/midpoint_plot.svg")
+
+      # Load table for full tree recombination results
+      full_tree_table, full_tree_columns, full_tree_metadata = backend.load_table(fulltree_results, config)
+      # Preprocess informative site information for snp plot
+      full_tree_info_sites = backend.label_informative_sites(full_tree_metadata)
 
       # Load data for recombination counts histogram
+      # TODO: Update analysis page for full tree results
       months, month_case_counts, month_seq_counts, recomb_counts, relative_recombinants =  backend.build_counts_histogram(recomb_results)
       app.config['months'] = months
       app.config['month_case_counts'] = month_case_counts
@@ -309,26 +483,69 @@ if __name__ == "__main__":
       app.config['recomb_counts'] = recomb_counts
       app.config['relative_recombinants'] = relative_recombinants
 
-  # Load descendants file
-  desc_file = args.descendants_file
-  recomb_node_set, recomb_desc_dict, desc_dict, sample_counts = None,None,None,None
-  if desc_file is not None:
-      print("Loading provided descendants file: ", desc_file)
-      recomb_node_set = set([cell[1] for cell in table])
-      desc_dict, recomb_desc_dict, sample_counts = backend.load_descendants(desc_file, recomb_node_set)
+  # App parameters for full tree recombination results
+  app.config['full_tree_table'] = full_tree_table
+  cache.set("full_tree_table", full_tree_table)
+  app.config['full_tree_columns'] = full_tree_columns
+  app.config['full_tree_metadata'] = full_tree_metadata
+  app.config['full_tree_info_sites'] = full_tree_info_sites
 
-  app.config['color_schema'] = color_schema
+  # Load descendants file
+  desc_file, desc_position_table, full_tree_desc_position_table, full_tree_desc_file, recomb_node_set, recomb_desc_dict, desc_dict, sample_counts, full_tree_desc_file = None,None,None,None,None,None,None,None,None
+  if args.descendants_file:
+      desc_files = args.descendants_file.split(",")
+      print("Loading provided descendants file/s: ", desc_files)
+      desc_file = desc_files[0]
+      # Load public tree desc file
+      recomb_node_set = set([cell[1] for cell in table])
+      desc_position_table, sample_counts = backend.preprocess_desc_file(desc_file, recomb_node_set)
+      #TODO: recomb_desc_dict -> Only used by search_by_sample feature, disabled for full tree currently
+
+      if len(desc_files) > 1:
+          full_tree_desc_file = desc_files[1]
+          # Load full tree desc file
+          full_tree_recomb_node_set = set([cell[1] for cell in full_tree_table])
+          full_tree_desc_position_table, full_tree_sample_counts = backend.preprocess_desc_file(full_tree_desc_file, full_tree_recomb_node_set)
+
+  #TODO: Provide amino acid workflow data for full tree also
+  # Amino acid translation (if provided)
+  translation_data, full_tree_translation_data = None, None
+  if args.translate:
+      translation_files = args.translate.split(",")
+      translation_file = translation_files[0]
+      print("Loading provided amino acid translation file/s: ", translation_file)
+      translation_data = backend.parse_translation_files(translation_file, recomb_node_set)
+      if len(translation_files) > 1:
+          full_tree_translation_file = translation_files[1]
+          print("Loading provided amino acid translation file/s: ", full_tree_translation_file)
+          full_tree_translation_data = backend.parse_translation_files(full_tree_translation_file, full_tree_recomb_node_set)
+
+  app.config['translation_data'] = translation_data
+  app.config['full_tree_translation_data'] = full_tree_translation_data
+
+  # App parameter for public tree recombination results 
   app.config['info_sites'] = info_sites
   app.config['table'] = table
-  #app.config['metadata'] = metadata
+  cache.set("table", table)
+  app.config['metadata'] = metadata
   app.config['sample_counts'] = sample_counts
   app.config['columns'] = columns
-  cache.set("table", table)
-  app.config['date'] = str(config["date"])
+
+  # Parameters for public tree descendants information
   app.config['recomb_desc'] = recomb_desc_dict
-  app.config['desc_data'] = desc_dict
+  app.config['desc_data'] = desc_position_table
   app.config['desc_file'] = desc_file
+  app.config['full_tree_desc_file'] = full_tree_desc_file
+ 
+  # Parameters for full tree descendants information
+  app.config['recomb_desc'] = full_tree_desc_position_table
+  app.config['full_tree_desc_data'] = full_tree_desc_position_table
+  app.config['full_tree_desc_file'] = full_tree_desc_file
+  
+  # App tree and config parameters
   app.config['environment'] = config["environment"]
+  app.config['date'] = str(config["date"])
+  app.config['color_schema'] = color_schema
 
   tock = time.perf_counter()
   print(f"Time elapsed: {tock-tick:.2f} seconds")

@@ -38,12 +38,22 @@ div#summary {
 }
 
 #overview_text {
+  padding-right: 25px;
   padding-bottom: 10px;
+  word-wrap: break-word;
 }
 #info {
   position:absolute;
   top: 15;
   right: 10;
+}
+
+.offcanvas-body {
+  overflow-wrap: break-word;
+}
+
+div#off_canvas_right_body {
+  overflow-wrap: break-word;
 }
 
 #view_usher {
@@ -66,12 +76,6 @@ div#summary {
 #overview_header {
   padding-bottom: 20px;
 }
-
-/*
-div#off_canvas_right_body {
-				background-color: #a9a9a9;
-}
-*/
 
 div#search {
         margin-left: 1550px;

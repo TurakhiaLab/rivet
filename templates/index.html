@@ -37,7 +37,7 @@
                       </a>
               <li class="nav-item active px-2">
                       <a href="{{ url_for('getting_started') }}" class="nav-link" style="font-size: 20px;">
-                                                            About
+                              About
                       </a>
               <!-- Remove upload page for now
               <li class="nav-item active">
@@ -51,7 +51,6 @@
         </div>
     </div>
 </nav>
-
 
 </head>
 <body>
@@ -71,12 +70,12 @@
 <script src="static/utils.js"></script>
 <link rel="stylesheet" href="static/styles.css"/>
 
-   <div class="parent" id="parent" style="width: 100%;">
-    <div class="child" id="visualization" style="width: 80%;">
-        <div class="viz" id="tracks"></div>
-    </div>
-    <div class="child" style="width: 20%; float: right;" id="summary" hidden></div>
-   </div>
+<div class="parent" id="parent" style="width: 100%;">
+  <div class="child" id="visualization" style="width: 80%;">
+      <div class="viz" id="tracks"></div>
+  </div>
+  <div class="child" style="width: 20%; float: right;" id="summary" hidden></div>
+</div>
 
 <div class="offcanvas offcanvas-start" style="width: 1000px" id="off_canvas_left" data-bs-keyboard="true" data-bs-scroll="false" data-bs-backdrop="true" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
   <div class="offcanvas-header">
@@ -93,9 +92,20 @@
   </div>
   <div class="offcanvas-body" id="off_canvas_left_body" style="width: 950px">
   </div>
+ </div>
 </div>
-   </div>
-    <script>
+
+<div class="offcanvas offcanvas-end" style="width: 700px" tabindex="-1" id="off_canvas_right" data-bs-keyboard="true" data-bs-backdrop="true" aria-labelledby="offcanvasRightLabel">
+  <div class="offcanvas-header">
+    <h5 id="offcanvasRightLabel">Detailed Overview</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body" id="off_canvas_right_body" style="width: 750px">
+  </div>
+</div>
+
+
+<script>
 
     function reset_search(table) {
           // Refresh datatable results
@@ -105,22 +115,20 @@
     }
 
     $(document).ready(function () {
-    var table = $('#datatable').DataTable({
+        var table = $('#datatable').DataTable({
                           pageLength: 25,
                           lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
                           // Display table results in descending order of the recombinant ranking score (coln 15)
                           order: [[17, 'desc']],
                           autoWidth: false,
                           scrollX: true,
-                          searching:true,
-                          /*
+                          searching: true,
                           // Color recombinants that have passed filration checks green
                           rowCallback: function(row, data, index) {
-                               if (data[19].toString() == "PASS") {
+                               if (data[20].toString() == "PASS") {
                                    row.style.backgroundColor = '#abf7b1';
                                }
                           },
-                          */
                           columnDefs: [
                           // Hide row id column from results table
                           {
@@ -150,6 +158,60 @@
                            },
                        });
 
+        var full_table = $('#full_datatable').DataTable({
+                          pageLength: 25,
+                          lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
+                          // Display table results in descending order of the recombinant ranking score (coln 15)
+                          order: [[17, 'desc']],
+                          autoWidth: false,
+                          scrollX: true,
+                          searching: true,
+								/*
+                          // Color recombinants that have passed filration checks green
+                          rowCallback: function(row, data, index) {
+                               if (data[20].toString() == "PASS") {
+                                   row.style.backgroundColor = '#abf7b1';
+                               }
+                          },
+													*/
+                          columnDefs: [
+                          // Hide row id column from results table
+                          {
+                               target: 0,
+                               visible: false,
+                               searchable: false,
+                           },
+                           // Hide Taxonium view link for full tree results
+                          {
+                               target: -1,
+                               visible: false,
+                               searchable: false,
+                           },
+                          /*
+                          // Hide breakpoint interval columns from results table, still searchable
+                          {
+                               target: 4,
+                               visible: false,
+                               searchable: true,
+                           },
+                           {
+                               target: 5,
+                               visible: false,
+                               searchable: true,
+                           },
+                          */
+                         ],
+                        /*
+                          "initComplete": function(settings, json) {
+                                let tableSelect = document.getElementById("full_datatable");
+                                tableSelect.removeAttribute("hidden");
+                                $("#full_datatable").show();
+                                $("#full_datatable").DataTable().columns.adjust();
+                           },
+													 */
+                       });
+
+   			//TODO: Search by sample for full tree data
        // Default search configuration on page load
        var reset_flag = false; 
        var search_by_sample;
@@ -236,46 +298,66 @@
             table.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
         }
-    });
- });
+	 });
 
+       $('#full_datatable tbody').on('click', 'tr', function () {
+         var row = full_table.row( this ).data();
+         //TODO: Get parsed input file header information ahead of time
+         var data = {"row_id": row[0], "recomb_id" :row[1], "breakpoint1" : row[4], "breakpoint2": row[5], "donor_id" : row[2], "acceptor_id" : row[3], "descendant": row[12]};
+         var endpoints = ["/get_data_full_tree"];
+         $.each(endpoints, function(i,u){
+         $.ajax({
+         url: u,
+         type: 'POST',
+         contentType: "application/json",
+         dataType: "json",
+         data: JSON.stringify(data),
+         processData: false,
+         success: function(response){
+             $('#main').text(response)
+                 console.log("RESPONSE: ", response);
+                             track(response);
+             }
+         })  
+       });
 
+          if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+        } else {
+            full_table.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+	 });
 
-    </script>
+			let private_table_select =
+			    document.getElementById('full_table');
+      // Search for full tree table
+      $('.dataTables_filter input').keyup(function() {
+			    if (!private_table_select.hidden) {
+              $('#full_datatable').DataTable().search($(this).val()).draw();
+					}
+			});
 
-    
+  });
 
+  </script>
 
-<!-- TODO: Remove right side offcanvas panel for now, update visualization settings as more visualization interactive features added
-  <button class="btn btn-secondary" id="visual_settings" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Visualization Settings</button>
-
-<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" data-bs-scroll="true" data-bs-keyboard="true" data-bs-backdrop="false" aria-labelledby="offcanvasRightLabel">
-  <div class="offcanvas-header">
-    <h3 id="offcanvasRightLabel">Visualization Settings</h3>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-
-  <div class="offcanvas-body" id="off_canvas_right_body">
-          <p>Toggle between viewing all SNPS for each node and recombination-informative SNPS only (default).</p>
-         <button type="button" class="btn btn-outline-dark btn-sm" id="recomb_info_only" data-toggle="button" aria-pressed="false">
-         Show Recombination-Informative Only
-         </button>
-
-         <button type="button" class="btn btn-outline-dark btn-sm" id="all_snps" data-toggle="button" aria-pressed="false">
-         Show all SNPS
-         </button>
-   </div>
-  </div>
+<div id="table_title" hidden>
+    <h2>RIPPLES Dectected Recombination Events</h2>
+    <h5> Select tree</h5>
+ <div class="btn-group btn-group-toggle" data-toggle="buttons">
+    <label class="btn btn-outline-primary active" id="public_tree">
+						<input type="radio" name="options" id="public_tree" autocomplete="off" onclick="render_table('public')" checked>Public Tree
+    </label>
+    <label class="btn btn-outline-primary" id="full_tree">
+						<input type="radio" name="options" action="/" id="full_tree" autocomplete="off" onclick="render_table('full')">Full Tree
+    </label>
+ </div>
 </div>
 
-<-->
-
- <div class="container" id="table_container" hidden>
-    <!--table id="datatable" class="table is-striped" style="width:100%"-->
-    <!--table id="datatable" class="striped" style="width:100%"-->
+ <div id="table_container" hidden>
     <table id="datatable" class="striped" style="width:100%">
-         <h2>RIPPLES Dectected Recombination Events</h2>
-         <h5>Public Tree, Last Updated: February 28, 2023</h5>
+         <h5>Public Tree, Last Updated: March 30, 2023</h5>
   
          <div class="download_button" id="download">
            <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>
@@ -329,6 +411,57 @@
     </table>
   </div>
 
+   <div id="full_table" hidden>
+    <table id="full_datatable" class="striped" style="width:100%">
+         <h5>Full Tree, Last Updated: March 30, 2023</h5>
+  
+         <div class="download_button" id="download">
+           <button type="button" class="btn btn-outline-primary" id="full_table_download_all_descendants">Download All Descendants</button>
+           <button type="button" class="btn btn-outline-primary" id="download_full_table">Download Table</button>
+         </div>
+
+         <div class="form-check form-switch" id="search">
+             <input class="form-check-input" id="search_by_sample_button" type="checkbox" id="flexSwitchCheckDefault">
+             <label class="form-check-label" for="flexSwitchCheckDefault">Search by sample</label>
+         </div>
+        <thead>
+            <tr>
+               {% for h in full_headings %}
+               <th>{{ h }}</th>
+               {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in full_data %}
+                    <tr>
+                        {% for cell in row %}
+                            {% if not loop.last %}
+                                <td class="table__cell" style="background-color:none">{{ cell }}</td>
+                            {% else %}
+                                <td class="table__cell" style="background-color:none"> 
+                                        {% set tree = cell %}
+                                        <a target="_blank" href="{{ tree }}">
+                                          <div style="height:100%;width:100%">
+                                            View Tree
+                                          </div>
+                                        </a>
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+            {% endfor %}
+        </tbody>
+        <!--TODO: For table footer, if necessary
+        <tfoot>
+            <tr>
+               {% for header in headings %}
+               <th>{{ header }}</th>
+               {% endfor %}
+            </tr>
+        </tfoot>
+        <-->
+    </table>
+	 </div>
 
 </body>
 </html>

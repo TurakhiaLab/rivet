@@ -73,6 +73,7 @@ function graph() {
 
 		// Add title to SNP visualization plot
 		container.append('text')
+		    .attr('id', 'plot_title')
 		    .attr('x', 300)
 		    .attr('y', 120)
 		    .attr('text-anchor', 'start')
@@ -147,32 +148,36 @@ function graph() {
 				});
 			});
 
-			// Append "More info" button in overview section
-			var overview_info_button =
-			    document.createElement('button');
-			overview_info_button.setAttribute(
-			    'class', 'btn btn-outline-primary');
-			overview_info_button.setAttribute('id', 'info');
-			const info_btn_text =
-			    document.createTextNode('More Info');
-			overview_info_button.appendChild(info_btn_text);
-			overview.appendChild(overview_info_button);
+			// TODO: Fix right offCanvas formatting of text
+			/*
+						// Append "More info" button in
+			   overview section var overview_info_button =
+						    document.createElement('button');
+						overview_info_button.setAttribute(
+						    'class', 'btn
+			   btn-outline-primary');
+						overview_info_button.setAttribute('id',
+			   'info'); const info_btn_text =
+						    document.createTextNode('More
+			   Info');
+						overview_info_button.appendChild(info_btn_text);
+						overview.appendChild(overview_info_button);
 
-			// Toggle offcanvas right
-			// Handle next/prev result button input
-			if (overview_info_button) {
-				var overview_info =
-				    overview_info_button.onclick = function() {
-					    var myOffcanvas =
-						document.getElementById(
-						    'off_canvas_right')
-					    var bsOffcanvas =
-						new bootstrap.Offcanvas(
-						    myOffcanvas);
-					    bsOffcanvas.show();
-					    get_detailed_overview(overview, d);
-				    }
-			}
+						// Toggle offcanvas right
+						// Handle next/prev result
+			   button input if (overview_info_button) { var
+			   overview_info = overview_info_button.onclick =
+			   function() { var myOffcanvas =
+									document.getElementById(
+									    'off_canvas_right')
+								    var
+			   bsOffcanvas = new bootstrap.Offcanvas( myOffcanvas);
+								    bsOffcanvas.show();
+								    get_detailed_overview(overview,
+			   d);
+							    }
+						}
+						*/
 
 			// Append "View UShER" button in overview section
 			var overview_usher_button =
@@ -253,6 +258,7 @@ function graph() {
 
 				// Append "Show Defining Mutations" button in
 				// overview section
+			/*			
 				var overview_mutations_button =
 				    document.createElement('button');
 				overview_mutations_button.setAttribute(
@@ -261,11 +267,22 @@ function graph() {
 				    'id', 'show_mutations');
 				const mutations_btn_text =
 				    document.createTextNode(
-					'Show Defining Mutations');
+					'Show Amino Acid Mutations');
 				overview_mutations_button.appendChild(
 				    mutations_btn_text);
 				overview.appendChild(overview_mutations_button);
 			}
+			if (overview_mutations_button) {
+				overview_mutations_button.onclick = function() {
+					var nt_data = [];
+					var nt_data = get_amino_acid_mutations(
+					    d['NODE_IDS']['Recomb'], container,
+					    y_position, snp_positions,
+					    square_dims, num_snps, d);
+				};
+			*/
+			}
+
 			// Make summary visible
 			overview.removeAttribute('hidden');
 		}

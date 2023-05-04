@@ -13,6 +13,33 @@ function format_txt(data) {
 	return [obj];
 }
 
+function get_amino_acid_mutations(
+    recomb_node_id, container, y_position, snp_positions, square_dims, num_snps,
+    d) {
+	var nt_data = [];
+	var nt_positions = [];
+	fetch('/get_aa_mutations', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({'recomb_node_id': recomb_node_id})
+	}).then(res => {
+		res.json().then(data => {
+			for (nt of data['nt']) {
+				nt_data.push(nt);
+			}
+			for (let i = 0; i < nt_data.length; ++i) {
+				nt_positions.push(nt_data[i].slice(1, -1));
+			}
+			add_aa_labels(
+			    container, y_position - 40, snp_positions,
+			    square_dims, num_snps, d, nt_positions, data['aa']);
+
+			d3.selectAll('.bases').style('opacity', '0.2');
+		});
+	});
+	return nt_data;
+}
+
 function usher_button_info_hide(tooltip) {
 	tooltip.html(``).style('visibility', 'hidden');
 }
@@ -33,10 +60,18 @@ function usher_button_info_display(tooltip) {
 }
 
 function view_usher_tree(d) {
+	let tree_selected = 'public';
+	let full_table_select = document.getElementById('full_table');
+	// Check if public or full table is selected
+	if (!full_table_select.hidden) {
+		tree_selected = 'full';
+	}
+
 	fetch('/get_usher_link', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify(d['NODE_IDS'])
+		body: JSON.stringify(
+		    {node: d['NODE_IDS']['Recomb'], tree: tree_selected})
 	}).then(res => {
 		res.json().then(data => {
 			// Open usher.bio link in new tab
@@ -46,17 +81,13 @@ function view_usher_tree(d) {
 }
 
 function get_detailed_overview(overview, d) {
-	// Get data from table for each of these fields
+	// Get additional data from table for each of these fields
 	fetch('/get_overview', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({'id': d['ID']})
 	}).then(res => {
 		res.json().then(data => {
-			console.log('OVERVIEW DATA: ', data);
-			console.log('OVERVIEW DATA: ', data);
-
-			// d3.select('#off_canvas_right_body').remove();
 			document.getElementById('off_canvas_right_body')
 			    .textContent = '';
 
@@ -95,6 +126,7 @@ function get_detailed_overview(overview, d) {
 			    detailed_overview,
 			    'Most Recent Sequence: ' +
 				data['overview']['latest_seq']);
+
 			append_text(
 			    detailed_overview,
 			    'Countries Detected: ' +
@@ -113,13 +145,12 @@ function get_detailed_overview(overview, d) {
 }
 
 function render_table(selected_tree) {
-	let private_table_select = document.getElementById('full_table');
+	let full_table_select = document.getElementById('full_table');
 	let public_table_select = document.getElementById('table_container');
 	if (selected_tree == 'public') {
 		$('#full_tree').removeClass('active');
 		$('#public_tree').addClass('active');
-		console.log('Loading public tree');
-		private_table_select.hidden = true;
+		full_table_select.hidden = true;
 
 		if (public_table_select.hidden) {
 			public_table_select.removeAttribute('hidden');
@@ -129,9 +160,8 @@ function render_table(selected_tree) {
 	} else {
 		$('#public_tree').removeClass('active');
 		$('#full_tree').addClass('active');
-		console.log('Loading private tree');
 		public_table_select.hidden = true;
-		private_table_select.removeAttribute('hidden');
+		full_table_select.removeAttribute('hidden');
 		$('#full_datatable').show();
 		$('#full_datatable').DataTable().columns.adjust();
 	}
@@ -222,17 +252,17 @@ function previous_result(id) {
 }
 
 function append_text(div, text) {
-	var tag = document.createElement('p');
+	let tag = document.createElement('p');
 	tag.setAttribute('id', 'overview_text');
 	tag.appendChild(document.createTextNode(text));
 	div.appendChild(tag);
 }
 
 function append_list(div, list) {
-	var tag = document.createElement('ul');
+	let tag = document.createElement('ul');
 	tag.setAttribute('id', 'overview_text');
 	list.forEach((element) => {
-		var li = document.createElement('li');
+		let li = document.createElement('li');
 		li.setAttribute('class', 'item');
 		tag.appendChild(li);
 		li.innerHTML = li.innerHTML + element;
@@ -376,15 +406,21 @@ function display_descendants(label_node_id) {
 	if (label_node_id == 'None') {
 		return;
 	}
+	let tree_selected = 'public';
+	let full_table_select = document.getElementById('full_table');
+	// Check if public or full table is selected
+	if (!full_table_select.hidden) {
+		tree_selected = 'full';
+	}
 
 	fetch('/get_descendants', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({node: label_node_id})
+		body: JSON.stringify({node: label_node_id, tree: tree_selected})
 	}).then(res => {
 		res.json().then(data => {
-			// Remove query descendants functionality for local
-			// server
+			// Remove query descendants functionality for
+			// local server
 			if (!data) {
 				return;
 			}
@@ -436,7 +472,8 @@ function download_taxonium() {
 		res.json().then(data => {
 			// Format: year-month-date
 			var date = data['date'];
-			//  NOTE: storage bucket public_trees is hardcoded
+			//  NOTE: storage bucket public_trees is
+			//  hardcoded
 			var url =
 			    'https://storage.googleapis.com/public_trees/' +
 			    date + '.taxonium.jsonl.gz'
@@ -452,7 +489,8 @@ function download_tree() {
 		res.json().then(data => {
 			// Format: year-month-date
 			var date = data['date'];
-			// Format: "public-year-month-date.all.masked.pb.gz"
+			// Format:
+			// "public-year-month-date.all.masked.pb.gz"
 			var mat = 'public-' + date +
 			    '.all.masked.nextclade.pangolin.pb.gz'
 			date = date.split('-').join('/');

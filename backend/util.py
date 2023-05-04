@@ -13,6 +13,19 @@ def check_file_exists(file_path):
         print(colored("ERROR: {} file not found in current directory.".format(file_path), 'red', attrs=['reverse']))
         exit(1);
 
+def format_css(css):
+    """
+    Format a comma separated string
+    If not present already:
+        - Add a trailing space after comma
+        - Remove trailing comma
+    """
+    css = css.replace(",",", ")
+    # If trailing comma exists, remove it
+    if (css[-1] == ","):
+        css = css[:-1]
+    return css
+
 def css_to_list(css_string):
     """
     Convert a comma separated string to a list

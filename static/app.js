@@ -25,6 +25,11 @@ function main() {
 var copy_snv_button =
 create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 */
+	if (document.querySelector('#table_title')) {
+		// Show results table title and select tree buttons
+		document.querySelector('#table_title')
+		    .removeAttribute('hidden');
+	}
 
 	var download_snv_button =
 	    create_button('download_svg', 'Download SNV', 1250, 280);
@@ -70,35 +75,25 @@ create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 			window.location.href = url;
 		}, false);
 	}
-
-	if (full_tree_desc_button.style.visibility != 'hidden') {
-		full_tree_desc_button.addEventListener('click', () => {
-			// TODO: Fix for full tree
-			var url = download_all_descendants();
-			window.location.href = url;
-		}, false);
+	if (full_tree_desc_button) {
+		if (full_tree_desc_button.style.visibility != 'hidden') {
+			full_tree_desc_button.addEventListener('click', () => {
+				// TODO: Get working for full tree
+				var url = download_all_descendants();
+				window.location.href = url;
+			}, false);
+		}
 	}
 
-	// let private_table_select = document.getElementById('full_table');
 	if (table_button) {
 		table_button.addEventListener('click', () => {
 			download_table('public');
-			/*
-if (private_table_select.hidden) {
-	// Downloading public tree results table
-} else {
-	// Downloading full tree results table
-	console.log('FULL TREE DOWNLOAD SELECTED');
-	download_table('full');
-}
-*/
 		}, false);
 	}
 	if (full_table_button) {
 		full_table_button.addEventListener('click', () => {
 			// Downloading full tree results table
 			download_table('full');
-			console.log('FULL TREE DOWNLOAD SELECTED');
 		}, false);
 	}
 

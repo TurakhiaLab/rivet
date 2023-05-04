@@ -1,4 +1,3 @@
-
 // Track constants
 const track_width = 1750;
 const track_x_position = 300;
@@ -453,6 +452,70 @@ function handle_zero_snps(svg) {
 	    .text('No SNVs to display for the selected recombinant.');
 }
 
+function add_aa_labels(
+    track_svg, y_position, snp_positions, square_dims, num_snps, d,
+    nt_positions, aa_mutations) {
+	// Hide plot title
+	// TODO: Show different plot title for amino acid site view
+	d3.select('#plot_title').style('opacity', 0);
+
+	var acceptor_snps = [];
+	for (const [key, value] of Object.entries(d['SNPS'])) {
+		acceptor_snps.push(value['Acceptor']);
+	}
+	var new_y = y_position;
+
+	var num_snps = acceptor_snps.length;
+	var label_width =
+	    (num_snps * square_dims + (num_snps - 1) * buffer_btw_bases) +
+	    track_x_position;
+
+	var x = d3.scaleBand().domain(snp_positions).range([
+		track_x_position, label_width
+	]);
+
+	// Get informative site positions
+	var info_sites = d['INFO_SITES'];
+	var colors = d['COLOR'];
+	track_svg.append('g')
+	    .attr('class', 'TopAxis')
+	    .data([snp_positions])
+	    .attr('transform', `translate(0,${new_y - buffer_btw_tracks - 5})`)
+	    .call(d3.axisTop(x))
+	    .selectAll('text')
+	    .style('text-anchor', 'start')
+	    .attr('dx', '1em')
+	    .attr('dy', '.2em')
+	    .style('font-size', '15px')
+	    .attr('transform', 'rotate(-65)')
+	    .style(
+		'fill',
+		function(d, i) {
+			var color;
+			if (d.toString() in info_sites) {
+				var match = info_sites[d];
+				color = determine_informative(match, colors);
+			} else {
+				// Otherwise not an informative site, don't
+				// highlight
+				color = colors['non_informative_site'];
+			}
+			return color;
+		})
+	    .style('opacity', function(d, i) {
+		    if (!nt_positions.includes(d.toString())) {
+			    return '0';
+		    } else {
+			    var index = nt_positions.indexOf(d.toString());
+			    d3.select(this).text(
+				aa_mutations[index].toString());
+			    return '1';
+		    }
+	    });
+
+	track_svg.selectAll('.topAxis path').style('stroke', '#FFFFFF');
+}
+
 function add_column_label(
     track_svg, label_y_position, x_pos, square_dims, label_text) {
 	// Add label above each column
@@ -462,8 +525,8 @@ function add_column_label(
 	    .attr('width', square_dims)
 	    .attr('height', square_dims * 2)
 	    // Background rect white, so only text label shows
+	    //.attr('fill', '#D3D3D3');
 	    .attr('fill', '#D3D3D3');
-
 
 	// Add text position label above each track
 	track_svg.append('text')
@@ -504,19 +567,23 @@ function init_coordinate_track(track_svg, y_position) {
 	// New y position to update and return as new track is
 	// added above previous one
 	var new_y = y_position;
+	const init_track_x_position = 100;
 
-	track_svg.append('text')
-	    .attr('x', 1000)
+	track_svg
+	    .append('text')
+	    //.attr('x', 1000)
+	    .attr('x', 800)
 	    .attr('y', 300)
 	    .attr('text-anchor', 'middle')
-	    .attr('font-size', 30)
+	    .attr('font-size', 28)
 	    .style('font-weight', 'bold')
 	    .text(
 		'Select a table entry below to view  the single-nucleotide variation in the recombinant and its parents');
 
 	// Add initial genomic track
 	track_svg.append('rect')
-	    .attr('x', track_x_position)
+	    .attr('x', init_track_x_position)
+	    //.attr('x', track_x_position)
 	    .attr('y', border_height - coordinate_outer_buffer)
 	    .attr('width', track_width)
 	    .attr('height', coordinate_track_height)
@@ -529,7 +596,8 @@ function init_coordinate_track(track_svg, y_position) {
 	var x_axis_pos = [zero.toString(), x_axis_height.toString()].join(',');
 
 	var x = d3.scaleLinear().domain([0, 29903]).range([
-		track_x_position, track_width + track_x_position
+		// track_x_position, track_width + track_x_position
+		init_track_x_position, track_width + init_track_x_position
 	]);
 	track_svg.append('g')
 	    .attr('transform', 'translate(0,600)')
@@ -874,14 +942,16 @@ function add_bases_to_track(
 			let halfway = square_dims / 2;
 
 			// Append square base inside specific svg track
-			svg.append('rect')
-			    .attr('class', 'bases')
-			    .data(position_data)
-			    .attr('x', x_pos)
-			    .attr('y', y_pos)
-			    .attr('height', square_dims)
-			    .attr('width', square_dims)
-			    .attr('fill', color);
+			var bases_rect = svg.append('rect')
+					     .data(position_data)
+					     .attr('class', 'bases')
+					     .attr('x', x_pos)
+					     .attr('y', y_pos)
+					     .attr('height', square_dims)
+					     .attr('width', square_dims)
+					     .attr('fill', color)
+					     .each(function(d, i) {});
+
 			/* TODO: Add interactivity to each SNV position
 					    .on('mouseover',
 						function(d) {
