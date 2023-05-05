@@ -84,13 +84,24 @@ def get_count_data():
     content = request.get_json()
     plot_type = str(content["id"])
     months = app.config.get('months')
+    #tree_selected = content["tree_type"]
+    #if tree_selected == 'public':
     recomb_counts = app.config.get('recomb_counts')
+    month_seq_counts = app.config.get('month_seq_counts')
+    month_case_counts = app.config.get('month_case_counts')
+    #else:
+    #    recomb_counts = app.config.get('full_tree_recomb_counts')
+    #    month_seq_counts = app.config.get('full_tree_month_seq_counts')
+    #    month_case_counts = app.config.get('full_tree_month_case_counts')
     if plot_type == "plot2":
-        axis_data = app.config.get('month_seq_counts')
-        hist_data = backend.format_histogram_data(months, recomb_counts, app.config.get('month_seq_counts'), "New Sequences")
+        #axis_data = app.config.get('month_seq_counts')
+        axis_data = month_seq_counts
+        hist_data = backend.format_histogram_data(months, recomb_counts, month_seq_counts, "New Sequences")
     else:
-        axis_data = app.config.get('month_case_counts')
-        hist_data = backend.format_histogram_data(months, recomb_counts, app.config.get('month_case_counts'), "New Cases")
+        #axis_data = app.config.get('month_case_counts')
+        axis_data = month_case_counts
+        hist_data = backend.format_histogram_data(months, recomb_counts, month_case_counts, "New Cases")
+
     return jsonify({"data": hist_data, "month_data": axis_data,  "recomb_counts": recomb_counts})
 
 @app.route("/get_detailed_overview", methods=['POST'])
@@ -102,7 +113,7 @@ def get_detailed_overview():
     row_id = int(content["id"])
     # NOTE: Column values hardcoded
     recomb_lineage = table[row_id][7]
-    recomb_date = table[row_id][16]
+    recomb_date = table[row_id][12]
     donor_lineage = table[row_id][9]
     acceptor_lineage = table[row_id][11]
     num_desc = sample_counts[table[row_id][1]]
@@ -131,7 +142,7 @@ def get_overview():
     row_id = int(content["id"])
     # NOTE: Column values hardcoded
     recomb_lineage = table[row_id][7]
-    recomb_date = table[row_id][16]
+    recomb_date = table[row_id][12]
     donor_lineage = table[row_id][9]
     acceptor_lineage = table[row_id][11]
     qc_flags = table[row_id][20]
@@ -288,7 +299,7 @@ def get_data_full_tree():
       if env.lower() != "local":
           breakpoint1 = row_data[4]
           breakpoint2 = row_data[5]
-          descendants = row_data[12]
+          descendants = row_data[14]
 
   elif content is not None:
       row_id = content["row_id"]
@@ -350,7 +361,7 @@ def get_data():
       if env.lower() != "local":
           breakpoint1 = row_data[4]
           breakpoint2 = row_data[5]
-          descendants = row_data[12]
+          descendants = row_data[14]
 
   elif content is not None:
       row_id = content["row_id"]
@@ -482,6 +493,15 @@ if __name__ == "__main__":
       app.config['month_seq_counts'] = month_seq_counts
       app.config['recomb_counts'] = recomb_counts
       app.config['relative_recombinants'] = relative_recombinants
+      
+      full_tree_month_case_counts,full_tree_month_seq_counts,full_tree_recomb_counts,full_tree_relative_recombinants, = None,None,None,None
+      if len(results_files) > 1:
+          months, full_tree_month_case_counts, full_tree_month_seq_counts, full_tree_recomb_counts, full_tree_relative_recombinants =  backend.build_counts_histogram(fulltree_results)
+      app.config['full_tree_month_case_counts'] = full_tree_month_case_counts
+      app.config['full_tree_month_seq_counts'] = full_tree_month_seq_counts
+      app.config['full_tree_recomb_counts'] = full_tree_recomb_counts
+      app.config['full_tree_relative_recombinants'] = full_tree_relative_recombinants
+
 
   # App parameters for full tree recombination results
   app.config['full_tree_table'] = full_tree_table

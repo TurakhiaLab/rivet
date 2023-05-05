@@ -38,7 +38,7 @@
                       </a>
               <li class="nav-item active px-2">
                       <a href="{{ url_for('getting_started') }}" class="nav-link" style="font-size: 20px;">
-                                                            About
+                              About
                       </a>
               <!--
               <li class="nav-item active">
@@ -70,9 +70,24 @@
 <!--        <div class="center-screen" id="breakpoint_viz"></div> -->
 <img class="center-screen" src="static/midpoint_plot.svg" width="1500" height="1000"/>
 
-
+<!-- Tree selector buttons for public vs full tree analysis plots
 <div class="histogram_title">
     <h1> SARS-CoV-2 Recombinantion Events Inferred Monthly</h1>
+    <h5> Select tree</h5>
+ <div class="btn-group btn-group-toggle" data-toggle="buttons">
+    <label class="btn btn-outline-primary active" id="public_tree_analysis">
+          <input type="radio" name="options" id="public_tree" autocomplete="off" onclick="select_analysis_plot('public')" checked>Public Tree
+    </label>
+    <label class="btn btn-outline-primary" id="full_tree_analysis">
+          <input type="radio" name="options" action="/" id="full_tree_analysis" onclick="select_analysis_plot('full')" autocomplete="off">Full Tree
+    </label>
+ </div>
+</div>
+<-->
+
+<div class="histogram_title">
+  <h1> SARS-CoV-2 Recombinantion Events Inferred Monthly</h1>
+<div class="histogram_selections" id="histogram_selections">
  <div class="btn-group btn-group-toggle" data-toggle="buttons">
     <label class="btn btn-outline-primary active" id="plot1">
       <input type="radio" name="options" id="plot1" autocomplete="off" onclick="draw_histogram('plot1')" checked> vs. Number of new infections
@@ -86,11 +101,12 @@
  </div>
 </div>
 
-<div id="recomb_over_time"></div>
-<div id="cases_histogram"> </div>
-
-<div class="histogram_description">
-    <p>Dataset used for number of new infections: "JHU CSSE COVID-19 Data"<a target="_blank" href="https://github.com/CSSEGISandData/COVID-19">https://github.com/CSSEGISandData/COVID-19</a>
+<div class="histogram_visuals" id="histogram_visuals">
+  <div id="recomb_over_time"></div>
+  <div id="cases_histogram"> </div>
+  <div class="histogram_description">
+      <p>Dataset used for number of new infections: "JHU CSSE COVID-19 Data"<a target="_blank" href="https://github.com/CSSEGISandData/COVID-19">https://github.com/CSSEGISandData/COVID-19</a>
+  </div>
 </div>
 
 <!--Bootstrap-->
@@ -109,5 +125,7 @@
 <!-- <script src="static/breakpoint_vis.js"></script> -->
 <script src="static/histograms.js"></script>
 
+<!-- Utility functions -->
+<script src="static/utils.js"></script>
 </body>
 </html>

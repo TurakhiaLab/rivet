@@ -19,10 +19,22 @@ function draw_histogram(plot) {
 		plot = 'plot1';
 	}
 
+	//let full_tree_select = document.getElementById('full_tree_analysis');
+	//let public_tree_select =
+	    //document.getElementById('public_tree_analysis');
+	let tree = 'None';
+	/*
+		if (public_tree_select.hasAttribute('active')) {
+			tree = 'public';
+		} else {
+			tree = 'private';
+		}
+		*/
+
 	fetch('/get_count_data', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({'id': plot})
+		body: JSON.stringify({'id': plot, 'tree_type': tree})
 	}).then(res => {
 		res.json().then(data => {
 			var div = document.getElementById('cases_histogram');

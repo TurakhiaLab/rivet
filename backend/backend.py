@@ -198,12 +198,15 @@ def build_counts_histogram(results_file):
     for line in f:
         splitline = line.strip().split('\t')
         recomb_id = splitline[0]
-        recomb_date = splitline[15]
+        recomb_date = splitline[11]
+        # TODO: Add unit tests
         parsed_date = recomb_date.split('-')
         year = str(parsed_date[0])
         month = str(parsed_date[1])
         joined_date = "_".join([year, month])
         if joined_date not in month_bins.keys():
+            if joined_date == "2023_03" or joined_date == "2023_04":
+                continue
             print("[ERROR] CHECK Formatting: {}".format(joined_date))
             exit(1)
         month_bins[joined_date].add(recomb_id)
@@ -419,12 +422,12 @@ def tsv_to_dict(results_tsvfile, metadata_start_col = None):
             
             # Check number of informative positions matches the number of characters in ABAB string
             err_message = "Informative sites not matching ABAB string for recomb node: {}".format(splitline[0])
-            assert len(info_sites_list) == len(splitline[12]), err_message
+            assert len(info_sites_list) == len(splitline[14]), err_message
             
             # Add informative site and informative seq to metadata
             node_metadata["recomb_id"] = splitline[0]
             node_metadata["InfoSites"] = info_sites_list
-            node_metadata["InfoSeq"] = splitline[12]
+            node_metadata["InfoSeq"] = splitline[14]
             if len(splitline) > 21:
                 node_metadata["Earliest_seq"] = splitline[21]
                 node_metadata["Latest_seq"] = splitline[22]

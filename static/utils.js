@@ -144,6 +144,21 @@ function get_detailed_overview(overview, d) {
 	});
 }
 
+function select_analysis_plot(selected_tree) {
+	let histogram_selections =
+	    document.getElementById('histogram_selections');
+	let histogram_visuals = document.getElementById('histogram_visuals');
+	if (selected_tree == 'public') {
+		$('#full_tree_analysis').removeClass('active');
+		$('#public_tree_analysis').addClass('active');
+		if (histogram_selections.hidden) {
+		}
+	} else {
+		$('#public_tree_analysis').removeClass('active');
+		$('#full_tree_analysis').addClass('active');
+	}
+}
+
 function render_table(selected_tree) {
 	let full_table_select = document.getElementById('full_table');
 	let public_table_select = document.getElementById('table_container');

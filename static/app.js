@@ -78,8 +78,8 @@ create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 	if (full_tree_desc_button) {
 		if (full_tree_desc_button.style.visibility != 'hidden') {
 			full_tree_desc_button.addEventListener('click', () => {
-				// TODO: Get working for full tree
-				var url = download_all_descendants();
+				// TODO: Full tree desc download
+				var url = download_all_descendants('full_tree');
 				window.location.href = url;
 			}, false);
 		}
