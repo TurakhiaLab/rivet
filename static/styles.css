@@ -24,6 +24,7 @@ div#table_container{
 .parent {
   padding: 1rem 1rem;
 }
+
 .child {
   display: inline-block;
   vertical-align: middle;
@@ -42,11 +43,13 @@ div#summary {
   padding-bottom: 10px;
   word-wrap: break-word;
 }
+/*
 #info {
   position:absolute;
   top: 15;
   right: 10;
 }
+*/
 
 .offcanvas-body {
   overflow-wrap: break-word;
@@ -61,17 +64,20 @@ div#off_canvas_right_body {
   bottom: 165;
   left: 10;
 }
+
 #view_tree {
   position:absolute;
   bottom: 115;
   left: 10;
 }
+
+/*
 #show_mutations {
   position:absolute;
   bottom: 65;
   left: 10;
 }
-
+*/
 
 #overview_header {
   padding-bottom: 20px;
@@ -166,7 +172,12 @@ div#download_visual_body.copy_visual {
 }
 */
 
+#histogram_selections {
+	padding-left: 150px;
+}
+
 #cases_histogram{
+	padding-top: 50px;
   padding-bottom: 100px;
 	padding-left: 40px;
 	padding-right: 40px;
@@ -184,7 +195,6 @@ div#download_visual_body.copy_visual {
 				padding-right: 100px; 
 				padding-bottom: 50px; 
 }
-
 
 div.dataTables_wrapper {
         /*width: 2500px; */
