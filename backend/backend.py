@@ -157,12 +157,21 @@ def create_month_bins():
                 return month_bins
             month_bins[y + "_" + m] = set()
 
-def build_counts_histogram(results_file):
+def build_counts_histogram(results_file, month_seq_counts_filename):
     """
     """
     month_bins = create_month_bins()
-    #TODO: Load this data from an additional file
-
+    month_seq_counts_file = open(month_seq_counts_filename, 'r')
+    next(month_seq_counts_file)
+    month_new_seq_counts = {}
+    for line in month_seq_counts_file:
+        splitline = line.strip().split('\t')
+        month = splitline[0]
+        # TODO: Temp hack until alternate data source for current case count found
+        if month == "2023_03":
+            break
+        sequence_count = splitline[1]
+        month_new_seq_counts[month] = int(sequence_count)
     #Month counts for new infections
     #Data(daily global time - series)
     # obtained from : https:  // github.com/CSSEGISandData/COVID-19
@@ -173,15 +182,7 @@ def build_counts_histogram(results_file):
         "2022_05": 16213566, "2022_06": 17732748, "2022_07": 29650733, "2022_08": 25713990, "2022_09": 14721332, "2022_10": 12795215, "2022_11": 12388536,
         "2022_12": 17219669, "2023_01": 10270797, "2023_02": 4587649}
 
-    #Month counts for sequences added to the MAT
-    #New sequenced genomes each month obtained from public metadata
-    # file : https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/
-    month_new_seq_counts = {"2020_01": 368, "2020_02": 622, "2020_03": 28008, "2020_04": 32225, "2020_05": 15548, "2020_06": 15521, "2020_07": 17312,
-        "2020_08": 19188, "2020_09": 26088, "2020_10": 48073, "2020_11": 59890, "2020_12": 75421, "2021_01": 126779, "2021_02": 137727,
-        "2021_03": 214674, "2021_04": 210270, "2021_05": 146672, "2021_06": 152416, "2021_07": 303144, "2021_08": 470300, "2021_09": 458061,
-        "2021_10": 453609, "2021_11": 581793, "2021_12": 529523, "2022_01": 471163, "2022_02": 435674, "2022_03": 466953, "2022_04": 217273,
-        "2022_05": 162331, "2022_06": 172118, "2022_07": 186467, "2022_08": 129673, "2022_09": 85326, "2022_10": 77278, "2022_11": 71777,
-        "2022_12": 86676, "2023_01": 59626, "2023_02": 18069}
+    assert(len(month_counts_new_infections.keys()) == len(month_new_seq_counts.keys()))
 
     #Months is ticks on x - axis
     months = list(month_bins.keys())

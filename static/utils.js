@@ -13,6 +13,29 @@ function format_txt(data) {
 	return [obj];
 }
 
+function analysis_plot_selected() {
+	let plot1 = $('#plot1').hasClass('active');
+	let plot2 = $('#plot2').hasClass('active');
+	let plot3 = $('#plot3').hasClass('active');
+	if (plot1) {
+		return 'plot1';
+	} else if (plot2) {
+		return 'plot2';
+	} else {
+		return 'plot3';
+	}
+}
+
+function tree_selected() {
+	let public_tree = $('#public_tree_analysis').hasClass('active');
+	let full_tree = $('#full_tree_analysis').hasClass('active');
+	if (public_tree) {
+		return 'public';
+	} else {
+		return 'full';
+	}
+}
+
 function get_amino_acid_mutations(
     recomb_node_id, container, y_position, snp_positions, square_dims, num_snps,
     d) {
@@ -144,18 +167,26 @@ function get_detailed_overview(overview, d) {
 	});
 }
 
-function select_analysis_plot(selected_tree) {
-	let histogram_selections =
-	    document.getElementById('histogram_selections');
-	let histogram_visuals = document.getElementById('histogram_visuals');
-	if (selected_tree == 'public') {
+function select_analysis_plot(selected_tree, plot) {
+	if (selected_tree === 'public') {
 		$('#full_tree_analysis').removeClass('active');
 		$('#public_tree_analysis').addClass('active');
-		if (histogram_selections.hidden) {
-		}
 	} else {
 		$('#public_tree_analysis').removeClass('active');
 		$('#full_tree_analysis').addClass('active');
+	}
+	if (plot === 'plot1') {
+		$('#plot2').removeClass('active');
+		$('#plot3').removeClass('active');
+		$('#plot1').addClass('active');
+	} else if (plot === 'plot2') {
+		$('#plot1').removeClass('active');
+		$('#plot3').removeClass('active');
+		$('#plot2').addClass('active');
+	} else if (plot === 'plot3') {
+		$('#plot1').removeClass('active');
+		$('#plot2').removeClass('active');
+		$('#plot3').addClass('active');
 	}
 }
 
@@ -252,7 +283,8 @@ function previous_result(id) {
 				}
 				if ($('#datatable tbody tr')
 					.hasClass('selected')) {
-					// Remove previously selected row
+					// Remove previously selected
+					// row
 					$('#datatable tbody tr')
 					    .removeClass('selected');
 				}

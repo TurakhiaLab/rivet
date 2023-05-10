@@ -66,40 +66,38 @@
            <button type="button" onclick="window.location.href='{{ url_for( 'download_breakpoint_plot') }}';" class="btn btn-outline-primary">Download Breakpoint Plot</button>
          </div>
 
-        <!-- Breakpoint Plot -->
-<!--        <div class="center-screen" id="breakpoint_viz"></div> -->
+<!-- Breakpoint Plot -->
+<!-- <div class="center-screen" id="breakpoint_viz"></div> -->
 <img class="center-screen" src="static/midpoint_plot.svg" width="1500" height="1000"/>
 
-<!-- Tree selector buttons for public vs full tree analysis plots
+<!-- Tree selector buttons for public vs full tree analysis plots <-->
 <div class="histogram_title">
     <h1> SARS-CoV-2 Recombinantion Events Inferred Monthly</h1>
     <h5> Select tree</h5>
  <div class="btn-group btn-group-toggle" data-toggle="buttons">
     <label class="btn btn-outline-primary active" id="public_tree_analysis">
-          <input type="radio" name="options" id="public_tree" autocomplete="off" onclick="select_analysis_plot('public')" checked>Public Tree
+          <input type="radio" name="options" id="public_tree" autocomplete="off">Public Tree
     </label>
     <label class="btn btn-outline-primary" id="full_tree_analysis">
-          <input type="radio" name="options" action="/" id="full_tree_analysis" onclick="select_analysis_plot('full')" autocomplete="off">Full Tree
+          <input type="radio" name="options" action="/" id="full_tree_analysis" autocomplete="off">Full Tree
     </label>
  </div>
 </div>
-<-->
 
-<div class="histogram_title">
-  <h1> SARS-CoV-2 Recombinantion Events Inferred Monthly</h1>
 <div class="histogram_selections" id="histogram_selections">
  <div class="btn-group btn-group-toggle" data-toggle="buttons">
     <label class="btn btn-outline-primary active" id="plot1">
-      <input type="radio" name="options" id="plot1" autocomplete="off" onclick="draw_histogram('plot1')" checked> vs. Number of new infections
+      <input type="radio" name="options" class='plot' id="plot1" autocomplete="off"> vs. Number of new infections
     </label>
     <label class="btn btn-outline-primary" id="plot2">
-      <input type="radio" name="options" id="plot2" autocomplete="off" onclick="draw_histogram('plot2')"> vs. Number of new genome sequences
+      <input type="radio" name="options" class='plot' id="plot2" autocomplete="off"> vs. Number of new genome sequences
     </label>
     <label class="btn btn-outline-primary" id="plot3">
-      <input type="radio" name="options" id="plot3" autocomplete="off" onclick="draw_relative_histogram('plot3')"> vs. Relative to number of new genome sequences
+      <input type="radio" name="options" class='plot' id="plot3" autocomplete="off"> vs. Relative to number of new genome sequences
     </label>
  </div>
 </div>
+
 
 <div class="histogram_visuals" id="histogram_visuals">
   <div id="recomb_over_time"></div>

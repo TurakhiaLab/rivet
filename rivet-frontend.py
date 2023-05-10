@@ -71,34 +71,41 @@ def get_usher_link():
 
 @app.route("/get_relative_data", methods=['POST'])
 def get_relative_data():
+    months = app.config.get('months')
+
     content = request.get_json()
     plot_type = str(content["id"])
-    months = app.config.get('months')
-    recomb_counts = app.config.get('recomb_counts')
-    axis_data = app.config.get('relative_recombinants')
+    tree_type = content["tree_type"]
+
+    if tree_type == 'public':
+        recomb_counts = app.config.get('recomb_counts')
+        axis_data = app.config.get('relative_recombinants')
+    else:
+        recomb_counts = app.config.get('full_tree_recomb_counts')
+        axis_data = app.config.get('full_tree_relative_recombinants')
+
     return jsonify({"months": months, "axis_data": axis_data})
 
 
 @app.route("/get_count_data", methods=['POST'])
 def get_count_data():
+    months = app.config.get('months')
     content = request.get_json()
     plot_type = str(content["id"])
-    months = app.config.get('months')
-    #tree_selected = content["tree_type"]
-    #if tree_selected == 'public':
-    recomb_counts = app.config.get('recomb_counts')
-    month_seq_counts = app.config.get('month_seq_counts')
-    month_case_counts = app.config.get('month_case_counts')
-    #else:
-    #    recomb_counts = app.config.get('full_tree_recomb_counts')
-    #    month_seq_counts = app.config.get('full_tree_month_seq_counts')
-    #    month_case_counts = app.config.get('full_tree_month_case_counts')
+    tree_selected = content["tree_type"]
+    if tree_selected == 'public':
+        recomb_counts = app.config.get('recomb_counts')
+        month_seq_counts = app.config.get('month_seq_counts')
+        month_case_counts = app.config.get('month_case_counts')
+    else:
+        recomb_counts = app.config.get('full_tree_recomb_counts')
+        month_seq_counts = app.config.get('full_tree_month_seq_counts')
+        month_case_counts = app.config.get('full_tree_month_case_counts')
+
     if plot_type == "plot2":
-        #axis_data = app.config.get('month_seq_counts')
         axis_data = month_seq_counts
         hist_data = backend.format_histogram_data(months, recomb_counts, month_seq_counts, "New Sequences")
     else:
-        #axis_data = app.config.get('month_case_counts')
         axis_data = month_case_counts
         hist_data = backend.format_histogram_data(months, recomb_counts, month_case_counts, "New Cases")
 
@@ -136,11 +143,19 @@ def get_detailed_overview():
 @app.route("/get_overview", methods=['POST'])
 def get_overview():
     content = request.get_json()
-    table = app.config.get('table')
-    sample_counts = app.config.get('sample_counts')
-    metadata = app.config.get('metadata')
+    tree = content["tree_type"]
     row_id = int(content["id"])
+
     # NOTE: Column values hardcoded
+    if tree == "public":
+        table = app.config.get('table')
+        sample_counts = app.config.get('sample_counts')
+        metadata = app.config.get('metadata')
+    else:
+        table = app.config.get('full_tree_table')
+        sample_counts = app.config.get('full_tree_sample_counts')
+        metadata = app.config.get('full_tree_metadata')
+
     recomb_lineage = table[row_id][7]
     recomb_date = table[row_id][12]
     donor_lineage = table[row_id][9]
@@ -425,6 +440,7 @@ if __name__ == "__main__":
   parser.add_argument("-d", "--descendants_file", required=False, type=str, help="File continaing descendants (up to 10k) for each node in VCF")
   parser.add_argument("-c", "--config", required=True, type=str, help="Configuration file for defining custom color schema for visualizations.")
   parser.add_argument("-t", "--translate", required=False, type=str, help="matUtils translate file for visualizing amino acid information.")
+  parser.add_argument("-a", "--analysis", required=False, type=str, help="Extra data files with counts of new genomes sequenced per month. Not for general use.")
   args = parser.parse_args()
 
   # Load and parse config file
@@ -485,18 +501,22 @@ if __name__ == "__main__":
       # Preprocess informative site information for snp plot
       full_tree_info_sites = backend.label_informative_sites(full_tree_metadata)
 
+      # Load additional analysis data files (NOTE: For use at rivet.ucsd.edu analysis page only)
+      analysis_files = args.analysis.split(",")
+      public_month_counts_file = analysis_files[0]
+      full_tree_month_counts_file = analysis_files[1]
       # Load data for recombination counts histogram
-      # TODO: Update analysis page for full tree results
-      months, month_case_counts, month_seq_counts, recomb_counts, relative_recombinants =  backend.build_counts_histogram(recomb_results)
+      months, month_case_counts, month_seq_counts, recomb_counts, relative_recombinants =  backend.build_counts_histogram(recomb_results, public_month_counts_file)
       app.config['months'] = months
       app.config['month_case_counts'] = month_case_counts
       app.config['month_seq_counts'] = month_seq_counts
       app.config['recomb_counts'] = recomb_counts
       app.config['relative_recombinants'] = relative_recombinants
       
+
       full_tree_month_case_counts,full_tree_month_seq_counts,full_tree_recomb_counts,full_tree_relative_recombinants, = None,None,None,None
       if len(results_files) > 1:
-          months, full_tree_month_case_counts, full_tree_month_seq_counts, full_tree_recomb_counts, full_tree_relative_recombinants =  backend.build_counts_histogram(fulltree_results)
+          months, full_tree_month_case_counts, full_tree_month_seq_counts, full_tree_recomb_counts, full_tree_relative_recombinants =  backend.build_counts_histogram(fulltree_results, full_tree_month_counts_file)
       app.config['full_tree_month_case_counts'] = full_tree_month_case_counts
       app.config['full_tree_month_seq_counts'] = full_tree_month_seq_counts
       app.config['full_tree_recomb_counts'] = full_tree_recomb_counts
@@ -511,7 +531,7 @@ if __name__ == "__main__":
   app.config['full_tree_info_sites'] = full_tree_info_sites
 
   # Load descendants file
-  desc_file, desc_position_table, full_tree_desc_position_table, full_tree_desc_file, recomb_node_set, recomb_desc_dict, desc_dict, sample_counts, full_tree_desc_file = None,None,None,None,None,None,None,None,None
+  desc_file, desc_position_table, full_tree_desc_position_table, full_tree_desc_file, recomb_node_set, recomb_desc_dict, desc_dict, sample_counts, full_tree_desc_file, full_tree_sample_counts = None,None,None,None,None,None,None,None,None,None
   if args.descendants_file:
       desc_files = args.descendants_file.split(",")
       print("Loading provided descendants file/s: ", desc_files)
@@ -527,7 +547,6 @@ if __name__ == "__main__":
           full_tree_recomb_node_set = set([cell[1] for cell in full_tree_table])
           full_tree_desc_position_table, full_tree_sample_counts = backend.preprocess_desc_file(full_tree_desc_file, full_tree_recomb_node_set)
 
-  #TODO: Provide amino acid workflow data for full tree also
   # Amino acid translation (if provided)
   translation_data, full_tree_translation_data = None, None
   if args.translate:
@@ -559,6 +578,7 @@ if __name__ == "__main__":
  
   # Parameters for full tree descendants information
   app.config['recomb_desc'] = full_tree_desc_position_table
+  app.config['full_tree_sample_counts'] = full_tree_sample_counts
   app.config['full_tree_desc_data'] = full_tree_desc_position_table
   app.config['full_tree_desc_file'] = full_tree_desc_file
   

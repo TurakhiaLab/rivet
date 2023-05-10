@@ -4,13 +4,73 @@
  */
 window.onload = draw_histogram;
 
-function draw_histogram(plot) {
+// Button selections for analysis page plot graphs
+const full_tree_select = document.getElementById('full_tree_analysis');
+const public_tree_select = document.getElementById('public_tree_analysis');
+const plot1 = document.getElementById('plot1');
+const plot2 = document.getElementById('plot2');
+const plot3 = document.getElementById('plot3');
+
+
+full_tree_select.addEventListener('click', (e) => {
+	e.stopPropagation();
+	e.preventDefault();
+
+	select_analysis_plot('full', analysis_plot_selected());
+	let plot = analysis_plot_selected();
+	if (plot === 'plot3') {
+		draw_relative_histogram('plot3', 'full');
+	} else {
+		draw_histogram(plot, 'full');
+	}
+});
+
+public_tree_select.addEventListener('click', (e) => {
+	e.stopPropagation();
+	e.preventDefault();
+	let plot = analysis_plot_selected();
+	select_analysis_plot('public', plot);
+
+	if (plot === 'plot3') {
+		draw_relative_histogram('plot3', 'public');
+	} else {
+		draw_histogram(plot, 'public');
+	}
+});
+
+plot1.addEventListener('click', (e) => {
+	e.stopPropagation();
+	e.preventDefault();
+
+	select_analysis_plot(tree_selected(), 'plot1');
+	draw_histogram('plot1', tree_selected());
+});
+
+plot2.addEventListener('click', (e) => {
+	e.stopPropagation();
+	e.preventDefault();
+
+	select_analysis_plot(tree_selected(), 'plot2');
+	draw_histogram('plot2', tree_selected());
+});
+
+plot3.addEventListener('click', (e) => {
+	e.stopPropagation();
+	e.preventDefault();
+
+	select_analysis_plot(tree_selected(), 'plot3');
+	draw_relative_histogram('plot3', tree_selected());
+});
+
+
+function draw_histogram(plot, tree) {
 	var right_yAxis_name = 'New Cases';
-	if (plot == 'plot1') {
+
+	if (plot === 'plot1') {
 		$('#plot2').removeClass('active');
 		$('#plot3').removeClass('active');
 		$('#plot1').addClass('active');
-	} else if (plot == 'plot2') {
+	} else if (plot === 'plot2') {
 		$('#plot1').removeClass('active');
 		$('#plot3').removeClass('active');
 		$('#plot2').addClass('active');
@@ -18,18 +78,10 @@ function draw_histogram(plot) {
 	} else {
 		plot = 'plot1';
 	}
-
-	//let full_tree_select = document.getElementById('full_tree_analysis');
-	//let public_tree_select =
-	    //document.getElementById('public_tree_analysis');
-	let tree = 'None';
-	/*
-		if (public_tree_select.hasAttribute('active')) {
-			tree = 'public';
-		} else {
-			tree = 'private';
-		}
-		*/
+	// On page load, init with public tree data
+	if (!tree) {
+		tree = 'public';
+	}
 
 	fetch('/get_count_data', {
 		method: 'POST',
@@ -69,7 +121,7 @@ function draw_histogram(plot) {
 				    'correlation coefficient plot 2: ', corr);
 			}
 			var margin =
-				{top: 100, right: 110, bottom: 60, left: 80},
+				{top: 100, right: 200, bottom: 60, left: 80},
 			    width = 2000 - margin.left - margin.right,
 			    height = 900 - margin.top - margin.bottom;
 
@@ -272,18 +324,13 @@ function draw_histogram(plot) {
 	});
 }
 
-function draw_relative_histogram(plot) {
+function draw_relative_histogram(plot, tree) {
 	var right_yAxis_name = 'New Cases';
-	if (plot == 'plot3') {
-		$('#plot1').removeClass('active');
-		$('#plot2').removeClass('active');
-		$('#plot3').addClass('active');
-	}
 
 	fetch('/get_relative_data', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({'id': plot})
+		body: JSON.stringify({'id': plot, 'tree_type': tree})
 	}).then(res => {
 		res.json().then(data => {
 			var div = document.getElementById('cases_histogram');
@@ -396,7 +443,6 @@ function draw_relative_histogram(plot) {
 			    .attr(
 				'height',
 				function(d, i) {
-					console.log('data: ', d.value);
 					return height - yLeft(d);
 				})
 			    .style(

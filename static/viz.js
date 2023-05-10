@@ -92,6 +92,8 @@ function graph() {
 
 		// Disable overview side panel for local rivet for now
 		if (d['COLOR']['environment'] == 'production') {
+			let tree = tree_selected();
+
 			// Summary side panel generated for each selected row
 			const overview = document.getElementById('summary');
 			// Clear any previous text elements from overview div
@@ -108,7 +110,7 @@ function graph() {
 			fetch('/get_overview', {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({'id': d['ID']})
+				body: JSON.stringify({'id': d['ID'], 'tree_type': tree})
 			}).then(res => {
 				res.json().then(data => {
 					append_text(
@@ -258,29 +260,29 @@ function graph() {
 
 				// Append "Show Defining Mutations" button in
 				// overview section
-			/*			
-				var overview_mutations_button =
-				    document.createElement('button');
-				overview_mutations_button.setAttribute(
-				    'class', 'btn btn-outline-primary');
-				overview_mutations_button.setAttribute(
-				    'id', 'show_mutations');
-				const mutations_btn_text =
-				    document.createTextNode(
-					'Show Amino Acid Mutations');
-				overview_mutations_button.appendChild(
-				    mutations_btn_text);
-				overview.appendChild(overview_mutations_button);
-			}
-			if (overview_mutations_button) {
-				overview_mutations_button.onclick = function() {
-					var nt_data = [];
-					var nt_data = get_amino_acid_mutations(
-					    d['NODE_IDS']['Recomb'], container,
-					    y_position, snp_positions,
-					    square_dims, num_snps, d);
-				};
-			*/
+				/*
+					var overview_mutations_button =
+					    document.createElement('button');
+					overview_mutations_button.setAttribute(
+					    'class', 'btn btn-outline-primary');
+					overview_mutations_button.setAttribute(
+					    'id', 'show_mutations');
+					const mutations_btn_text =
+					    document.createTextNode(
+						'Show Amino Acid Mutations');
+					overview_mutations_button.appendChild(
+					    mutations_btn_text);
+					overview.appendChild(overview_mutations_button);
+				}
+				if (overview_mutations_button) {
+					overview_mutations_button.onclick =
+				function() { var nt_data = []; var nt_data =
+				get_amino_acid_mutations(
+						    d['NODE_IDS']['Recomb'],
+				container, y_position, snp_positions,
+						    square_dims, num_snps, d);
+					};
+				*/
 			}
 
 			// Make summary visible
