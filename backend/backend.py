@@ -45,7 +45,7 @@ def get_sampled_desc(results_file, node_id):
     # Error, node_id not found in results file
     return None
 
-def query_desc_file(desc_file, desc_lookup_table, node_id):
+def query_desc_file(desc_file, desc_lookup_table, node_id, search_by_sample = False):
     """
     """
     #tick = time.perf_counter()
@@ -55,10 +55,11 @@ def query_desc_file(desc_file, desc_lookup_table, node_id):
     # Line byte offset + size of node_id + 1 for '\t' character
     pos = desc_lookup_table[node_id][0]
     f.seek(pos)
-    #tock = time.perf_counter()
-    #print(f"Time elapsed querying desc file: {tock-tick:.2f} seconds")
     # Read size of the descendants_string bytes from the file
     desc_string = f.read(desc_lookup_table[node_id][1] - desc_lookup_table[node_id][0])
+    #tock = time.perf_counter()
+    if search_by_sample:
+        return desc_string
     # Split comma separated string into a list of descendants
     desc_list = desc_string.split(',')
     #TODO: Decoding too slow currently
@@ -1023,14 +1024,15 @@ def get_node_descendants(desc_d, node_id):
         return descendant_list[:limit]
     return descendant_list
 
-def search_by_sample(substr, recomb_desc_dict):
+def search_by_sample(recomb_node_set, desc_file, desc_lookup_table, substr):
     """
+    d = backend.query_desc_file(desc_file, desc_lookup_table, node_id)
     """
     filtered_results = {}
     recomb_nodes = set()
     pattern = substr.lower()
-    for key,value in recomb_desc_dict.items():
-        if pattern in value[0].lower():
-            filtered_results[key] = value
-            recomb_nodes.add(key)
+    for node_id in recomb_node_set:
+        desc_string = query_desc_file(desc_file, desc_lookup_table, node_id, True)
+        if pattern in desc_string.lower():
+            recomb_nodes.add(node_id)
     return list(recomb_nodes)

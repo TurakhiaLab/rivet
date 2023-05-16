@@ -110,7 +110,8 @@ function graph() {
 			fetch('/get_overview', {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({'id': d['ID'], 'tree_type': tree})
+				body: JSON.stringify(
+				    {'id': d['ID'], 'tree_type': tree})
 			}).then(res => {
 				res.json().then(data => {
 					append_text(
@@ -150,36 +151,35 @@ function graph() {
 				});
 			});
 
+     /*
 			// TODO: Fix right offCanvas formatting of text
-			/*
-						// Append "More info" button in
-			   overview section var overview_info_button =
-						    document.createElement('button');
-						overview_info_button.setAttribute(
-						    'class', 'btn
-			   btn-outline-primary');
-						overview_info_button.setAttribute('id',
-			   'info'); const info_btn_text =
-						    document.createTextNode('More
-			   Info');
-						overview_info_button.appendChild(info_btn_text);
-						overview.appendChild(overview_info_button);
+			// Append "More info" button in overview section
+			var overview_info_button =
+			    document.createElement('button');
+			overview_info_button.setAttribute(
+			    'class', 'btn btn-outline-primary');
+			overview_info_button.setAttribute('id', 'info');
+			const info_btn_text =
+			    document.createTextNode('More Info');
+			overview_info_button.appendChild(info_btn_text);
+			overview.appendChild(overview_info_button);
 
-						// Toggle offcanvas right
-						// Handle next/prev result
-			   button input if (overview_info_button) { var
-			   overview_info = overview_info_button.onclick =
-			   function() { var myOffcanvas =
-									document.getElementById(
-									    'off_canvas_right')
-								    var
-			   bsOffcanvas = new bootstrap.Offcanvas( myOffcanvas);
-								    bsOffcanvas.show();
-								    get_detailed_overview(overview,
-			   d);
-							    }
-						}
-						*/
+			// Toggle offcanvas right
+			// Handle next/prev result button input
+			if (overview_info_button) {
+				var overview_info =
+				    overview_info_button.onclick = function() {
+					    var myOffcanvas =
+						document.getElementById(
+						    'off_canvas_right')
+					    var bsOffcanvas =
+						new bootstrap.Offcanvas(
+						    myOffcanvas);
+					    bsOffcanvas.show();
+					    get_detailed_overview(overview, d, tree);
+				    }
+			}
+*/
 
 			// Append "View UShER" button in overview section
 			var overview_usher_button =
@@ -257,33 +257,32 @@ function graph() {
 						});
 					}
 				}
-
+/*
 				// Append "Show Defining Mutations" button in
 				// overview section
-				/*
-					var overview_mutations_button =
-					    document.createElement('button');
-					overview_mutations_button.setAttribute(
-					    'class', 'btn btn-outline-primary');
-					overview_mutations_button.setAttribute(
-					    'id', 'show_mutations');
-					const mutations_btn_text =
-					    document.createTextNode(
-						'Show Amino Acid Mutations');
-					overview_mutations_button.appendChild(
-					    mutations_btn_text);
-					overview.appendChild(overview_mutations_button);
-				}
-				if (overview_mutations_button) {
-					overview_mutations_button.onclick =
-				function() { var nt_data = []; var nt_data =
-				get_amino_acid_mutations(
-						    d['NODE_IDS']['Recomb'],
-				container, y_position, snp_positions,
-						    square_dims, num_snps, d);
-					};
-				*/
+				var overview_mutations_button =
+				    document.createElement('button');
+				overview_mutations_button.setAttribute(
+				    'class', 'btn btn-outline-primary');
+				overview_mutations_button.setAttribute(
+				    'id', 'show_mutations');
+				const mutations_btn_text =
+				    document.createTextNode(
+					'Show Amino Acid Mutations');
+				overview_mutations_button.appendChild(
+				    mutations_btn_text);
+				overview.appendChild(overview_mutations_button);
 			}
+			if (overview_mutations_button) {
+				overview_mutations_button.onclick = function() {
+					var nt_data = [];
+					var nt_data = get_amino_acid_mutations(
+					    d['NODE_IDS']['Recomb'], container,
+					    y_position, snp_positions,
+					    square_dims, num_snps, d);
+				};
+			}
+			*/
 
 			// Make summary visible
 			overview.removeAttribute('hidden');

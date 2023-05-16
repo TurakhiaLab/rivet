@@ -84,18 +84,16 @@ div#off_canvas_right_body {
 }
 
 div#search {
-        margin-left: 1550px;
+  padding-top: 20px;
 }
 
 #download_visual_body{
 				margin-left: 1200px;
 }
 
-
 div#download_visual_body.download_button{
 				margin-left: 150px;
 }
-
 
 div#download_visual_body.download_visual {
 				padding-right:50px;

@@ -168,14 +168,14 @@
                           autoWidth: false,
                           scrollX: true,
                           searching: true,
-								/*
+                /*
                           // Color recombinants that have passed filration checks green
                           rowCallback: function(row, data, index) {
                                if (data[20].toString() == "PASS") {
                                    row.style.backgroundColor = '#abf7b1';
                                }
                           },
-													*/
+                          */
                           columnDefs: [
                           // Hide row id column from results table
                           {
@@ -210,20 +210,24 @@
                                 $("#full_datatable").show();
                                 $("#full_datatable").DataTable().columns.adjust();
                            },
-													 */
+                           */
                        });
 
-   			//TODO: Search by sample for full tree data
        // Default search configuration on page load
-       var reset_flag = false; 
-       var search_by_sample;
-
+       let reset_flag = false; 
+       let search_by_sample;
        let search_by_sample_button = document.querySelector('#search_by_sample_button');
+
        if (search_by_sample_button) {
-           search_by_sample_button.addEventListener('click', () => { 
+         search_by_sample_button.addEventListener('click', () => { 
+           let tree = tree_selected();
+           let table = $('#datatable').DataTable();
+           if (tree === 'full') {
+               table = $('#full_datatable').DataTable();
+           }
            // Refresh datatable results
-           table = $('#datatable').DataTable();
            table.search('').columns().search('').draw();
+
            // Search by sample button clicked, reset table 
            reset_flag = true;
            query = null;
@@ -234,50 +238,95 @@
            else {
               search_by_sample = false;
            }
-           }, false);
+         }, false);
        } 
+
        $('.dataTables_filter input').unbind().keyup(function() {
+           let tree = tree_selected();
+           let table; 
+           if (tree === 'public') {
+               table = $('#datatable').DataTable();
+           } else {
+               table = $('#full_datatable').DataTable();
+           }
            // Refresh datatable results
            table.search('').columns().search('').draw();
+          
+
+          // If search by sample not selected, perform normal table search
+          if (!search_by_sample_button.checked) {
+              table.search($(this).val()).draw();
+          } 
+          // Otherwise perform searching by sample or EPI id
+          else {
 
            // Unselect current row while searching 
            table.$('tr.selected').removeClass('selected');
            $(this).addClass('selected');
 
            var query = $(this).val();
-           // User search by sample id
-           if (search_by_sample && $(this).val().length >= 3) {
-                    $.post("/search_by_sample_id", {"query": $(this).val()}, function(response) {
-                    var node_ids = response["recomb_nodes"]
-                    if (node_ids.length == 0) {
-                        table.search("NO RESULTS").draw();
-                    } else {
-                    table.column(1).search(node_ids.join("|"), true, false).draw();
-                    }
-                 });
+           if (tree === 'public') {
 
-           }
-           else if (search_by_sample && $(this).val().length < 3) {
-                 table.search("NO RESULTS").draw();
-           }
-           else {
-                 //$.fn.dataTable.ext.search.pop();
-                 if (reset_flag) {
+             // User search by sample id
+             if (search_by_sample && $(this).val().length >= 3) {
+                      $.post("/search_by_sample_id", {"query": $(this).val(), "tree": tree}, function(response) {
+                        let node_ids = response["recomb_nodes"];
+                        if (node_ids.length == 0) {
+                          table.search("NO RESULTS").draw();
+                        } else {
+                          table.column(1).search(node_ids.join("|"), true, false).draw();
+                        }
+                      });
+
+             }
+             else if (search_by_sample && $(this).val().length < 3) {
+                   table.search("NO RESULTS").draw();
+             }
+             else {
+                   if (reset_flag) {
+                       // Refresh datatable results
+                       $('.bs-filters').val('');
+                       table.search('').columns().search('').draw();
+                       // Reset flag 
+                       reset_flag = false;
+                   }
+                   table.search($(this).val()).draw();
+             }
+           } else {
+             if (search_by_sample && $(this).val().length >= 3) {
+                      $.post("/search_by_sample_id", {"query": $(this).val(), "tree": tree}, function(response) {
+                        let node_ids = response["recomb_nodes"];
+                        if (node_ids.length == 0) {
+                          table.search("NO RESULTS").draw();
+                        } else {
+                          table.column(1).search(node_ids.join("|"), true, false).draw();
+                        }
+                     });
+
+             }
+             else if (search_by_sample && $(this).val().length < 3) {
+                   table.search("NO RESULTS").draw();
+             }
+             else {
+                   if (reset_flag) {
                      // Refresh datatable results
                      $('.bs-filters').val('');
                      table.search('').columns().search('').draw();
                      // Reset flag 
                      reset_flag = false;
-                 }
-                 table.search($(this).val()).draw();
+                   }
+                   table.search($(this).val()).draw();
+             }
+
            }
+         }
        });
 
        $('#datatable tbody').on('click', 'tr', function () {
-         var row = table.row( this ).data();
+         let row = table.row( this ).data();
          //TODO: Get parsed input file header information ahead of time
-         var data = {"row_id": row[0], "recomb_id" :row[1], "breakpoint1" : row[4], "breakpoint2": row[5], "donor_id" : row[2], "acceptor_id" : row[3], "descendant": row[14]};
-         var endpoints = ["/get_data"];
+         let data = {"row_id": row[0], "recomb_id" :row[1], "breakpoint1" : row[4], "breakpoint2": row[5], "donor_id" : row[2], "acceptor_id" : row[3], "descendant": row[14]};
+         let endpoints = ["/get_data"];
          $.each(endpoints, function(i,u){
          $.ajax({
          url: u,
@@ -288,7 +337,7 @@
          processData: false,
          success: function(response){
              $('#main').text(response)
-                 console.log("RESPONSE: ", response);
+                 //console.log("RESPONSE: ", response);
                              track(response);
              }
          })  
@@ -300,7 +349,7 @@
             table.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
         }
-	 });
+   });
 
        $('#full_datatable tbody').on('click', 'tr', function () {
          var row = full_table.row( this ).data();
@@ -317,7 +366,7 @@
          processData: false,
          success: function(response){
              $('#main').text(response)
-                 console.log("RESPONSE: ", response);
+                 //console.log("RESPONSE: ", response);
                              track(response);
              }
          })  
@@ -329,50 +378,39 @@
             full_table.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
         }
-	 });
-
-			let private_table_select =
-			    document.getElementById('full_table');
-      // Search for full tree table
-      $('.dataTables_filter input').keyup(function() {
-			    if (!private_table_select.hidden) {
-              $('#full_datatable').DataTable().search($(this).val()).draw();
-					}
-			});
+   });
 
   });
 
   </script>
+
 
 <div id="table_title" hidden>
     <h2>RIPPLES Dectected Recombination Events</h2>
     <h5> Select tree</h5>
  <div class="btn-group btn-group-toggle" data-toggle="buttons">
     <label class="btn btn-outline-primary active" id="public_tree">
-						<input type="radio" name="options" id="public_tree" autocomplete="off" onclick="render_table('public')" checked>Public Tree
+            <input type="radio" name="options" id="public_tree" autocomplete="off" onclick="render_table('public')" checked>Public Tree
     </label>
     <label class="btn btn-outline-primary" id="full_tree">
-						<input type="radio" name="options" action="/" id="full_tree" autocomplete="off" onclick="render_table('full')">Full Tree
+            <input type="radio" name="options" action="/" id="full_tree" autocomplete="off" onclick="render_table('full')">Full Tree
     </label>
+ </div>
+ <div class="form-check form-switch" id="search">
+    <input class="form-check-input" id="search_by_sample_button" type="checkbox" id="flexSwitchCheckDefault">
+    <label class="form-check-label" for="flexSwitchCheckDefault">Search by sample</label>
  </div>
 </div>
 
  <div id="table_container" hidden>
     <table id="datatable" class="striped" style="width:100%">
          <h5>Public Tree, Last Updated: May 1, 2023</h5>
-  
          <div class="download_button" id="download">
            <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>
            <button type="button" class="btn btn-outline-primary" id="download_table">Download Table</button>
            <button type="button" class="btn btn-outline-primary" id="download_tree">Download MAT</button>
            <button type="button" class="btn btn-outline-primary" id="download_taxonium">Download Taxonium Tree</button>
          </div>
-
-         <div class="form-check form-switch" id="search">
-             <input class="form-check-input" id="search_by_sample_button" type="checkbox" id="flexSwitchCheckDefault">
-             <label class="form-check-label" for="flexSwitchCheckDefault">Search by sample</label>
-         </div>
-
         <thead>
             <tr>
                {% for header in headings %}
@@ -416,15 +454,9 @@
    <div id="full_table" hidden>
     <table id="full_datatable" class="striped" style="width:100%">
          <h5>Full Tree, Last Updated: May 1, 2023</h5>
-  
          <div class="download_button" id="download">
            <button type="button" class="btn btn-outline-primary" id="full_table_download_all_descendants">Download All Descendants</button>
            <button type="button" class="btn btn-outline-primary" id="download_full_table">Download Table</button>
-         </div>
-
-         <div class="form-check form-switch" id="search">
-             <input class="form-check-input" id="search_by_sample_button" type="checkbox" id="flexSwitchCheckDefault">
-             <label class="form-check-label" for="flexSwitchCheckDefault">Search by sample</label>
          </div>
         <thead>
             <tr>
@@ -463,7 +495,7 @@
         </tfoot>
         <-->
     </table>
-	 </div>
+   </div>
 
 </body>
 </html>

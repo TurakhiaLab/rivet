@@ -180,10 +180,20 @@ def get_overview():
 def search_by_sample_id():
     # Get input search query from user
     query = request.form['query']
-    # Load the set of recombinant node ids
-    recomb_desc_d = app.config.get('recomb_desc')
+    tree = request.form['tree']
+    if tree == "public":
+        desc_file = app.config.get('desc_file')
+        recomb_node_set = app.config.get('recomb_node_set')
+        desc_lookup_table = app.config.get('desc_data')
+    else:
+        desc_file = app.config.get('full_tree_desc_file')
+        recomb_node_set = app.config.get('full_tree_recomb_node_set')
+        desc_lookup_table = app.config.get('full_tree_desc_data')
+    #tick = time.perf_counter()
     # Return set of recombinant nodes that return true for substring membership query
-    recomb_nodes = backend.search_by_sample(query,recomb_desc_d)
+    recomb_nodes = backend.search_by_sample(recomb_node_set, desc_file, desc_lookup_table, query)
+    #tock = time.perf_counter()
+    #print(f"Time elapsed to query search: {tock-tick:.2f} seconds")
     return jsonify({"recomb_nodes": recomb_nodes})
 
 @app.route("/get_descendants", methods=["POST"])
@@ -569,6 +579,8 @@ if __name__ == "__main__":
   app.config['metadata'] = metadata
   app.config['sample_counts'] = sample_counts
   app.config['columns'] = columns
+  app.config['recomb_node_set'] = recomb_node_set
+  app.config['full_tree_recomb_node_set'] = full_tree_recomb_node_set
 
   # Parameters for public tree descendants information
   app.config['recomb_desc'] = recomb_desc_dict
@@ -577,7 +589,7 @@ if __name__ == "__main__":
   app.config['full_tree_desc_file'] = full_tree_desc_file
  
   # Parameters for full tree descendants information
-  app.config['recomb_desc'] = full_tree_desc_position_table
+  app.config['full_tree_recomb_desc'] = full_tree_desc_position_table
   app.config['full_tree_sample_counts'] = full_tree_sample_counts
   app.config['full_tree_desc_data'] = full_tree_desc_position_table
   app.config['full_tree_desc_file'] = full_tree_desc_file

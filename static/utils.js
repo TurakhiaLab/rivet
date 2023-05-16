@@ -27,8 +27,8 @@ function analysis_plot_selected() {
 }
 
 function tree_selected() {
-	let public_tree = $('#public_tree_analysis').hasClass('active');
-	let full_tree = $('#full_tree_analysis').hasClass('active');
+	let public_tree = $('#public_tree').hasClass('active');
+	let full_tree = $('#full_tree').hasClass('active');
 	if (public_tree) {
 		return 'public';
 	} else {
@@ -103,12 +103,12 @@ function view_usher_tree(d) {
 	});
 }
 
-function get_detailed_overview(overview, d) {
+function get_detailed_overview(overview, d, tree) {
 	// Get additional data from table for each of these fields
 	fetch('/get_overview', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({'id': d['ID']})
+		body: JSON.stringify({'id': d['ID'], 'tree_type': tree})
 	}).then(res => {
 		res.json().then(data => {
 			document.getElementById('off_canvas_right_body')
