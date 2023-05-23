@@ -16,7 +16,10 @@ function format_txt(data) {
 function analysis_plot_selected() {
 	let plot1 = $('#plot1').hasClass('active');
 	let plot2 = $('#plot2').hasClass('active');
+
+
 	let plot3 = $('#plot3').hasClass('active');
+
 	if (plot1) {
 		return 'plot1';
 	} else if (plot2) {
@@ -39,8 +42,9 @@ function tree_selected() {
 function get_amino_acid_mutations(
     recomb_node_id, container, y_position, snp_positions, square_dims, num_snps,
     d) {
-	var nt_data = [];
-	var nt_positions = [];
+	let nt_data = [];
+	let nt_positions = [];
+
 	fetch('/get_aa_mutations', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
@@ -53,11 +57,12 @@ function get_amino_acid_mutations(
 			for (let i = 0; i < nt_data.length; ++i) {
 				nt_positions.push(nt_data[i].slice(1, -1));
 			}
+			// Add the amino acid labels to correct column positions
 			add_aa_labels(
 			    container, y_position - 40, snp_positions,
 			    square_dims, num_snps, d, nt_positions, data['aa']);
 
-			d3.selectAll('.bases').style('opacity', '0.2');
+			// d3.selectAll('.bases').style('opacity', '0.2');
 		});
 	});
 	return nt_data;
@@ -436,17 +441,25 @@ function download_all_descendants(tree_type) {
 }
 
 function download_table(tree_type) {
-	fetch('/download_table', {
-		method: 'POST',
-		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({'tree_type': tree_type})
-	}).then(res => {
-		res.json().then(data => {
-			var file_name = 'recombination_results.txt';
-			formatted_data = format_tsv(data);
-			serialize_object(file_name, formatted_data);
+	if (tree_type === 'public') {
+		fetch('/download_public_table', {
+			method: 'POST',
+			headers: {'Content-Type': 'text/plain'},
+			body: JSON.stringify(tree_type)
+		}).then(res => {
+			let file_name = 'recombination_results.txt';
+			window.location.href = res.url;
 		});
-	});
+	} else {
+		fetch('/download_table', {
+			method: 'POST',
+			headers: {'Content-Type': 'text/plain'},
+			body: JSON.stringify(tree_type)
+		}).then(res => {
+			let file_name = 'recombination_results.txt';
+			window.location.href = res.url;
+		});
+	}
 }
 
 function display_descendants(label_node_id) {

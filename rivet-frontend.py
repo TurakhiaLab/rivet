@@ -245,24 +245,22 @@ def download_taxonium():
     date = app.config.get('date')
     return jsonify({"date": date})
 
+@app.route("/download_public_table", methods=["POST", "GET"])
+def download_public_table():
+    # Download public tree results file
+    results_file = app.config.get('input_recombination_results')
+    return send_file(results_file, mimetype="text/plain",  as_attachment=True)
+
 @app.route("/download_table", methods=["POST", "GET"])
 def download_table():
-    # TODO: Send file directly
-    content = request.get_json()
-    tree_type = content["tree_type"]
-    results_file = None
-    if tree_type == "public":
-        results_file = app.config.get('input_recombination_results')
-    else:
-        results_file = app.config.get('fulltree_recombination_results')
-    # Parse results file for table download
-    results_data = backend.parse_file(results_file)
-    return jsonify(results_data)
+    # Download full tree results file
+    results_file = app.config.get('fulltree_recombination_results')
+    return send_file(results_file, mimetype="text/plain",  as_attachment=True)
 
 @app.route("/download_breakpoint_plot", methods=["POST", "GET"])
 def download_breakpoint_plot():
-    breakpoint_png = "static/midpoint_plot.png"
-    return send_file(breakpoint_png, mimetype="image/png",  as_attachment=True)
+    breakpoint_png = "static/midpoint_plot.svg"
+    return send_file(breakpoint_png, mimetype="image/svg",  as_attachment=True)
 
 @app.route('/download_select_descendants', methods=["POST", "GET"])
 def download_select_descendants():
