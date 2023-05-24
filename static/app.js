@@ -38,7 +38,7 @@ create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 	download_svg.style.visibility = 'hidden';
 	// copy_svg.style.visibility = 'hidden';
 
-	var next_button = create_button('next_button', 'Next', 1700, 280);
+	var next_button = create_button('next_button', 'Next', 1710, 280);
 	var previous_button =
 	    create_button('previous_button', 'Previous', 1600, 280);
 	previous_button.style.visibility = 'hidden';

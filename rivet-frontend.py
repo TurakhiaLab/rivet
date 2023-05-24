@@ -225,9 +225,15 @@ def get_descendants():
 def get_aa_mutations():
     content = request.get_json()
     recomb_node_id = content["recomb_node_id"]
-    translation_data = app.config.get('translation_data')
-    aa_mutations = translation_data[recomb_node_id]["aa_mutations"]
-    nt_mutations = translation_data[recomb_node_id]["nt_mutations"]
+    tree = content["tree"]
+    if tree == "public":
+        translation_data = app.config.get('translation_data')
+        aa_mutations = translation_data[recomb_node_id]["aa_mutations"]
+        nt_mutations = translation_data[recomb_node_id]["nt_mutations"]
+    else:
+        translation_data = app.config.get('full_tree_translation_data')
+        aa_mutations = translation_data[recomb_node_id]["aa_mutations"]
+        nt_mutations = translation_data[recomb_node_id]["nt_mutations"]
     return jsonify({"aa": aa_mutations, "nt": nt_mutations})
 
 @app.route("/get_all_descendants", methods=["POST", "GET"])
@@ -259,8 +265,8 @@ def download_table():
 
 @app.route("/download_breakpoint_plot", methods=["POST", "GET"])
 def download_breakpoint_plot():
-    breakpoint_png = "static/midpoint_plot.svg"
-    return send_file(breakpoint_png, mimetype="image/svg",  as_attachment=True)
+    breakpoint_png = "static/midpoint_plot.png"
+    return send_file(breakpoint_png, mimetype="image/png",  as_attachment=True)
 
 @app.route('/download_select_descendants', methods=["POST", "GET"])
 def download_select_descendants():

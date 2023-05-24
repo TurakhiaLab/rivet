@@ -433,7 +433,7 @@ def tsv_to_dict(results_tsvfile, metadata_start_col = None):
             if len(splitline) > 21:
                 node_metadata["Earliest_seq"] = splitline[21]
                 node_metadata["Latest_seq"] = splitline[22]
-                node_metadata["countries"] = splitline[23]
+                node_metadata["countries"] = splitline[23].rstrip(',')
             
             metadata[str(index)] = node_metadata
         else:

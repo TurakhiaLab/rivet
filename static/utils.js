@@ -44,11 +44,12 @@ function get_amino_acid_mutations(
     d) {
 	let nt_data = [];
 	let nt_positions = [];
-
+	let tree = tree_selected();
 	fetch('/get_aa_mutations', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({'recomb_node_id': recomb_node_id})
+		body: JSON.stringify(
+		    {'recomb_node_id': recomb_node_id, 'tree': tree})
 	}).then(res => {
 		res.json().then(data => {
 			for (nt of data['nt']) {
@@ -61,8 +62,6 @@ function get_amino_acid_mutations(
 			add_aa_labels(
 			    container, y_position - 40, snp_positions,
 			    square_dims, num_snps, d, nt_positions, data['aa']);
-
-			// d3.selectAll('.bases').style('opacity', '0.2');
 		});
 	});
 	return nt_data;

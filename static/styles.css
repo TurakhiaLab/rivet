@@ -40,16 +40,16 @@ div#summary {
 
 #overview_text {
   padding-right: 25px;
+  margin-right: 25px;
   padding-bottom: 10px;
   word-wrap: break-word;
 }
-/*
+
 #info {
   position:absolute;
   top: 15;
   right: 10;
 }
-*/
 
 .offcanvas-body {
   overflow-wrap: break-word;
@@ -65,16 +65,22 @@ div#off_canvas_right_body {
   left: 10;
 }
 
-#view_tree {
+#show_mutations {
   position:absolute;
   bottom: 115;
   left: 10;
 }
 
-/*
-#show_mutations {
+#view_tree {
   position:absolute;
   bottom: 65;
+  left: 10;
+}
+
+/*
+#view_qc {
+  position:absolute;
+  bottom: 15;
   left: 10;
 }
 */
@@ -107,9 +113,10 @@ div#download_visual_body.copy_visual {
 				padding-bottom:20px;
 }
 
-#visualization div {
+div#visualization {
 				padding-bottom: 25px;
 				padding-left: 5px;
+				padding-right: 10px;
 }
 
 /* Top visualization snp position tick mark style */

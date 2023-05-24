@@ -452,12 +452,32 @@ function handle_zero_snps(svg) {
 	    .text('No SNVs to display for the selected recombinant.');
 }
 
+function hide_aa_labels(track_svg) {
+	// Hide amino acid track, restore SNV view title
+	d3.select('#plot_title').style('opacity', 1);
+	d3.select('#aa_track_title').remove();
+	d3.selectAll('#AALabels').remove();
+	d3.selectAll('.TopAxisAA').remove();
+}
+
+
 function add_aa_labels(
     track_svg, y_position, snp_positions, square_dims, num_snps, d,
     nt_positions, aa_mutations) {
 	// Hide plot title
-	// TODO: Show different plot title for amino acid site view
 	d3.select('#plot_title').style('opacity', 0);
+	// Add title to left of AA track
+	let label_x_offset = 180;
+	track_svg.append('text')
+	    .attr('id', 'aa_track_title')
+	    .attr('x', label_x_offset + 100)
+	    .attr('y', 210)
+	    .attr('text-anchor', 'start')
+	    .attr('text-anchor', 'end')
+	    .attr('dominant-baseline', 'central')
+	    .attr('font-weight', 400)
+	    .style('font-size', '15px')
+	    .text('Coding Amino Acid Mutations');
 
 	var acceptor_snps = [];
 	for (const [key, value] of Object.entries(d['SNPS'])) {
@@ -478,7 +498,7 @@ function add_aa_labels(
 	var info_sites = d['INFO_SITES'];
 	var colors = d['COLOR'];
 	track_svg.append('g')
-	    .attr('class', 'TopAxis')
+	    .attr('class', 'TopAxisAA')
 	    .data([snp_positions])
 	    .attr('transform', `translate(0,${new_y - buffer_btw_tracks - 5})`)
 	    .call(d3.axisTop(x))
@@ -488,6 +508,7 @@ function add_aa_labels(
 	    .attr('dy', '.2em')
 	    .style('font-size', '15px')
 	    .attr('transform', 'rotate(-65)')
+	    .attr('id', 'AALabels')
 	    .style(
 		'fill',
 		function(d, i) {
@@ -512,8 +533,7 @@ function add_aa_labels(
 			    return '1';
 		    }
 	    });
-
-	track_svg.selectAll('.topAxis path').style('stroke', '#FFFFFF');
+	track_svg.selectAll('.TopAxisAA path').style('stroke', '#FFFFFF');
 }
 
 function add_column_label(

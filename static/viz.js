@@ -151,8 +151,6 @@ function graph() {
 				});
 			});
 
-     /*
-			// TODO: Fix right offCanvas formatting of text
 			// Append "More info" button in overview section
 			var overview_info_button =
 			    document.createElement('button');
@@ -176,10 +174,10 @@ function graph() {
 						new bootstrap.Offcanvas(
 						    myOffcanvas);
 					    bsOffcanvas.show();
-					    get_detailed_overview(overview, d, tree);
+					    get_detailed_overview(
+						overview, d, tree);
 				    }
 			}
-*/
 
 			// Append "View UShER" button in overview section
 			var overview_usher_button =
@@ -206,19 +204,19 @@ function graph() {
 				overview_usher_button.onclick = function() {
 					view_usher_tree(d);
 				};
-
-				/*
-	overview_usher_button.addEventListener(
-	    'mouseover', function() {
-		    usher_button_info_display(tooltip);
-	    }, false);
-
-	overview_usher_button.addEventListener(
-	    'mouseout', function() {
-		    usher_button_info_hide(tooltip);
-	    }, false);
-			*/
 			}
+
+			/*
+overview_usher_button.addEventListener(
+    'mouseover', function() {
+	    usher_button_info_display(tooltip);
+    }, false);
+
+overview_usher_button.addEventListener(
+    'mouseout', function() {
+	    usher_button_info_hide(tooltip);
+    }, false);
+		*/
 
 
 			let private_table_select =
@@ -257,32 +255,75 @@ function graph() {
 						});
 					}
 				}
-/*
-				// Append "Show Defining Mutations" button in
-				// overview section
-				var overview_mutations_button =
-				    document.createElement('button');
-				overview_mutations_button.setAttribute(
-				    'class', 'btn btn-outline-primary');
-				overview_mutations_button.setAttribute(
-				    'id', 'show_mutations');
-				const mutations_btn_text =
-				    document.createTextNode(
-					'Show Amino Acid Mutations');
-				overview_mutations_button.appendChild(
-				    mutations_btn_text);
-				overview.appendChild(overview_mutations_button);
 			}
+
+			// Append "Show Defining Mutations
+			let overview_mutations_button =
+			    document.createElement('button');
+			overview_mutations_button.setAttribute(
+			    'class', 'btn btn-outline-primary');
+			overview_mutations_button.setAttribute(
+			    'id', 'show_mutations');
+			const mutations_btn_text = document.createTextNode(
+			    'Show Amino Acid Mutations');
+			overview_mutations_button.appendChild(
+			    mutations_btn_text);
+			overview.appendChild(overview_mutations_button);
+
 			if (overview_mutations_button) {
 				overview_mutations_button.onclick = function() {
-					var nt_data = [];
-					var nt_data = get_amino_acid_mutations(
-					    d['NODE_IDS']['Recomb'], container,
-					    y_position, snp_positions,
-					    square_dims, num_snps, d);
+					let active;
+					// Update button status
+					if ($('#show_mutations')
+						.hasClass('active')) {
+						active = false;
+						$('#show_mutations')
+						    .removeClass('active');
+					} else {
+						active = true;
+						$('#show_mutations')
+						    .addClass('active');
+					}
+					if (active) {
+						let nt_data =
+						    get_amino_acid_mutations(
+							d['NODE_IDS']['Recomb'],
+							container, y_position,
+							snp_positions,
+							square_dims, num_snps,
+							d);
+					} else {
+						// Hide amino acid track labels
+						hide_aa_labels(container);
+					}
 				};
 			}
-			*/
+			/*
+						// TODO: Visualize QC
+			   metrics button var overview_view_qc =
+			   document.createElement('button');
+						overview_view_qc.setAttribute(
+						    'class', 'btn
+			   btn-outline-primary');
+						overview_view_qc.setAttribute('id',
+			   'view_qc'); const qc_btn_text =
+						    document.createTextNode('View
+			   QC Flags');
+						overview_view_qc.appendChild(qc_btn_text);
+						overview.appendChild(overview_view_qc);
+
+						if (overview_view_qc) {
+							overview_view_qc.onclick
+			   = function() { console.log('View QC Flags in
+			   Alignment'); let myOffcanvas =
+			   document.getElementById(
+									'off_canvas_right_qc');
+								let
+			   bsOffcanvas = new bootstrap.Offcanvas(
+			   myOffcanvas); bsOffcanvas.show();
+							}
+						}
+						*/
 
 			// Make summary visible
 			overview.removeAttribute('hidden');
