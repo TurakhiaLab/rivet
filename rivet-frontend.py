@@ -545,7 +545,7 @@ if __name__ == "__main__":
   app.config['full_tree_info_sites'] = full_tree_info_sites
 
   # Load descendants file
-  desc_file, desc_position_table, full_tree_desc_position_table, full_tree_desc_file, recomb_node_set, recomb_desc_dict, desc_dict, sample_counts, full_tree_desc_file, full_tree_sample_counts = None,None,None,None,None,None,None,None,None,None
+  desc_file, desc_position_table, full_tree_desc_position_table, full_tree_desc_file, recomb_node_set, recomb_desc_dict, desc_dict, sample_counts, full_tree_desc_file, full_tree_sample_counts, full_tree_recomb_node_set = None,None,None,None,None,None,None,None,None,None,None
   if args.descendants_file:
       desc_files = args.descendants_file.split(",")
       print("Loading provided descendants file/s: ", desc_files)
