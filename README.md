@@ -1,6 +1,42 @@
-<img src="static/images/rivet-icon.png" width="300">
+<!--img src="static/images/rivet-icon.png" width="300"-->
+<div align="center">
+  <img src="static/images/rivet-icon.png" width="300"/>
+</div>
+<div align="center">
 
-# RIVET: SARS-CoV-2 RecombInation ViEwer and Tracker
+# RIVET
+### SARS-CoV-2 RecombInation ViEwer and Tracker
+
+[license-badge]: https://img.shields.io/badge/License-MIT-yellow.svg 
+[license-link]: https://github.com/TurakhiaLab/rivet/blob/main/LICENSE
+[![License][license-badge]][license-link]
+
+<hr>
+<div align="center">
+ <a target="_blank" href="https://rivet.ucsd.edu/">View RIVET's Latest Detected Recombinants</a>
+</div>
+<hr>
+
+<div align="center">
+    RIVET is a software pipeline and visual web platform to perform SARS-CoV-2 recombination inference using <a target="_blank" href="https://www.nature.com/articles/s41586-022-05189-9">RIPPLES</a> and organize the relevant information in order to greatly accelerate the process of identifying and tracking SARS-CoV-2 recombinants.
+
+  <h3>
+    <a href="#overview">
+      Overview
+    </a>
+    <span> | </span>
+    <a href="">
+      Documentation
+    </a>
+    <span> | </span>
+    <a href="">
+      Getting Started
+    </a>
+  </h3>
+</div>
+<hr>
+</div>
+
 
 ## Table of Contents
 - [Overview](#overview)
