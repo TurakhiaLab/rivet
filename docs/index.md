@@ -2,6 +2,7 @@
 # Welcome to the RIVET Wiki
 
 
+## RIVET Architecture
 
 RIVET is a program designed to aid in SARS-CoV-2 recombination analysis and consists of backend and frontend components:
 

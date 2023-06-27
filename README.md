@@ -25,11 +25,11 @@
       Overview
     </a>
     <span> | </span>
-    <a href="">
+    <a href="https://turakhialab.github.io/rivet/">
       Documentation
     </a>
     <span> | </span>
-    <a href="">
+    <a href="https://turakhialab.github.io/rivet/start/features.html">
       Getting Started
     </a>
   </h3>
