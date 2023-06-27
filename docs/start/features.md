@@ -5,6 +5,18 @@ Each row in the results table represents an inferred recombinant. You can **hori
 
 <img src="images/row-select.png" width="1000" height="500"/>
 
+For detailed information on each column of the results table, please see the [RIVET Results Table](https://turakhialab.github.io/rivet/start/table.html) page.
+
+### Sort by Column
+
+## Search Table
+
+
+## Search by Sample ID
+
+
+## SNV plot
+
 
 ## Query Descendants
 For a selected recombinant ancestor node of interest, you might want to query which samples are descendants of this inferred recombinant. Simply **click** the `Recombinant` label to the left of the track to view up to 10,000 sample descendants of that particular recombinant, as seen in the screenshots below.
@@ -46,9 +58,11 @@ This feature will take you to the [UCSC UShER](https://genome.ucsc.edu/cgi-bin/h
 
     This feature will open a new tab to `UShER` and may take a few minutes to load in the new tab.
 
-Once finished loading, you will see the following page, where you can view the subtree by clicking `view downsampled global tree in Nextstrain`.
+Once finished loading, you will see the following page, where you can view the subtree by clicking `view downsampled global tree in Nextstrain`.<br>
 
-<img src="images/view-subtree.png" width="1000" height="500"/>
+<img src="images/view-usher-subtree.png" width="1000" height="500"/>
+
+<br>
 
 <img src="images/view-nextstrain.png" width="1000" height="500"/>
 
