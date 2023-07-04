@@ -65,6 +65,7 @@ scores.
 
 
 ## 3SEQ (M, N, K)
+* 3SEQ M, M, K values used to check individual p-values in a pre-generated 3SEQ p-value table.
 
 
 ## 3SEQ P-Value

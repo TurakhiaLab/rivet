@@ -7,15 +7,41 @@ Each row in the results table represents an inferred recombinant. You can **hori
 
 For detailed information on each column of the results table, please see the [RIVET Results Table](https://turakhialab.github.io/rivet/start/table.html) page.
 
-### Sort by Column
+## Results Table Next and Previous Buttons
+Use the `next` and `previous` buttons shown below to skip to the next recombinant result (next row) and SNV visualization in the table.
+<img src="images/next-prev-buttons.png" width="1000"/>
+
+!!! tip
+    You can also use the arrow keys instead of the `next` and `previous` buttons.  Use the right arrow key :arrow_forward: and left arrow key :arrow_backward: to skip to `next` and `previous` results respectively.
+
+
+## Sort by Column
+The results can be sorted by any column, by **clicking on the column title**, shown below:
+<img src="images/RIVET-table-columns.png" width="1000"/>
+<br>
+
+!!! note
+    By default, the results are ranked by the `Recombinant Ranking Score`.
+
 
 ## Search Table
-
+The table can be searched and the results shown will be filtered down based on the given query.  For example, if you want to search for all recombinant results with `XBB` lineage classification just type `XBB` into the search bar.
 
 ## Search by Sample ID
+A user can search for recombinant ancestry in specific samples by using the search by sample identifer feature. Click the toggle button to its active state, and then enter the sample identifier into the search bar.  When the `Search by sample` toggle is active, normal table search will be disabled and all search queries should be sample identifiers.
+
+!!! note
+    Once you have entered the sample identifier into the search bar, it may take a few seconds for the table results to refresh with the results of your query.
+
+<img src="images/search-by-sample.png" width="1000"/>
 
 
 ## SNV plot
+When a user clicks on a row to select a recombinant of interest the following visualization, shown below, will be rendered.
+
+<img src="images/XBG-snv-plot.png" width="1000"/>
+
+The above visualization shows all of the single-nucleotide variant (SNV) sites in the recombinant sequence and its two parents (donor/acceptor), with respect to the reference sequence. The recombinant-informative sites are highlighted in <span style="color:orange">orange</span> where the recombinant matches the donor, and <span style="color:DodgerBlue">blue</span> where the recombinant matches the acceptor.  The gene region annotations are shown below the trio sequences in the bottom track.
 
 
 ## Query Descendants

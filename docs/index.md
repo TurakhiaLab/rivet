@@ -1,6 +1,11 @@
 <img src="images/rivet-icon.png" width="200" height="200"/>
 # Welcome to the RIVET Wiki
 
+# Quick Start
+For information on navigating the [RIVET Web Interface](https://rivet.ucsd.edu/) see the [Getting Started](start/features.md) tab.
+
+<br>
+<hr>
 
 ## RIVET Architecture
 
@@ -14,7 +19,3 @@ RIVET is a program designed to aid in SARS-CoV-2 recombination analysis and cons
 <br>
 
 ![](images/rivet_backend_diagram.jpg)
-
-
-# Quick Start
-For information on navigating the [RIVET Web Interface](https://rivet.ucsd.edu/) see the `Getting Started` tab.

@@ -1,5 +1,6 @@
-# Uploading Your Sequences
-Upload your own SARS-CoV-2 sequences and infer recombinant ancestry using `RIVET's` backend.
+# Inferring Recombinants Using the RIVET Backend
+
+Infer recombinant ancestry in your own SARS-CoV-2 sequences using `RIVET's` backend.
 
 !!! Installation
     Make sure `RIVET` is installed on your local machine before proceeding, otherwise install `RIVET` first by following these steps: [Install RIVET On Your Machine](installation.md)
@@ -130,4 +131,3 @@ The pipeline will automatically output the following four files within your loca
 
 !!! note
     Currently the `Taxonium` view is only provided using public trees provided at: [https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/](https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/)
-    

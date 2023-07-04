@@ -68,9 +68,9 @@ nav:
   - Home: index.md
   - Getting Started:
     - start/features.md
-    - start/workflow.md
     - start/table.md
     - start/filtration.md
+    - start/future.md
   - Analyze Your Sequences: 
     - installation/installation.md
     - installation/upload.md
