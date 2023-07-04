@@ -8,6 +8,7 @@ dependencies:
   - google-cloud-sdk = 412.0.0
   - flask = 2.2.2
   - flask-caching = 2.0.1
+  - biopython
   - pip:
           - pyyaml
           - matplotlib

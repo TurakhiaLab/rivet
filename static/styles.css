@@ -9,6 +9,14 @@ div#full_table{
 	 padding-bottom:50px;
 }
 
+div.dataTables_wrapper div.dataTables_filter input {
+   width: 500px;
+}
+
+div#download {
+	 padding-bottom:50px;
+}
+
 div#table_title {
 	 padding-right:50px;
 	 padding-left:50px;

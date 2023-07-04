@@ -11,6 +11,7 @@ import json
 import csv
 import os
 import sys
+import webbrowser
 
 app = Flask(__name__) 
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -33,6 +34,17 @@ def upload():
 def init():
     env = app.config.get('environment')
     return jsonify({"env": env})
+
+@app.route("/init_track", methods=['POST'])
+def init_track():
+    genome_size = app.config.get('genome_size')
+    genomic_range = app.config.get('genomic_range')
+    gene_region_data = app.config.get('gene_region_data')
+    env = app.config.get('environment')
+    data = {"env": env, "GENOME_SIZE": genome_size,
+            "GENOMIC_RANGE": genomic_range,
+            "REGION_DATA": gene_region_data}
+    return jsonify(data)
 
 @app.route("/get_tree_view", methods=['POST'])
 def get_tree_view():
@@ -108,8 +120,8 @@ def get_count_data():
     else:
         axis_data = month_case_counts
         hist_data = backend.format_histogram_data(months, recomb_counts, month_case_counts, "New Cases")
-
     return jsonify({"data": hist_data, "month_data": axis_data,  "recomb_counts": recomb_counts})
+
 
 @app.route("/get_detailed_overview", methods=['POST'])
 def get_detailed_overview():
@@ -271,7 +283,15 @@ def download_breakpoint_plot():
 @app.route('/download_select_descendants', methods=["POST", "GET"])
 def download_select_descendants():
     init_data = app.config.get('init_data')
-    desc_d = app.config.get('desc_data')
+
+    tree = request.args["tree"]
+    desc_dict = None
+    if tree == 'public':
+        desc_lookup_table = app.config.get('desc_data')
+        desc_file = app.config.get('desc_file')
+    else:
+        desc_lookup_table = app.config.get('full_tree_desc_data')
+        desc_file = app.config.get('full_tree_desc_file')
 
     content = request.args["id"]
     if content is not None:
@@ -280,8 +300,9 @@ def download_select_descendants():
         #Initialize default values from input descendants txt file
         node_id = init_data["recomb_id"]
 
-    # Get descendants for selected node
-    descendant_list = desc_d[node_id]
+    # Get all descendants for selected node, no max limit of 10k
+    desc_string = backend.query_desc_file(desc_file, desc_lookup_table, node_id, True)
+    descendant_list = desc_string.split(',')
     filename = node_id + "_descendants.txt"
 
     def generate_descendants():
@@ -304,6 +325,10 @@ def get_breakpoint_data():
 def get_data_full_tree():
   content = request.get_json()
   env = app.config.get('environment').lower()
+  genome_size = app.config.get('genome_size')
+  genomic_range = app.config.get('genomic_range')
+  gene_region_data = app.config.get('gene_region_data')
+
   breakpoint1, breakpoint2, descendants = None, None, None
   if content is not None and len(content.keys()) == 2:
       full_table = app.config.get('full_tree_table')
@@ -360,12 +385,19 @@ def get_data_full_tree():
 
   track_data =  OrderedDict()
   track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, full_tree_info_sites, color_schema, d, recomb_informative_only, row_id, env)
+  track_data["GENOME_SIZE"] = genome_size
+  track_data["GENOMIC_RANGE"] = genomic_range
+  track_data["REGION_DATA"] = gene_region_data
   return jsonify(track_data)
 
 @app.route('/get_data', methods=['GET', 'POST'])
 def get_data():
   content = request.get_json()
   env = app.config.get('environment').lower()
+  genome_size = app.config.get('genome_size')
+  genomic_range = app.config.get('genomic_range')
+  gene_region_data = app.config.get('gene_region_data')
+
   breakpoint1, breakpoint2, descendants = None, None, None
   if content is not None and len(content.keys()) == 2:
       table = app.config.get('table')
@@ -422,6 +454,9 @@ def get_data():
 
   track_data =  OrderedDict()
   track_data = backend.get_all_snps(recomb_id, donor_id, acceptor_id, breakpoint1, breakpoint2, descendants, info_sites, color_schema, d, recomb_informative_only, row_id, env)
+  track_data["GENOME_SIZE"] = genome_size
+  track_data["GENOMIC_RANGE"] = genomic_range
+  track_data["REGION_DATA"] = gene_region_data
   return jsonify(track_data)
 
 @app.route('/')
@@ -451,7 +486,7 @@ if __name__ == "__main__":
   parser = ArgumentParser()
   parser.add_argument("-v", "--vcf", required=True, type=str, help="Give input VCF containing snps of all recombinant/donor/acceptor trio nodes.")
   parser.add_argument("-r", "--recombinant_results", required=True, type=str, help="Give input recombination results file")
-  parser.add_argument("-d", "--descendants_file", required=False, type=str, help="File continaing descendants (up to 10k) for each node in VCF")
+  parser.add_argument("-d", "--descendants_file", required=False, type=str, help="File containing descendants (up to 10k) for each node in VCF")
   parser.add_argument("-c", "--config", required=True, type=str, help="Configuration file for defining custom color schema for visualizations.")
   parser.add_argument("-t", "--translate", required=False, type=str, help="matUtils translate file for visualizing amino acid information.")
   parser.add_argument("-a", "--analysis", required=False, type=str, help="Extra data files with counts of new genomes sequenced per month. Not for general use.")
@@ -468,6 +503,7 @@ if __name__ == "__main__":
   #else:
   #    print("Config file not provided, using default RIVET settings.")
   #    color_schema = backend.default_color_schema()
+  #TODO: Check extensions for input files for correct file format (ie. genbank file)
    
   # Load recombination results file and get initial data
   results_files = args.recombinant_results.split(",")
@@ -603,8 +639,28 @@ if __name__ == "__main__":
   app.config['date'] = str(config["date"])
   app.config['color_schema'] = color_schema
 
+  # GenBank gene annotation information for given pathogen
+  genbank_file = config["ref_seq"]
+  features, genome_size = backend.parse_genbank_file(genbank_file)
+
+  # Get tick mark intervals for genomic coordinate track
+  genomic_range = []
+  genomic_range = [i for i in range(0, genome_size, config["tick_step"])]
+  genomic_range[-1] = genome_size
+  gene_region_data = backend.get_gene_annotations(features)
+
+  app.config['genome_size'] = genome_size
+  app.config['genomic_range'] = genomic_range
+  app.config['gene_region_data'] = gene_region_data
+
   tock = time.perf_counter()
   print(f"Time elapsed: {tock-tick:.2f} seconds")
   print("Input recombination results datatable being displayed: {}".format(recomb_results))
 
-  app.run(threaded=True)
+
+  port = config["port"]
+  if config["environment"].lower() == "local":
+    webbrowser.open_new('http://127.0.0.1:{}/'.format(port))
+    app.run(port=port, threaded=True)
+  else:
+    app.run(threaded=True)

@@ -16,9 +16,16 @@ function main() {
 		      .attr('id', 'outer_SVG')
 		      .attr('height', border_height);
 
-	// Starting: y_position = border_height
-	// Initialize a starting coordinate track
-	init_coordinate_track(svg.append('svg'), init_track_width);
+	fetch('/init_track', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({})
+	}).then(res => {res.json().then(data => {
+			// Starting: y_position = border_height
+			// Initialize a starting coordinate track
+			init_coordinate_track(
+			    svg.append('svg'), init_track_width, data);
+		})});
 
 	// SNV plot svg download and copy buttons setup
 	/*
@@ -26,7 +33,8 @@ var copy_snv_button =
 create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 */
 	if (document.querySelector('#table_title')) {
-		// Show results table title and select tree buttons
+		// Show results table title and select
+		// tree buttons
 		document.querySelector('#table_title')
 		    .removeAttribute('hidden');
 	}
@@ -34,7 +42,8 @@ create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 	var download_snv_button =
 	    create_button('download_svg', 'Download SNV', 1250, 280);
 	var download_svg = document.querySelector('#download_svg');
-	// var copy_svg = document.querySelector('#copy_svg');
+	// var copy_svg =
+	// document.querySelector('#copy_svg');
 	download_svg.style.visibility = 'hidden';
 	// copy_svg.style.visibility = 'hidden';
 
@@ -58,7 +67,8 @@ create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 	const taxonium_button = document.querySelector('#download_taxonium');
 	const search = document.querySelector('#search');
 
-	// Left and right arrow keys reserved for scrolling between results
+	// Left and right arrow keys reserved for
+	// scrolling between results
 	window.addEventListener('keydown', function(e) {
 		if (['ArrowLeft', 'ArrowRight'].indexOf(e.code) > -1) {
 			e.preventDefault();
@@ -78,7 +88,8 @@ create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 	if (full_tree_desc_button) {
 		if (full_tree_desc_button.style.visibility != 'hidden') {
 			full_tree_desc_button.addEventListener('click', () => {
-				// TODO: Full tree desc download
+				// TODO: Full tree
+				// desc download
 				var url = download_all_descendants('full_tree');
 				window.location.href = url;
 			}, false);
@@ -92,7 +103,8 @@ create_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 	}
 	if (full_table_button) {
 		full_table_button.addEventListener('click', () => {
-			// Downloading full tree results table
+			// Downloading full tree
+			// results table
 			download_table('full');
 		}, false);
 	}

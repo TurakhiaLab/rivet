@@ -218,40 +218,47 @@ function render_table(selected_tree) {
 }
 
 function next_result(id) {
-	// Get current result table page length
-	var pageLength = ($('#datatable').DataTable().page() + 1) *
-	    $('#datatable').DataTable().page.len();
+	let tree = tree_selected();
+	let table;
+	let endpoint;
+	if (tree === 'public') {
+		table = '#datatable';
+		endpoint = '/get_data';
+	} else {
+		table = '#full_datatable';
+		endpoint = '/get_data_full_tree'
+	}
 
-	fetch('/get_data', {
+	// Get current result table page length
+	let pageLength =
+	    ($(table).DataTable().page() + 1) * $(table).DataTable().page.len();
+
+	fetch(endpoint, {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({'row_id': id, 'click': 'next'})
 	}).then(res => {
 		res.json().then(data => {
 			track(data);
-			var row = data['ID'];
+			let row = data['ID'];
 			$(document).ready(function() {
-				var table = $('#datatable').DataTable();
-				var row_idx = parseInt(row) - 1;
-				var next_idx = parseInt(row);
+				let row_idx = parseInt(row) - 1;
+				let next_idx = parseInt(row);
 
-				if ($('#datatable tbody tr')
+				if ($(table + ' tbody tr')
 					.hasClass('selected')) {
 					if (next_idx == pageLength) {
 						// Move to next page
-						$('#datatable')
+						$(table)
 						    .DataTable()
 						    .page('next')
 						    .draw(false);
 					}
 					// Remove previously selected
-					$('#datatable tbody tr')
+					$(table + ' tbody tr')
 					    .removeClass('selected');
 				}
-				$($('#datatable')
-				      .DataTable()
-				      .row(next_idx)
-				      .node())
+				$($(table).DataTable().row(next_idx).node())
 				    .addClass('selected');
 			});
 		});
@@ -259,43 +266,49 @@ function next_result(id) {
 }
 
 function previous_result(id) {
-	// Get current result table page length
-	var pageLength = ($('#datatable').DataTable().page() + 1) *
-	    $('#datatable').DataTable().page.len();
+	let tree = tree_selected();
+	let table;
+	let endpoint;
+	if (tree === 'public') {
+		table = '#datatable';
+		endpoint = '/get_data';
+	} else {
+		table = '#full_datatable';
+		endpoint = '/get_data_full_tree'
+	}
 
-	fetch('/get_data', {
+	// Get current result table page length
+	let pageLength =
+	    ($(table).DataTable().page() + 1) * $(table).DataTable().page.len();
+
+	fetch(endpoint, {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({'row_id': id, 'click': 'previous'})
 	}).then(res => {
 		res.json().then(data => {
 			track(data);
-			var row = data['ID'];
+			let row = data['ID'];
 			$(document).ready(function() {
-				var table = $('#datatable').DataTable();
-				var current_idx = parseInt(row) + 1;
-				var prev_idx = parseInt(row);
+				let current_idx = parseInt(row) + 1;
+				let prev_idx = parseInt(row);
 
 				if (prev_idx ==
 				    ((pageLength - 1) -
-				     $('#datatable').DataTable().page.len())) {
+				     $(table).DataTable().page.len())) {
 					// Move to next page
-					$('#datatable')
+					$(table)
 					    .DataTable()
 					    .page('previous')
 					    .draw(false);
 				}
-				if ($('#datatable tbody tr')
+				if ($(table + ' tbody tr')
 					.hasClass('selected')) {
-					// Remove previously selected
-					// row
-					$('#datatable tbody tr')
+					// Remove previously selected row
+					$(table + ' tbody tr')
 					    .removeClass('selected');
 				}
-				$($('#datatable')
-				      .DataTable()
-				      .row(prev_idx)
-				      .node())
+				$($(table).DataTable().row(prev_idx).node())
 				    .addClass('selected');
 			});
 		});
@@ -517,7 +530,7 @@ function display_descendants(label_node_id) {
 				desc_button.addEventListener('click', () => {
 					window.location.href =
 					    '/download_select_descendants?id=' +
-					    label_node_id;
+					    label_node_id + '&tree=' + tree_selected;
 				}, false);
 			}
 		});

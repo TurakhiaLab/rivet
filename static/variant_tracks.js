@@ -9,7 +9,7 @@ const buffer_btw_bases = 5;
 const polygon_buffer = 150;
 const coordinate_track_height = 50;
 const coordinate_outer_buffer = 150;
-const coordinate_outermost_buffer = 10;
+const coordinate_outermost_buffer = 30;
 
 function add_small_trio_track(track_svg, y_position, square_dims, d) {
 	// New y position to update and return for next track added above
@@ -211,7 +211,7 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 	    border_height - coordinate_outer_buffer + coordinate_track_height;
 	var x_axis_pos = [zero.toString(), x_axis_height.toString()].join(',');
 
-	var x = d3.scaleLinear().domain([0, 29903]).range([
+	var x = d3.scaleLinear().domain([0, data['GENOME_SIZE']]).range([
 		track_x_position, small_track_width + track_x_position
 	]);
 
@@ -220,16 +220,14 @@ function add_small_coordinate_track(track_svg, y_position, data, square_dims) {
 		'transform',
 		// TODO: Parameterize this translation
 		'translate(0,600)')
-	    .call(d3.axisBottom(x).tickValues([
-		    0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000,
-		    18000, 20000, 22000, 24000, 26000, 28000, 29903
-	    ]));
+	    .call(d3.axisBottom(x).tickValues(data['GENOMIC_RANGE']));
 
 	//  Create x-axis label for coordinate track
 	track_svg.append('text')
 	    .attr('class', 'x label')
 	    .attr('text-anchor', 'end')
-	    .attr('x', small_track_width / 1.5 + track_x_position)
+	    //.attr('x', small_track_width / 1.5 + track_x_position)
+	    .attr('x', 280)
 	    .attr('y', border_height - 60)
 	    .attr('font-weight', 700)
 	    .style('font-size', '20px')
@@ -583,7 +581,7 @@ function add_column_position_labels(
 	}
 }
 
-function init_coordinate_track(track_svg, y_position) {
+function init_coordinate_track(track_svg, y_position, data) {
 	// New y position to update and return as new track is
 	// added above previous one
 	var new_y = y_position;
@@ -614,52 +612,28 @@ function init_coordinate_track(track_svg, y_position) {
 	var x_axis_height =
 	    border_height - coordinate_outer_buffer + coordinate_track_height;
 	var x_axis_pos = [zero.toString(), x_axis_height.toString()].join(',');
-
-	var x = d3.scaleLinear().domain([0, 29903]).range([
+	var x = d3.scaleLinear().domain([0, data['GENOME_SIZE']]).range([
 		// track_x_position, track_width + track_x_position
 		init_track_x_position, track_width + init_track_x_position
 	]);
 	track_svg.append('g')
 	    .attr('transform', 'translate(0,600)')
-	    .call(d3.axisBottom(x).tickValues([
-		    0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000,
-		    18000, 20000, 22000, 24000, 26000, 28000, 29903
-	    ]));
+	    .call(d3.axisBottom(x).tickValues(data['GENOMIC_RANGE']));
 
 	//  Create x-axis label for coordinate track
-	track_svg.append('text')
-	    .attr('class', 'x label')
-	    .attr('text-anchor', 'end')
-	    .attr('x', border_width / 1.75)
-	    .attr('y', border_height - 60)
-	    .attr('font-weight', 700)
-	    .style('font-size', '20px')
-	    .text('Genomic Coordinate');
+	/*
+track_svg.append('text')
+.attr('class', 'x label')
+.attr('text-anchor', 'end')
+.attr('x', border_width / 1.75)
+.attr('y', border_height - 60)
+.attr('font-weight', 700)
+.style('font-size', '20px')
+.text('Genomic Coordinate');
+*/
 
-
-	var region_sizes = [232, 13205, 8095];
-	var regions = [1, 233, 13436, 21531];
-	// TODO: Extract this region data from json passed from
-	// backend processing of gene annotation files
-	var color = '#474747';
-	var region_names = ['ORF1a', 'ORF1b', 'S', '3a', 'E', 'M', 'N'];
-	var region_colors = [
-		'#add8e6', '#ffb1b1', '#ffffe0', '#ffdc9d', '#bcf5bc',
-		'#ffceff', '#ffa500', '#1e90ff'
-	];
-	var region_widths = [13203, 8095, 3767, 858, 230, 800, 1000, 1268];
-	var starting_x_coord =
-	    [232, 13203, 8095, 3767, 858, 230, 800, 1000, 1268];
-
-	var region_data = {
-		'ORF1a': {xpos: 274, end: 13409, color: '#333333'},
-		'ORF1b': {xpos: 13409, end: 21531, color: '#333333'},
-		'S': {xpos: 21531, end: 25268, color: '#333333'},
-		'3a': {xpos: 25268, end: 26126, color: '#333333'},
-		'E': {xpos: 26126, end: 26471, color: '#333333'},
-		'M': {xpos: 26471, end: 28471, color: '#333333'},
-		'N': {xpos: 28471, end: 29903, color: '#333333'}
-	};
+	let region_names = Object.keys(data['REGION_DATA']);
+	let region_data = data['REGION_DATA'];
 
 	draw_genomic_region(track_svg, region_names, region_data, x);
 
@@ -830,7 +804,7 @@ function append_g(g, region_data, region, x) {
 			d3.select(this)
 			    .attr('fill', '#4169E1')
 			    .style('stroke', 'white')
-			    .attr('stroke-width', '3')
+			    .attr('stroke-width', '3');
 		})
 	    .on('mouseleave',
 		function(d) {
@@ -840,9 +814,16 @@ function append_g(g, region_data, region, x) {
 			    .attr('stroke-width', '1')
 		})
 	    .style('stroke', 'white')
-	    .attr('stroke-width', '1');
+	    .attr('stroke-width', '1')
+
+	    .on('click', function(d) {
+		    // TODO: Finish select SNVs falling in specific region
+		    // feature
+		    console.log('CLICKED ON REGION: ', region);
+	    });
 
 	// Add text label to genomic region
+	// TODO: Fix mouseover text issue
 	g.append('text')
 	    .attr(
 		'x',
@@ -855,12 +836,20 @@ function append_g(g, region_data, region, x) {
 		'y',
 		border_height - coordinate_outermost_buffer -
 		    (genomic_region_dims / 2))
-	    .text(region)
+	    .text(function(d) {
+		    let length = d[region].end - d[region].xpos;
+		    let region_dim = x(d[region].end) - x(d[region].xpos);
+		    if (region_dim < 30 && region.length != 1) {
+			    return;
+		    }
+		    return region;
+	    })
+
 	    // Center text char in square
 	    .attr('text-anchor', 'middle')
 	    .attr('dominant-baseline', 'central')
 	    .attr('fill', 'white')
-	    .style('font-size', '20px');
+	    .style('font-size', '10px');
 }
 
 function draw_genomic_region(track_svg, region_names, region_data, x) {
@@ -1062,7 +1051,7 @@ function add_coordinate_track(
 	    border_height - coordinate_outer_buffer + coordinate_track_height;
 	var x_axis_pos = [zero.toString(), x_axis_height.toString()].join(',');
 
-	var x = d3.scaleLinear().domain([0, 29903]).rangeRound([
+	var x = d3.scaleLinear().domain([0, data['GENOME_SIZE']]).rangeRound([
 		track_x_position, (container_width - track_x_position)
 	]);
 
@@ -1072,20 +1061,27 @@ function add_coordinate_track(
 	    .attr(
 		'transform',
 		'translate(0,600)')  // vertical position
-	    .call(d3.axisBottom(x).tickValues([
-		    0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000,
-		    18000, 20000, 22000, 24000, 26000, 28000, 29903
-	    ]));
+	    .call(d3.axisBottom(x).tickValues(data['GENOMIC_RANGE']));
 
 	//  Create x-axis label for coordinate track
 	track_svg.append('text')
 	    .attr('class', 'x label')
 	    .attr('text-anchor', 'end')
-	    .attr('x', container_width / 1.75)
-	    .attr('y', border_height - 60)
+	    .attr('x', 280)
+	    .attr('y', border_height - 90)
 	    .attr('font-weight', 700)
 	    .style('font-size', '20px')
 	    .text('Genomic Coordinate');
+
+	// Create x-axis label for gene region track
+	track_svg.append('text')
+	    .attr('class', 'x label')
+	    .attr('text-anchor', 'end')
+	    .attr('x', 280)
+	    .attr('y', border_height - 35)
+	    .attr('font-weight', 700)
+	    .style('font-size', '20px')
+	    .text('Gene Annotations');
 
 	var breakpoint_data = data['BREAKPOINTS'];
 
@@ -1267,33 +1263,8 @@ function add_coordinate_track(
 			return color;
 		});
 
-	var region_sizes = [232, 13205, 8095];
-	var regions = [1, 233, 13436, 21531];
-
-	// TODO: Get region data from gene annotation file
-	// Hardcoded regions for now
-	var color = '#474747';
-	var region_names = ['ORF1a', 'ORF1b', 'S', '3a', 'E', 'M', 'N'];
-	var region_colors = [
-		'#add8e6', '#ffb1b1', '#ffffe0', '#ffdc9d', '#bcf5bc',
-		'#ffceff', '#ffa500', '#1e90ff'
-	];
-
-	var region_widths = [13203, 8095, 3767, 858, 230, 800, 1000, 1268];
-	var starting_x_coord =
-	    [232, 13203, 8095, 3767, 858, 230, 800, 1000, 1268];
-
-	// TODO: Experimenting with regions being only one color
-	var region_data = {
-		'ORF1a': {xpos: 274, end: 13409, color: '#333333'},
-		'ORF1b': {xpos: 13409, end: 21531, color: '#333333'},
-		'S': {xpos: 21531, end: 25268, color: '#333333'},
-		'3a': {xpos: 25268, end: 26126, color: '#333333'},
-		'E': {xpos: 26126, end: 26471, color: '#333333'},
-		'M': {xpos: 26471, end: 28471, color: '#333333'},
-		'N': {xpos: 28471, end: 29903, color: '#333333'}
-	};
-
+	let region_names = Object.keys(data['REGION_DATA']);
+	let region_data = data['REGION_DATA'];
 	draw_genomic_region(track_svg, region_names, region_data, x);
 
 	// Display color legend left of visualization, below track labels

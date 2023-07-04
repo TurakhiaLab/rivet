@@ -9,22 +9,74 @@ import time
 import datetime
 import random
 import string
-from cyvcf2 import VCF
-from functools import lru_cache
-from collections import OrderedDict
-from alive_progress import alive_bar, alive_it
 import heapq
-import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
-from urllib.parse import quote_plus
 import sys
-import seaborn as sns
-import matplotlib.patches as patches
 import gzip
 import lzma
 import csv
 import io
 import os
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from matplotlib.collections import LineCollection
+from urllib.parse import quote_plus
+from cyvcf2 import VCF
+from functools import lru_cache
+from collections import OrderedDict
+from alive_progress import alive_bar, alive_it
+from profilehooks import profile
+from Bio import GenBank
+
+def parse_genbank_file(file):
+    """
+    """
+    genome_size = 0
+    with open(file) as handle:
+        for record in GenBank.parse(handle):
+            features = record.features
+            genome_size = int(record.size)
+    assert(genome_size != 0)
+    return features, genome_size
+
+def get_gene_annotations(features):
+    """
+    Parse out gene region annotations from parsed input GenBank file
+    Example format expected for visualization code
+	region_data = {
+		'ORF1a': {xpos: 274, end: 13409, color: '#333333'},
+		'ORF1b': {xpos: 13409, end: 21531, color: '#333333'},
+		'S': {xpos: 21531, end: 25268, color: '#333333'},
+		'3a': {xpos: 25268, end: 26126, color: '#333333'},
+		'E': {xpos: 26126, end: 26471, color: '#333333'},
+		'M': {xpos: 26471, end: 28471, color: '#333333'},
+		'N': {xpos: 28471, end: 29903, color: '#333333'}
+	}
+    """
+    genes = []
+    gene_ranges = []
+    gene_region_data = {}
+    for f in features:
+        if f.key == "gene":
+            # Get gene as a string
+            gene = f.qualifiers[0].value
+            # Remove extra "" around string
+            gene = gene[1:len(gene)-1]
+
+            # Get the genomic coordinates of the gene and
+            # parse the ranges as a tuple (start, end) of genomic range
+            location = f.location
+            if "complement" in location:
+                start = int(location[12:location.find(".")])
+                end = int(location[location.find(".")+2:len(location)-1])
+            else:
+                start = int(location[:location.find(".")])
+                end = int(location[location.find(".")+2:])
+            # Add gene info to dictionary
+            gene_region_data[gene] = {"xpos": start, "end": end, "color": "#333333"}
+
+    return gene_region_data
+
 
 def get_sampled_desc(results_file, node_id):
     """
@@ -45,7 +97,7 @@ def get_sampled_desc(results_file, node_id):
     # Error, node_id not found in results file
     return None
 
-def query_desc_file(desc_file, desc_lookup_table, node_id, search_by_sample = False):
+def query_desc_file(desc_file, desc_lookup_table, node_id, return_all = False):
     """
     """
     #tick = time.perf_counter()
@@ -58,7 +110,7 @@ def query_desc_file(desc_file, desc_lookup_table, node_id, search_by_sample = Fa
     # Read size of the descendants_string bytes from the file
     desc_string = f.read(desc_lookup_table[node_id][1] - desc_lookup_table[node_id][0])
     #tock = time.perf_counter()
-    if search_by_sample:
+    if return_all:
         return desc_string
     # Split comma separated string into a list of descendants
     desc_list = desc_string.split(',')
@@ -210,6 +262,7 @@ def build_counts_histogram(results_file, month_seq_counts_filename):
             if joined_date == "2023_03" or joined_date == "2023_04":
                 continue
             print("[ERROR] CHECK Formatting: {}".format(joined_date))
+            print("Recomb Node id: {}, with date: {}, in this file: {} is producing this error".format(recomb_id, recomb_date, results_file))
             exit(1)
         month_bins[joined_date].add(recomb_id)
     recomb_counts = list([len(x) for x in month_bins.values()])

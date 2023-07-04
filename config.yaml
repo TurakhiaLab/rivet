@@ -18,10 +18,17 @@ breakpoint_intervals: '#800000'
 
 # Genomic Coordinate Track (default all genomic regions are same color)
 genomic_regions: '#33333'
+# Step for tick-marks on genomic coordinate track
+tick_step: 1000
+
+# Pathogen
+ref_seq: NC_045512.gb
 
 ### Taxonium Tree View Options ###
 date: 2023-01-31
 bucket_name: public_trees
 
-### Server settings ###
+# Keep environment as "local"
 environment: local
+# If running locally, port to use
+port: 2000
