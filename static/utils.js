@@ -530,7 +530,8 @@ function display_descendants(label_node_id) {
 				desc_button.addEventListener('click', () => {
 					window.location.href =
 					    '/download_select_descendants?id=' +
-					    label_node_id + '&tree=' + tree_selected;
+					    label_node_id +
+					    '&tree=' + tree_selected;
 				}, false);
 			}
 		});

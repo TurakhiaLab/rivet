@@ -25,7 +25,6 @@ from cyvcf2 import VCF
 from functools import lru_cache
 from collections import OrderedDict
 from alive_progress import alive_bar, alive_it
-from profilehooks import profile
 from Bio import GenBank
 
 def parse_genbank_file(file):
@@ -76,7 +75,6 @@ def get_gene_annotations(features):
             gene_region_data[gene] = {"xpos": start, "end": end, "color": "#333333"}
 
     return gene_region_data
-
 
 def get_sampled_desc(results_file, node_id):
     """
@@ -259,7 +257,7 @@ def build_counts_histogram(results_file, month_seq_counts_filename):
         month = str(parsed_date[1])
         joined_date = "_".join([year, month])
         if joined_date not in month_bins.keys():
-            if joined_date == "2023_03" or joined_date == "2023_04":
+            if joined_date == "2023_03" or joined_date == "2023_04" or joined_date == "2023_05":
                 continue
             print("[ERROR] CHECK Formatting: {}".format(joined_date))
             print("Recomb Node id: {}, with date: {}, in this file: {} is producing this error".format(recomb_id, recomb_date, results_file))
