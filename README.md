@@ -60,7 +60,7 @@ We routinely run RIVET's backend pipeline on the latest [SARS-CoV-2 global MAT](
 ## <a name="web"></a> RIVET SARS-CoV-2 Web Interface
 To support ongoing SARS-CoV-2 recombinant lineage designation and genomic surveillance efforts, we provide a web interface ([https://rivet.ucsd.edu/](https://rivet.ucsd.edu/)) to summarize the results from running the `RIVET` backend on the latest SARS-CoV-2 mutation-annotated tree.  The `RIVET` web interface provides a suite of analysis and visualization tools to support rapid interpretation of detected recombinants, and provides integration with several tools such as `UShER`, `Taxonium` and `Nextstrain/Auspice`.
 
-We currently plan to support weekly updates of the `RIVET` web interface and we hope to help support and accelerate the laborious process of SARS-CoV-2 recombinant lineage designation proposal.
+We currently plan to support weekly updates of the `RIVET` web interface with the goal of helping to support and accelerate the laborious process of SARS-CoV-2 recombinant lineage designation.
 
 <br>
 
@@ -70,9 +70,9 @@ We currently plan to support weekly updates of the `RIVET` web interface and we 
 
 
 ## <a name="local"></a> Use RIVET Locally
-The `RIVET` backend and frontend components can also be installed and used locally to inferred infer putative recombinants in your sequences and visualize the results locally in your browser.
+The `RIVET` backend and frontend components can also be installed and used locally to infer putative recombinants in your sequences and visualize the results locally in your browser.
 
-For more information on this workflow, please see our documentation page available here: [Use RIVET Locally](https://turakhialab.github.io/rivet/installation/installation)
+**For more information on this workflow, please see our documentation page available here: [Use RIVET Locally](https://turakhialab.github.io/rivet/installation/installation)**
 
 <br>
 
