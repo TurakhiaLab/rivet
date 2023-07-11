@@ -1,4 +1,4 @@
-# RIVET Web Interface
+# Web Interface Walkthrough
 
 ## Selecting Recombinant of Interest
 Each row in the results table represents an inferred recombinant. You can **horizontally scroll** to the right to view more columns in the table, and **click** a row to select the recombinant you are interested in visualizing. 

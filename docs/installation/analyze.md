@@ -1,9 +1,12 @@
 # Visualizing Your Results Using the RIVET Frontend
 
-!!! note
-    If you are using the `RIVET` frontend to visualize recombinants for pathogens other than SARS-CoV-2, please see the [Using RIVET for Other Pathogens](start/future.md) page.
+!!! install
+    Make sure you have installed the `RIVET` frontend on your machine before proceeding.  The installation steps can be found here: [Install RIVET On Your Machine](installation.md#conda-install)
 
-### Configuration
+!!! note
+    If you are using the `RIVET` frontend to visualize recombinants for pathogens other than SARS-CoV-2, please see the [Using RIVET for Other Pathogens](../start/future.md) page.
+
+## Configuration
 
 `RIVET's` frontend settings can be configured using the provided YAML file, `config.yaml`. 
 
@@ -57,12 +60,28 @@ Run the following command to launch the `RIVET` frontend in your local browser.
 python3 rivet-frontend.py -r example/final_recombinants_example.txt -v example/trios_example.vcf -c config.yaml
 ```
 ## Required Inputs
-`-f, RECOMBINANT_RESULTS`: Input text file containing inferred recombinant nodes.  First three columns in this text file must contain (1) recombinant node ID\t (2) donor node ID (3) acceptor node ID.  Note, donor and acceptor denote the two parental nodes of the inferred recombinant.
+`-f, RECOMBINANT_RESULTS`: Input text file containing inferred recombinant nodes.  First three columns in this text file must contain (1) recombinant node ID\t (2) donor node ID\t (3) acceptor node ID.  Note, donor and acceptor denote the two parental nodes of the inferred recombinant.
+
+**Expected format:**
+
+| Recombinant Node ID       | Donor Node ID | Acceptor Node ID |
+| ------------------------- | -----------   | ---------------- |
+| node_1156861              | node_1155169  | node_1167556     |
+| node_1067629              | node_1021823  | node_1156861     |
+
+Additional columns can be provided optionally and will be included in the rendered results table, but are **not required**.
 
 
 !!! note
     The `RIVET` backend will automatically generate the necessary input files above.  Follow the steps listed on the [Inferring Recombinants Using the RIVET Backend](installation/upload.md) page.  However, the `RIVET` frontend can also be used independently of the backend, just ensure that the input files adhere to the expected formatting.
 
+<br>
+
 `-v, VCF`: An input VCF containing single-nucleotide variants (SNVs) of all recombinant/donor/acceptor trio nodes present in the input `RECOMBINANT_RESULTS` file.
 
-`-c, CONFIG`: The `config.yaml` file.
+!!! note 
+    RIVET only supports viewing single-nucleotide variants (SNVs), and not indels or SVs. Please see the following workflow to [create a VCF](docs/create_vcf.md) for uploading to RIVET locally.
+
+<br>
+
+`-c, CONFIG`: The `config.yaml` file, shown at the top of this page, and provided in the repository.

@@ -66,6 +66,8 @@ port: 2000
 ```
 If desired, you can change the local `port` at which `RIVET` will host the local HTTP server in your browser.
 
+<br>
+
 Now run the following command and RIVET will automatically open your browser to launch the frontend results table and SNV visualization.
 ```
 python3 rivet-frontend.py -r recombination_mpxv.2023-07-01.tsv -v mpxv.2023-07-01.vcf -c config.yaml
@@ -74,3 +76,8 @@ python3 rivet-frontend.py -r recombination_mpxv.2023-07-01.tsv -v mpxv.2023-07-0
 Below is the SNV plot we get for one of the monkeypox virus inferred recombinants.
 
 <img src="images/monkeypox-snv.png" height=600 width=1000/>
+
+<br>
+
+!!! check
+    For pathogens with larger genomes than SARS-CoV-2, you may want to change the step interval of genomic coordinate tick marks.  This can be done by changing the `tick_step` field in `RIVET` frontend `config.yaml` file.

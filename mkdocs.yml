@@ -12,11 +12,9 @@ theme:
     - content.code.copy
     - content.tooltips
     - navigation.footer
-    - navigation.sections
-    - navigation.tabs
+    - navigation.expand
     - navigation.tabs.sticky
     - navigation.instant.prefetch
-    - navigation.top
     - navigation.tracking
     - search.highlight
     - search.share
@@ -78,17 +76,17 @@ markdown_extensions:
 use_directory_urls: false
 nav:
   - Home: index.md
-  - Getting Started:
+  - RIVET Web Interface:
     - start/features.md
     - start/table.md
     - start/filtration.md
     - start/future.md
-  - Analyze Your Sequences: 
+  - Use RIVET Locally:
     - installation/installation.md
     - installation/upload.md
     - installation/analyze.md
-  - Contributing: 
-    - contributing/contributing.md
+  #- Contributing: 
+  #  - contributing/contributing.md
 
 extra_javascript:
   - javascripts/mathjax.js
