@@ -33,8 +33,8 @@
                               Home
                       </a>
               <li class="nav-item active px-2">
-                      <a href="{{ url_for('analysis') }}" class="nav-link" style="font-size: 20px;">
-                              Recombination Across the Genome
+                      <a href="{{ url_for('statistics') }}" class="nav-link" style="font-size: 20px;">
+                              Recombination Statistics
                       </a>
               <li class="nav-item active px-2">
                       <a href="{{ url_for('getting_started') }}" class="nav-link" style="font-size: 20px;">
@@ -105,6 +105,11 @@
   <div class="histogram_description">
       <p>Dataset used for number of new infections: "JHU CSSE COVID-19 Data"<a target="_blank" href="https://github.com/CSSEGISandData/COVID-19">https://github.com/CSSEGISandData/COVID-19</a>
   </div>
+</div>
+
+<div class="diversity_histogram_visuals" id="diversity_histogram_visuals">
+  <div id="diversity_histogram"> </div>
+	<p>HERE</p>
 </div>
 
 <!--Bootstrap-->
