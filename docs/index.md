@@ -31,7 +31,7 @@ Each row in the results table represents an inferred recombinant. You can **hori
 
 <img src="start/images/row-select.png" width="1000" height="500"/>
 
-For detailed information on each column of the results table, please see the [RIVET Results Table](https://turakhialab.github.io/rivet/start/table.html) page.
+For detailed information on each column of the results table, please see the [RIVET Results Table](start/table.md) page.
 
 ### Results Table Next and Previous Buttons
 Use the `next` and `previous` buttons shown below to skip to the next recombinant result (next row) and SNV visualization in the table.
@@ -521,7 +521,7 @@ C. **Mult-node GCP Workflow**
 When running a `RIVET` job on GCP, the `RIPPLES` recombinant search and subsequent filtration pipeline utilizes multi-node parallelism. The degree of speedup depends on how many GCP instances the user decides to allocate towards the job, since the `MAT` long branches to search will be automatically partitioned across the given `n` machines. On each instance, once a putative list of recombinant nodes is obtained, the pipeline on that machine begins quality control and filtration checks to flag false-positive recombinants. 
 
 D. **Post-filtration Aggegrator and Ranking**
-This is the last stage of the pipeline and it occurs on your local machine, for both on-premise and GCP `RIVET` workflows. Once the recombination search and filtration steps of the pipeline have concluded on **all** instances and the local `Chronumental` job has finished, the filtered recombinant results for each partition of long branches are aggregated locally and the post-filtration stage of the pipeline can begin. During this last step, the final list of recombinants is ranked according to a [growth metric](https://turakhialab.github.io/rivet/start/table.html#recombinant-ranking-score) and also additional information on each recombinant is gathered, such as clade/lineage information, descendant samples, parsimony scores, quality control/filtration information, and more.  For a full list of all information reported about each putative recombinant, please see our documentation about the [RIVET Results Table](start/table.md)
+This is the last stage of the pipeline and it occurs on your local machine, for both on-premise and GCP `RIVET` workflows. Once the recombination search and filtration steps of the pipeline have concluded on **all** instances and the local `Chronumental` job has finished, the filtered recombinant results for each partition of long branches are aggregated locally and the post-filtration stage of the pipeline can begin. During this last step, the final list of recombinants is ranked according to a [growth metric](start/table.md#recombinant-ranking-score) and also additional information on each recombinant is gathered, such as clade/lineage information, descendant samples, parsimony scores, quality control/filtration information, and more.  For a full list of all information reported about each putative recombinant, please see our documentation about the [RIVET Results Table](start/table.md)
 
 
 ### RIVET Backend Input

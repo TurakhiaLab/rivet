@@ -68,7 +68,7 @@ conda activate rivet
 ```
 <br>
 
-Type the following command to ensure your `RIVET` frontend environment is configured correctly, and then proceed to the next steps for using the `RIVET` frontend: [Visualizing Your Results Using the RIVET Frontend](installation/analysis.md)
+Type the following command to ensure your `RIVET` frontend environment is configured correctly, and then proceed to the next steps for using the `RIVET` frontend: [Visualizing Your Results Using the RIVET Frontend](analyze.md)
 
 ```
 python3 rivet-frontend.py --help

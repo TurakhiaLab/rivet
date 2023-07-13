@@ -73,14 +73,14 @@ Additional columns can be provided optionally and will be included in the render
 
 
 !!! note
-    The `RIVET` backend will automatically generate the necessary input files above.  Follow the steps listed on the [Inferring Recombinants Using the RIVET Backend](installation/upload.md) page.  However, the `RIVET` frontend can also be used independently of the backend, just ensure that the input files adhere to the expected formatting.
+    The `RIVET` backend will automatically generate the necessary input files above.  Follow the steps listed on the [Inferring Recombinants Using the RIVET Backend](upload.md) page.  However, the `RIVET` frontend can also be used independently of the backend, just ensure that the input files adhere to the expected formatting.
 
 <br>
 
 `-v, VCF`: An input VCF containing single-nucleotide variants (SNVs) of all recombinant/donor/acceptor trio nodes present in the input `RECOMBINANT_RESULTS` file.
 
 !!! note 
-    RIVET only supports viewing single-nucleotide variants (SNVs), and not indels or SVs. Please see the following workflow to [create a VCF](docs/create_vcf.md) for uploading to RIVET locally.
+    RIVET only supports viewing single-nucleotide variants (SNVs), and not indels or SVs. Please see the following workflow to [create a VCF](../create_vcf.md) for uploading to RIVET locally.
 
 <br>
 
