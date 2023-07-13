@@ -29,7 +29,7 @@
       Documentation
     </a>
     <span> | </span>
-    <a href="https://turakhialab.github.io/rivet/start/features.html">
+    <a href="https://turakhialab.github.io/rivet/#web-interface-walkthrough">
       Getting Started
     </a>
   </h3>
@@ -64,7 +64,7 @@ We currently plan to support weekly updates of the `RIVET` web interface with th
 
 <br>
 
-**For more information on how to navagate the `RIVET` web interface, please see our documentation page here: [Web Interface Walkthrough](https://turakhialab.github.io/rivet/start/features)**
+**For more information on how to navagate the `RIVET` web interface, please see our documentation page here: [Web Interface Walkthrough](https://turakhialab.github.io/rivet/#web-interface-walkthrough)**
 
 <br>
 
@@ -72,7 +72,7 @@ We currently plan to support weekly updates of the `RIVET` web interface with th
 ## <a name="local"></a> Use RIVET Locally
 The `RIVET` backend and frontend components can also be installed and used locally to infer putative recombinants in your sequences and visualize the results locally in your browser.
 
-**For more information on this workflow, please see our documentation page available here: [Use RIVET Locally](https://turakhialab.github.io/rivet/installation/installation)**
+**For more information on this workflow, please see our documentation page available here: [Use RIVET Locally](https://turakhialab.github.io/rivet/index.html#use-rivet-locally)**
 
 <br>
 
