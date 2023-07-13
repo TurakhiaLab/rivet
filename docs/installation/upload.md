@@ -118,15 +118,19 @@ The pipeline will create a local results directory, based on the name given for 
 The pipeline will automatically output the following four files within your local `results` directory (and in `GCP` bucket if running remote job):
 
 1. `final_recombinants_<DATE>.txt`: a `TSV` file containing the detected recombinants, with the recombinant node id, donor node id and acceptor node id as the first three columns in the file. The rest of the columns contain information about each detected recombinant, including clade/lineage assignments, 3SEQ M,N,K and p-values, a representative descendant (containing the fewest additional mutations with respect to the recombinant node), recombinant ranking scores, and other information to be displayed by the RIVET frontend. For more information on this file, please see the [RIVET Results Table](https://turakhialab.github.io/rivet/start/table.html) page.
+
 <br>
 
 2. `trios.vcf`: VCF file containing the SNVs of each trio (recombinant and its parents) node.
+
 <br>
 
 3. `sample_descedants.txt.xz`: a `TSV` file where each row contains a mapping from each trio node id (one node id per row), to a set of descendant samples corresponding to that internal node id.
+
 <br>
 
 4. `<DATE>.taxonium.jsonl.gz`: a jsonl file used by RIVET frontend to display the recombinant node trios within the context of the global phylogeny, powered by Taxonium and Treenome.
+
 <br>
 
 !!! note
