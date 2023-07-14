@@ -161,12 +161,14 @@
                            },
                           */
                          ],
+                          /*
                           "initComplete": function(settings, json) {
                                 let tableSelect = document.getElementById("table_container");
                                 tableSelect.removeAttribute("hidden");
                                 $("#datatable").show();
                                 $("#datatable").DataTable().columns.adjust();
                            },
+                          */
                        });
 
         var full_table = $('#full_datatable').DataTable({
@@ -212,14 +214,12 @@
                            },
                           */
                          ],
-                        /*
                           "initComplete": function(settings, json) {
-                                let tableSelect = document.getElementById("full_datatable");
+                                let tableSelect = document.getElementById("full_table");
                                 tableSelect.removeAttribute("hidden");
                                 $("#full_datatable").show();
                                 $("#full_datatable").DataTable().columns.adjust();
                            },
-                           */
                        });
 
        // Default search configuration on page load
@@ -392,22 +392,22 @@
     <h2>RIPPLES Dectected Recombination Events</h2>
     <h5> Select tree</h5>
  <div class="btn-group btn-group-toggle" data-toggle="buttons">
-    <label class="btn btn-outline-primary active" id="public_tree">
-            <input type="radio" name="options" id="public_tree" autocomplete="off" onclick="render_table('public')" checked>Public Tree
+    <label class="btn btn-outline-primary active" id="full_tree">
+            <input type="radio" name="options" id="full_tree" autocomplete="off" onclick="render_table('full')" checked>Full Tree
     </label>
-    <label class="btn btn-outline-primary" id="full_tree">
-            <input type="radio" name="options" action="/" id="full_tree" autocomplete="off" onclick="render_table('full')">Full Tree
+    <label class="btn btn-outline-primary" id="public_tree">
+            <input type="radio" name="options" id="public_tree" autocomplete="off" onclick="render_table('public')">Public Tree
     </label>
  </div>
  <div class="form-check form-switch" id="search">
     <input class="form-check-input" id="search_by_sample_button" type="checkbox" id="flexSwitchCheckDefault">
-    <label class="form-check-label" for="flexSwitchCheckDefault">Search by sample</label>
+    <label class="form-check-label" for="flexSwitchCheckDefault">Search by Sample/EPI Identifier</label>
  </div>
 </div>
 
  <div id="table_container" hidden>
-    <table id="datatable" class="striped" style="width:100%">
-         <h5>Public Tree, Last Updated: May 1, 2023</h5>
+    <table id="datatable" class="table table-striped hover" style="width:100%">
+         <h5>Public Tree, Last Updated: July 02, 2023</h5>
          <div class="download_button" id="download">
            <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>
            <button type="button" class="btn btn-outline-primary" id="download_table">Download Table</button>
@@ -455,8 +455,8 @@
   </div>
 
    <div id="full_table" hidden>
-    <table id="full_datatable" class="striped" style="width:100%">
-         <h5>Full Tree, Last Updated: May 1, 2023</h5>
+    <table id="full_datatable" class="table table-striped hover" style="width:100%">
+         <h5>Full Tree, Last Updated: July 2, 2023</h5>
          <div class="download_button" id="download">
            <button type="button" class="btn btn-outline-primary" id="full_table_download_all_descendants">Download All Descendants</button>
            <button type="button" class="btn btn-outline-primary" id="download_full_table">Download Table</button>

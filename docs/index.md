@@ -6,6 +6,12 @@ RIVET is a software pipeline and visual web platform to perform SARS-CoV-2 recom
 <br>
 <hr>
 
+## RIVET Video Tutorial
+<iframe width="1000" height="600"  src="https://youtube.com/embed/XelRL3qJlD0" frameborder="0" allowfullscreen></iframe>
+
+<br>
+<hr>
+
 ## RIVET Architecture
 
 RIVET is a program designed to aid in SARS-CoV-2 recombination analysis and consists of backend and frontend components:
