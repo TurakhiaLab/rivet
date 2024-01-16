@@ -70,6 +70,36 @@
 <script src="static/utils.js"></script>
 <link rel="stylesheet" href="static/styles.css"/>
 
+<div id='full_title' hidden>
+    <h5>Full Tree, Last Updated: December 25, 2023</h5>
+    <p>Enabled by data from
+         <a
+            href="https://www.gisaid.org/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            <img
+              src="static/images/gisaid.png"
+              class="gisaid-small"
+              alt="GISAID Initiative"
+            />
+         </a>
+    </p>
+    <div class="download_button" id="download">
+        <button type="button" class="btn btn-outline-primary" id="full_table_download_all_descendants">Download All Descendants</button>
+        <button type="button" class="btn btn-outline-primary" id="download_full_table">Download Table</button>
+    </div>
+</div>
+<div id='public_title' hidden>
+         <h5>Public Tree, Last Updated: December 25, 2023</h5>
+         <div class="download_button" id="download">
+           <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>
+           <button type="button" class="btn btn-outline-primary" id="download_table">Download Table</button>
+           <button type="button" class="btn btn-outline-primary" id="download_tree">Download MAT</button>
+           <button type="button" class="btn btn-outline-primary" id="download_taxonium">Download Taxonium Tree</button>
+         </div>
+</div>
+
 <div class="parent" id="parent" style="width: 100%;">
   <div class="child" id="visualization" style="width: 80%;">
       <div class="viz" id="tracks"></div>
@@ -407,13 +437,6 @@
 
  <div id="table_container" hidden>
     <table id="datatable" class="table table-striped hover" style="width:100%">
-         <h5>Public Tree, Last Updated: July 02, 2023</h5>
-         <div class="download_button" id="download">
-           <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>
-           <button type="button" class="btn btn-outline-primary" id="download_table">Download Table</button>
-           <button type="button" class="btn btn-outline-primary" id="download_tree">Download MAT</button>
-           <button type="button" class="btn btn-outline-primary" id="download_taxonium">Download Taxonium Tree</button>
-         </div>
         <thead>
             <tr>
                {% for header in headings %}
@@ -456,11 +479,6 @@
 
    <div id="full_table" hidden>
     <table id="full_datatable" class="table table-striped hover" style="width:100%">
-         <h5>Full Tree, Last Updated: July 2, 2023</h5>
-         <div class="download_button" id="download">
-           <button type="button" class="btn btn-outline-primary" id="full_table_download_all_descendants">Download All Descendants</button>
-           <button type="button" class="btn btn-outline-primary" id="download_full_table">Download Table</button>
-         </div>
         <thead>
             <tr>
                {% for h in full_headings %}
