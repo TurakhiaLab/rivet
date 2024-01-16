@@ -13,7 +13,7 @@ import os
 import sys
 import webbrowser
 
-app = Flask(__name__) 
+app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config.from_mapping(util.get_cache_config())
 cache = Cache(app)
@@ -131,12 +131,12 @@ def get_detailed_overview():
     metadata = app.config.get('metadata')
     row_id = int(content["id"])
     # NOTE: Column values hardcoded
-    recomb_lineage = table[row_id][7]
-    recomb_date = table[row_id][12]
-    donor_lineage = table[row_id][9]
-    acceptor_lineage = table[row_id][11]
+    recomb_lineage = table[row_id][10]
+    recomb_date = table[row_id][15]
+    donor_lineage = table[row_id][12]
+    acceptor_lineage = table[row_id][14]
     num_desc = sample_counts[table[row_id][1]]
-    qc_flags = table[row_id][20]
+    qc_flags = table[row_id][23]
     earliest_seq = metadata[str(row_id)]["Earliest_seq"]
     latest_seq = metadata[str(row_id)]["Latest_seq"]
     countries = metadata[str(row_id)]["countries"]
@@ -168,11 +168,11 @@ def get_overview():
         sample_counts = app.config.get('full_tree_sample_counts')
         metadata = app.config.get('full_tree_metadata')
 
-    recomb_lineage = table[row_id][7]
-    recomb_date = table[row_id][12]
-    donor_lineage = table[row_id][9]
-    acceptor_lineage = table[row_id][11]
-    qc_flags = table[row_id][20]
+    recomb_lineage = table[row_id][10]
+    recomb_date = table[row_id][15]
+    donor_lineage = table[row_id][12]
+    acceptor_lineage = table[row_id][14]
+    qc_flags = table[row_id][23]
     earliest_seq = metadata[str(row_id)]["Earliest_seq"]
     latest_seq = metadata[str(row_id)]["Latest_seq"]
     num_desc = sample_counts[table[row_id][1]]
@@ -351,9 +351,9 @@ def get_data_full_tree():
       donor_id = row_data[2]
       acceptor_id = row_data[3]
       if env.lower() != "local":
-          breakpoint1 = row_data[4]
-          breakpoint2 = row_data[5]
-          descendants = row_data[14]
+          breakpoint1 = row_data[7]
+          breakpoint2 = row_data[8]
+          descendants = row_data[17]
 
   elif content is not None:
       row_id = content["row_id"]
@@ -420,9 +420,9 @@ def get_data():
       donor_id = row_data[2]
       acceptor_id = row_data[3]
       if env.lower() != "local":
-          breakpoint1 = row_data[4]
-          breakpoint2 = row_data[5]
-          descendants = row_data[14]
+          breakpoint1 = row_data[7]
+          breakpoint2 = row_data[8]
+          descendants = row_data[17]
 
   elif content is not None:
       row_id = content["row_id"]
@@ -540,6 +540,7 @@ if __name__ == "__main__":
   if config["environment"].lower() == "local":
       table, columns = backend.load_local_table(recomb_results, config) 
       info_sites = backend.label_informative_sites_from_vcf(snp_dict, positions, table, ref_positions)
+  # Load table for production env
   else:
       table, columns, metadata = backend.load_table(recomb_results, config)
       # Preprocess informative site information for snp plot
