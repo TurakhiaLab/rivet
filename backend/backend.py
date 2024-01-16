@@ -250,14 +250,15 @@ def build_counts_histogram(results_file, month_seq_counts_filename):
     for line in f:
         splitline = line.strip().split('\t')
         recomb_id = splitline[0]
-        recomb_date = splitline[11]
+        recomb_date = splitline[14]
         # TODO: Add unit tests
         parsed_date = recomb_date.split('-')
         year = str(parsed_date[0])
         month = str(parsed_date[1])
         joined_date = "_".join([year, month])
         if joined_date not in month_bins.keys():
-            if joined_date == "2023_03" or joined_date == "2023_04" or joined_date == "2023_05":
+            #TODO: Temporary fix, update data statistics data past 2023-02
+            if year == "2023" and int(month) > 2:
                 continue
             print("[ERROR] CHECK Formatting: {}".format(joined_date))
             print("Recomb Node id: {}, with date: {}, in this file: {} is producing this error".format(recomb_id, recomb_date, results_file))
@@ -466,26 +467,26 @@ def tsv_to_dict(results_tsvfile, metadata_start_col = None):
         # Do not display extra metadata columns in results datatable
         if metadata_start_col is not None:
             dictionary[str(index)] = splitline[:metadata_start_col - 1]
-            #NOTE: Expecting Filter/QC annotations to be at column 20 in results file
+            #NOTE: Expecting Filter/QC annotations to be at column 23 in results file
             # Get QC annotations from results file
-            dictionary[str(index)].append(splitline[20])
+            dictionary[str(index)].append(splitline[metadata_start_col])
 
             # Get string of informative sites and parse each position to a list of (str) positions
             info_sites_list = splitline[metadata_start_col-1:][0].split(",")
-            
+
             # Check number of informative positions matches the number of characters in ABAB string
             err_message = "Informative sites not matching ABAB string for recomb node: {}".format(splitline[0])
-            assert len(info_sites_list) == len(splitline[14]), err_message
-            
+            assert len(info_sites_list) == len(splitline[17]), err_message
+
             # Add informative site and informative seq to metadata
             node_metadata["recomb_id"] = splitline[0]
             node_metadata["InfoSites"] = info_sites_list
-            node_metadata["InfoSeq"] = splitline[14]
+            node_metadata["InfoSeq"] = splitline[17]
             if len(splitline) > 21:
-                node_metadata["Earliest_seq"] = splitline[21]
-                node_metadata["Latest_seq"] = splitline[22]
-                node_metadata["countries"] = splitline[23].rstrip(',')
-            
+                node_metadata["Earliest_seq"] = splitline[24]
+                node_metadata["Latest_seq"] = splitline[25]
+                node_metadata["countries"] = splitline[26].rstrip(',')
+
             metadata[str(index)] = node_metadata
         else:
             # Build dictionary with key: recomb_node_id
@@ -528,19 +529,18 @@ def load_intervals(recomb_results_file):
       # Extract breakpoint column headers from input results tsv file
       # Column indices (0-based) of the two breakpoint intervals in the input recombination results file
       #TODO: Get this information from init
-      bp1_col_idx= 3
-      bp2_col_idx= 4
+      bp1_col_idx= 6
+      bp2_col_idx= 7
       next(f)
       for line in f:
         splitline = line.strip().split('\t')
         #if splitline[len(splitline)-1]!="PASS":
-        if splitline[20]!="PASS":
+        if splitline[23]!="PASS":
             continue
         intervals.append(tuple( format_bp_interval(splitline[bp1_col_idx])))
         interval2=tuple(format_bp_interval(splitline[bp2_col_idx]))
         if (interval2[1]!=29903):
             intervals.append(interval2)
-        
     return sorted(intervals)
 
 def place_intervals(intervals):
@@ -743,7 +743,7 @@ def build_table(results_dict, columns, config, full_tree=False):
         # Check that first 3 columns are node_ids
         if(check_column_format(value)):
             raise RuntimeError(colored("[ERROR]: First 3 columns must be: recomb_node_id\t donor_node_id\t acceptor_node_id.  Formatting error occurring at line: {}".format(row_num), 'red', attrs=['reverse']))
-            
+
         row = [value[i] for i in range(0,len(columns)-1)]
         for i in range(0,len(row)):
             try:
@@ -810,8 +810,7 @@ def load_table(results_file, config, full_tree=False):
 
     #Convert final recombination results file to dictionary indexed by row_id
     # Extract datatable column headers also
-    results_dict, columns, metadata = tsv_to_dict(results_file, 20)
-
+    results_dict, columns, metadata = tsv_to_dict(results_file, 23)
 
     # TODO: Disable Taxonium feature for full tree
     # Add additional column for Taxodium tree view links

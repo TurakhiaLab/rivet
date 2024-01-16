@@ -127,8 +127,8 @@
         var table = $('#datatable').DataTable({
                           pageLength: 25,
                           lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
-                          // Display table results in descending order of the recombinant ranking score (coln 15)
-                          order: [[13, 'desc']],
+                          // Display table results in descending order of the recombinant ranking score (coln 16)
+                          order: [[16, 'desc']],
                           autoWidth: false,
                           scrollX: true,
                           searching: true,
@@ -174,8 +174,8 @@
         var full_table = $('#full_datatable').DataTable({
                           pageLength: 25,
                           lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
-                          // Display table results in descending order of the recombinant ranking score (coln 15)
-                          order: [[13, 'desc']],
+                          // Display table results in descending order of the recombinant ranking score (coln 16)
+                          order: [[16, 'desc']],
                           autoWidth: false,
                           scrollX: true,
                           searching: true,
@@ -328,7 +328,7 @@
        $('#datatable tbody').on('click', 'tr', function () {
          let row = table.row( this ).data();
          //TODO: Get parsed input file header information ahead of time
-         let data = {"row_id": row[0], "recomb_id" :row[1], "breakpoint1" : row[4], "breakpoint2": row[5], "donor_id" : row[2], "acceptor_id" : row[3], "descendant": row[14]};
+         let data = {"row_id": row[0], "recomb_id" :row[1], "breakpoint1" : row[7], "breakpoint2": row[8], "donor_id" : row[2], "acceptor_id" : row[3], "descendant": row[17]};
          let endpoints = ["/get_data"];
          $.each(endpoints, function(i,u){
          $.ajax({
@@ -357,7 +357,7 @@
        $('#full_datatable tbody').on('click', 'tr', function () {
          var row = full_table.row( this ).data();
          //TODO: Get parsed input file header information ahead of time
-         var data = {"row_id": row[0], "recomb_id" :row[1], "breakpoint1" : row[4], "breakpoint2": row[5], "donor_id" : row[2], "acceptor_id" : row[3], "descendant": row[14]};
+         var data = {"row_id": row[0], "recomb_id" :row[1], "breakpoint1" : row[7], "breakpoint2": row[8], "donor_id" : row[2], "acceptor_id" : row[3], "descendant": row[17]};
          var endpoints = ["/get_data_full_tree"];
          $.each(endpoints, function(i,u){
          $.ajax({
