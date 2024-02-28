@@ -77,19 +77,31 @@ div#off_canvas_right_body {
 
 #view_usher {
   position:absolute;
-  bottom: 165;
+  bottom: 200;
+  left: 10;
+}
+
+#view_usher_donor {
+  position:absolute;
+  bottom: 155;
+  left: 10;
+}
+
+#view_usher_acceptor {
+  position:absolute;
+  bottom: 110;
   left: 10;
 }
 
 #show_mutations {
   position:absolute;
-  bottom: 115;
+  bottom: 65;
   left: 10;
 }
 
 #view_tree {
   position:absolute;
-  bottom: 65;
+  bottom: 20;
   left: 10;
 }
 

@@ -66,11 +66,12 @@ def get_usher_link():
         #TODO: Handle for local version 
         #    return jsonify(None)
         node_id = content["node"]
+        _type = content["type"]
     else:
         # Initialize default values from input TSV
         node_id = init_data["recomb_id"]
 
-    samples = backend.get_sampled_desc(results_file, node_id)
+    samples = backend.get_sampled_desc(results_file, node_id, _type)
     if not samples:
         print("[Error] {} not found in results file.".format(node_id))
         samples = ["England/PHEP-YYGTYSK/2023|2023-03-18", 
@@ -238,14 +239,12 @@ def get_aa_mutations():
     content = request.get_json()
     recomb_node_id = content["recomb_node_id"]
     tree = content["tree"]
+    db_file = app.config.get('db_file')
+    aa_tables = app.config.get('aa_tables')
     if tree == "public":
-        translation_data = app.config.get('translation_data')
-        aa_mutations = translation_data[recomb_node_id]["aa_mutations"]
-        nt_mutations = translation_data[recomb_node_id]["nt_mutations"]
+        aa_mutations, nt_mutations = backend.get_aa_mutations(db_file, aa_tables[0], recomb_node_id)
     else:
-        translation_data = app.config.get('full_tree_translation_data')
-        aa_mutations = translation_data[recomb_node_id]["aa_mutations"]
-        nt_mutations = translation_data[recomb_node_id]["nt_mutations"]
+        aa_mutations, nt_mutations = backend.get_aa_mutations(db_file, aa_tables[1], recomb_node_id)
     return jsonify({"aa": aa_mutations, "nt": nt_mutations})
 
 @app.route("/get_all_descendants", methods=["POST", "GET"])
@@ -488,14 +487,13 @@ if __name__ == "__main__":
   parser.add_argument("-r", "--recombinant_results", required=True, type=str, help="Give input recombination results file")
   parser.add_argument("-d", "--descendants_file", required=False, type=str, help="File containing descendants (up to 10k) for each node in VCF")
   parser.add_argument("-c", "--config", required=True, type=str, help="Configuration file for defining custom color schema for visualizations.")
-  parser.add_argument("-t", "--translate", required=False, type=str, help="matUtils translate file for visualizing amino acid information.")
   parser.add_argument("-a", "--analysis", required=False, type=str, help="Extra data files with counts of new genomes sequenced per month. Not for general use.")
   args = parser.parse_args()
 
   # Load and parse config file
   config = backend.parse_config(args.config)
   print("Loading RIVET for MAT date: ", config["date"])
-  
+
   color_schema = config
   #color_schema = None
   #if args.config != None:
@@ -504,7 +502,7 @@ if __name__ == "__main__":
   #    print("Config file not provided, using default RIVET settings.")
   #    color_schema = backend.default_color_schema()
   #TODO: Check extensions for input files for correct file format (ie. genbank file)
-   
+
   # Load recombination results file and get initial data
   results_files = args.recombinant_results.split(",")
   recomb_results = results_files[0]
@@ -563,7 +561,6 @@ if __name__ == "__main__":
       app.config['month_seq_counts'] = month_seq_counts
       app.config['recomb_counts'] = recomb_counts
       app.config['relative_recombinants'] = relative_recombinants
-      
 
       full_tree_month_case_counts,full_tree_month_seq_counts,full_tree_recomb_counts,full_tree_relative_recombinants, = None,None,None,None
       if len(results_files) > 1:
@@ -598,20 +595,6 @@ if __name__ == "__main__":
           full_tree_recomb_node_set = set([cell[1] for cell in full_tree_table])
           full_tree_desc_position_table, full_tree_sample_counts = backend.preprocess_desc_file(full_tree_desc_file, full_tree_recomb_node_set)
 
-  # Amino acid translation (if provided)
-  translation_data, full_tree_translation_data = None, None
-  if args.translate:
-      translation_files = args.translate.split(",")
-      translation_file = translation_files[0]
-      print("Loading provided amino acid translation file/s: ", translation_file)
-      translation_data = backend.parse_translation_files(translation_file, recomb_node_set)
-      if len(translation_files) > 1:
-          full_tree_translation_file = translation_files[1]
-          print("Loading provided amino acid translation file/s: ", full_tree_translation_file)
-          full_tree_translation_data = backend.parse_translation_files(full_tree_translation_file, full_tree_recomb_node_set)
-
-  app.config['translation_data'] = translation_data
-  app.config['full_tree_translation_data'] = full_tree_translation_data
 
   # App parameter for public tree recombination results 
   app.config['info_sites'] = info_sites
@@ -653,6 +636,9 @@ if __name__ == "__main__":
   app.config['genome_size'] = genome_size
   app.config['genomic_range'] = genomic_range
   app.config['gene_region_data'] = gene_region_data
+  # Name of persistent database file
+  app.config['db_file'] = config['db_file']
+  app.config['aa_tables'] = (config['aa_public'], config['aa_full'])
 
   tock = time.perf_counter()
   print(f"Time elapsed: {tock-tick:.2f} seconds")
