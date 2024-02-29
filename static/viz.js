@@ -16,7 +16,7 @@ function graph() {
   const track_x_position = 300;
   const track_y_position = border_height;  // Plus some offset upwards
   const num_tracks = 0;
-  const right_side_buffer = 10;  // Extra space on right for amino acid view
+  const right_side_buffer = 20;  // Extra space on right for amino acid view
 
   const margin = {top: 100, right: 100, bottom: 100, left: 100},
         width = track_width

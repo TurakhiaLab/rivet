@@ -1097,12 +1097,31 @@ def search_by_sample(recomb_node_set, desc_file, desc_lookup_table, substr):
             recomb_nodes.add(node_id)
     return list(recomb_nodes)
 
-def get_aa_mutations(db_file, table, node_id):
+def search_by_sample_query(db_file, table, desc_col, query):
     """
     """
     import duckdb
     con = duckdb.connect(database=db_file, read_only=True)
-    mutations = con.sql("select * from {} where column0 = '{}'".format(table, node_id)).fetchall()
+    node_ids = con.sql("select * from {} where {} = '{}'".format(table, desc_col, query)).fetchall()
+    con.close()
+    return [x[0] for x in node_ids]
+
+def get_aa_mutations(db_file, table, col, node_id):
+    """
+    """
+    import duckdb
+    con = duckdb.connect(database=db_file, read_only=True)
+    mutations = con.sql("select * from {} where {} = '{}'".format(table, col, node_id)).fetchall()
     con.close()
     # Return aa_mutations list and and nt_mutations list for the given node_id
     return [x[2] for x in mutations], [x[1] for x in mutations]
+
+def search_by_aa(db_file, table, aa_query, node_col, aa_col):
+    """
+    """
+    import duckdb
+    con = duckdb.connect(database=db_file, read_only=True)
+    # Get all the node_ids containing the query amino acid mutation
+    node_ids = con.sql("select {} from {} where {} = '{}'".format(node_col, table, aa_col, aa_query)).fetchall()
+    con.close()
+    return [x[0] for x in node_ids]

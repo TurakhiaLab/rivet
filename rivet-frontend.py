@@ -194,19 +194,25 @@ def search_by_sample_id():
     # Get input search query from user
     query = request.form['query']
     tree = request.form['tree']
-    if tree == "public":
-        desc_file = app.config.get('desc_file')
-        recomb_node_set = app.config.get('recomb_node_set')
-        desc_lookup_table = app.config.get('desc_data')
-    else:
-        desc_file = app.config.get('full_tree_desc_file')
-        recomb_node_set = app.config.get('full_tree_recomb_node_set')
-        desc_lookup_table = app.config.get('full_tree_desc_data')
-    #tick = time.perf_counter()
+    db_file = app.config.get('db_file')
+    sample_table = app.config.get('sample_table')
+    desc_col = app.config.get('desc_col')
+
     # Return set of recombinant nodes that return true for substring membership query
-    recomb_nodes = backend.search_by_sample(recomb_node_set, desc_file, desc_lookup_table, query)
-    #tock = time.perf_counter()
-    #print(f"Time elapsed to query search: {tock-tick:.2f} seconds")
+    recomb_nodes = backend.search_by_sample_query(db_file, sample_table, desc_col, query)
+    return jsonify({"recomb_nodes": recomb_nodes})
+
+@app.route("/search_by_aa_mutation", methods=['POST'])
+def search_by_aa_mutation():
+    # Get input search query from user
+    query = request.form['query']
+    db_file = app.config.get('db_file')
+    aa_tables = app.config.get('aa_tables')
+    aa_col = app.config.get('aa_col')
+    node_col = app.config.get('node_col')
+
+    # Return set of recombinant nodes that return true for amino acid membership query
+    recomb_nodes = backend.search_by_aa(db_file, aa_tables[1], query, node_col, aa_col)
     return jsonify({"recomb_nodes": recomb_nodes})
 
 @app.route("/get_descendants", methods=["POST"])
@@ -241,10 +247,11 @@ def get_aa_mutations():
     tree = content["tree"]
     db_file = app.config.get('db_file')
     aa_tables = app.config.get('aa_tables')
+    node_col = app.config.get('node_col')
     if tree == "public":
-        aa_mutations, nt_mutations = backend.get_aa_mutations(db_file, aa_tables[0], recomb_node_id)
+        aa_mutations, nt_mutations = backend.get_aa_mutations(db_file, aa_tables[0], node_col, recomb_node_id)
     else:
-        aa_mutations, nt_mutations = backend.get_aa_mutations(db_file, aa_tables[1], recomb_node_id)
+        aa_mutations, nt_mutations = backend.get_aa_mutations(db_file, aa_tables[1], node_col, recomb_node_id)
     return jsonify({"aa": aa_mutations, "nt": nt_mutations})
 
 @app.route("/get_all_descendants", methods=["POST", "GET"])
@@ -639,11 +646,14 @@ if __name__ == "__main__":
   # Name of persistent database file
   app.config['db_file'] = config['db_file']
   app.config['aa_tables'] = (config['aa_public'], config['aa_full'])
+  app.config['sample_table'] = config['sample_table']
+  app.config['desc_col'] = config['desc_col']
+  app.config['aa_col'] = config['aa_col']
+  app.config['node_col'] = config['node_col']
 
   tock = time.perf_counter()
   print(f"Time elapsed: {tock-tick:.2f} seconds")
   print("Input recombination results datatable being displayed: {}".format(recomb_results))
-
 
   port = config["port"]
   if config["environment"].lower() == "local":
