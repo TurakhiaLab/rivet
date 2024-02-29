@@ -122,14 +122,22 @@ reate_button('copy_svg', 'Copy SNV Plot', 1200, 280);
   const full_table = document.querySelector('#full_tree');
   const public_title = document.querySelector('#public_title');
   const full_title = document.querySelector('#full_title');
+  const search_by_sample = document.querySelector('#search');
+  const search_by_aa = document.querySelector('#search_by_aa');
+
   // Listen if public tree selected, update title to public tree title
+  // and remove search by EPI identifier and amino acid mutation
   public_table.addEventListener('click', () => {
     full_title.setAttribute('hidden', true);
+    search_by_sample.setAttribute('hidden', true);
+    search_by_aa.setAttribute('hidden', true);
     public_title.removeAttribute('hidden');
   });
 
   full_table.addEventListener('click', () => {
     public_title.setAttribute('hidden', true);
     full_title.removeAttribute('hidden');
+    search_by_sample.removeAttribute('hidden');
+    search_by_aa.removeAttribute('hidden');
   });
 }

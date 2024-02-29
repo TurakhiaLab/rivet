@@ -76,21 +76,31 @@ def get_gene_annotations(features):
 
     return gene_region_data
 
-def get_sampled_desc(results_file, node_id):
+def get_sampled_desc(results_file, node_id, _type):
     """
     """
+    NODE_ID_COL = 0
+    SAMPLED_DESC_COL = -3
+    if _type == "Donor":
+        NODE_ID_COL = 1
+        SAMPLED_DESC_COL = -2
+    elif _type == "Acceptor":
+        NODE_ID_COL = 2
+        SAMPLED_DESC_COL = -1
     BUF_SIZE = 1048576 # Read 1MB at a time
     f = open(results_file, 'r', buffering=BUF_SIZE)
     d = {}
     # Skip over column headers (assuming one)
     header = f.readline()
+
     # Check to make sure results file contains sampled descendants field
-    if header.strip().split('\t')[-1] != "Sampled Descendants":
+    if header.strip().split('\t')[-3] != "Sampled Descendants":
         return None
+
     for line in f:
         splitline = line.strip().split('\t')
-        sampled_desc_list = list(filter(None,splitline[-1].split(',')))
-        if node_id == splitline[0]:
+        sampled_desc_list = list(filter(None,splitline[SAMPLED_DESC_COL].split(',')))
+        if node_id == splitline[NODE_ID_COL]:
             return sampled_desc_list
     # Error, node_id not found in results file
     return None
@@ -258,7 +268,7 @@ def build_counts_histogram(results_file, month_seq_counts_filename):
         joined_date = "_".join([year, month])
         if joined_date not in month_bins.keys():
             #TODO: Temporary fix, update data statistics data past 2023-02
-            if year == "2023" and int(month) > 2:
+            if year == "2023" and int(month) > 2 or year == "2024":
                 continue
             print("[ERROR] CHECK Formatting: {}".format(joined_date))
             print("Recomb Node id: {}, with date: {}, in this file: {} is producing this error".format(recomb_id, recomb_date, results_file))
@@ -1086,3 +1096,44 @@ def search_by_sample(recomb_node_set, desc_file, desc_lookup_table, substr):
         if pattern in desc_string.lower():
             recomb_nodes.add(node_id)
     return list(recomb_nodes)
+
+def upload_date(date):
+    """
+    """
+    from datetime import datetime
+    import calendar
+    try:
+        date_obj = datetime.strptime(date, '%Y-%m-%d').date()
+    except:
+        print("[ERROR] Improperly formatted date, check config.yaml file. Expected format: date: 2023-01-31")
+        exit(1)
+    return calendar.month_name[date_obj.month] + " " + str(date_obj.day) + ", " + str(date_obj.year)
+
+def search_by_sample_query(db_file, table, desc_col, query):
+    """
+    """
+    import duckdb
+    con = duckdb.connect(database=db_file, read_only=True)
+    node_ids = con.sql("select * from {} where {} = '{}'".format(table, desc_col, query)).fetchall()
+    con.close()
+    return [x[0] for x in node_ids]
+
+def get_aa_mutations(db_file, table, col, node_id):
+    """
+    """
+    import duckdb
+    con = duckdb.connect(database=db_file, read_only=True)
+    mutations = con.sql("select * from {} where {} = '{}'".format(table, col, node_id)).fetchall()
+    con.close()
+    # Return aa_mutations list and and nt_mutations list for the given node_id
+    return [x[2] for x in mutations], [x[1] for x in mutations]
+
+def search_by_aa(db_file, table, aa_query, node_col, aa_col):
+    """
+    """
+    import duckdb
+    con = duckdb.connect(database=db_file, read_only=True)
+    # Get all the node_ids containing the query amino acid mutation
+    node_ids = con.sql("select {} from {} where {} = '{}'".format(node_col, table, aa_col, aa_query)).fetchall()
+    con.close()
+    return [x[0] for x in node_ids]

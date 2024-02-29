@@ -86,7 +86,7 @@ function usher_button_info_display(tooltip) {
 		    'px');
 }
 
-function view_usher_tree(d) {
+function view_usher_tree(d, node_type) {
 	let tree_selected = 'public';
 	let full_table_select = document.getElementById('full_table');
 	// Check if public or full table is selected
@@ -98,7 +98,7 @@ function view_usher_tree(d) {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify(
-		    {node: d['NODE_IDS']['Recomb'], tree: tree_selected})
+			 {node: d['NODE_IDS'][node_type], tree: tree_selected, type: node_type })
 	}).then(res => {
 		res.json().then(data => {
 			// Open usher.bio link in new tab

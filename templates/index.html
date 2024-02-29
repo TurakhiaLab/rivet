@@ -71,7 +71,7 @@
 <link rel="stylesheet" href="static/styles.css"/>
 
 <div id='full_title' hidden>
-    <h5>Full Tree, Last Updated: December 25, 2023</h5>
+    <h5>Full Tree, Last Updated: {{ date }}</h5>
     <p>Enabled by data from
          <a
             href="https://www.gisaid.org/"
@@ -91,7 +91,7 @@
     </div>
 </div>
 <div id='public_title' hidden>
-         <h5>Public Tree, Last Updated: December 25, 2023</h5>
+         <h5>Public Tree, Last Updated: {{ date }}</h5>
          <div class="download_button" id="download">
            <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>
            <button type="button" class="btn btn-outline-primary" id="download_table">Download Table</button>
@@ -154,7 +154,7 @@
     }
 
     $(document).ready(function () {
-        var table = $('#datatable').DataTable({
+        let table = $('#datatable').DataTable({
                           pageLength: 25,
                           lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
                           // Display table results in descending order of the recombinant ranking score (coln 16)
@@ -201,7 +201,7 @@
                           */
                        });
 
-        var full_table = $('#full_datatable').DataTable({
+        let full_table = $('#full_datatable').DataTable({
                           pageLength: 25,
                           lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
                           // Display table results in descending order of the recombinant ranking score (coln 16)
@@ -255,15 +255,18 @@
        // Default search configuration on page load
        let reset_flag = false; 
        let search_by_sample;
-       let search_by_sample_button = document.querySelector('#search_by_sample_button');
+       let search_by_aa;
+
+       const search_by_sample_button = document.querySelector('#search_by_sample_button');
+       const search_by_aa_button = document.querySelector('#search_by_aa_mutation');
 
        if (search_by_sample_button) {
          search_by_sample_button.addEventListener('click', () => { 
-           let tree = tree_selected();
-           let table = $('#datatable').DataTable();
-           if (tree === 'full') {
-               table = $('#full_datatable').DataTable();
-           }
+           // Toggle search by aa button off
+           search_by_aa_button.checked = false;
+
+           let table = $('#full_datatable').DataTable();
+
            // Refresh datatable results
            table.search('').columns().search('').draw();
 
@@ -273,6 +276,7 @@
 
            if (search_by_sample_button.checked) {
               search_by_sample = true;
+              search_by_aa = false;
            }
            else {
               search_by_sample = false;
@@ -280,7 +284,32 @@
          }, false);
        } 
 
-       $('.dataTables_filter input').unbind().keyup(function() {
+       if (search_by_aa_button) {
+         search_by_aa_button.addEventListener('click', () => {
+           let table = $('#full_datatable').DataTable();
+           // Toggle search by sample button off
+           search_by_sample_button.checked = false;
+
+           // Refresh datatable results
+           table.search('').columns().search('').draw();
+
+           // Search by sample button clicked, reset table
+           reset_flag = true;
+           query = null;
+
+           if (search_by_aa_button.checked) {
+              search_by_aa = true;
+              search_by_sample = false;
+           }
+           else {
+              search_by_aa = false;
+           }
+         }, false);
+       }
+
+       $('.dataTables_filter input').unbind().keyup(function(e) {
+           e.preventDefault();
+
            let tree = tree_selected();
            let table; 
            if (tree === 'public') {
@@ -291,9 +320,8 @@
            // Refresh datatable results
            table.search('').columns().search('').draw();
           
-
-          // If search by sample not selected, perform normal table search
-          if (!search_by_sample_button.checked) {
+          // If search by sample and search by aa not selected, perform normal table search
+          if (!search_by_sample_button.checked && !search_by_aa_button.checked) {
               table.search($(this).val()).draw();
           } 
           // Otherwise perform searching by sample or EPI id
@@ -303,32 +331,7 @@
            table.$('tr.selected').removeClass('selected');
            $(this).addClass('selected');
 
-           var query = $(this).val();
-           if (tree === 'public') {
-
-             // User search by sample id
-             if (search_by_sample && $(this).val().length >= 3) {
-                      $.post("/search_by_sample_id", {"query": $(this).val(), "tree": tree}, function(response) {
-                        let node_ids = response["recomb_nodes"];
-                        if (node_ids.length == 0) {
-                          table.search("NO RESULTS").draw();
-                        } else {
-                          table.column(1).search(node_ids.join("|"), true, false).draw();
-                        }
-                      });
-
-             }
-             else {
-                   if (reset_flag) {
-                       // Refresh datatable results
-                       $('.bs-filters').val('');
-                       table.search('').columns().search('').draw();
-                       // Reset flag 
-                       reset_flag = false;
-                   }
-                   table.search($(this).val()).draw();
-             }
-           } else {
+           let query = $(this).val();
              if (search_by_sample && $(this).val().length >= 3) {
                       $.post("/search_by_sample_id", {"query": $(this).val(), "tree": tree}, function(response) {
                         let node_ids = response["recomb_nodes"];
@@ -340,7 +343,25 @@
                      });
 
              }
-             else {
+            else if (search_by_aa && $(this).val().length >= 3) {
+              // Error handle incorrect toggle switches, avoid server roundtrip
+              if ($(this).val().includes("EPI")) {
+                table.search("NO RESULTS").draw();
+              } else{
+                      $.post("/search_by_aa_mutation", {"query": $(this).val(), "tree": tree}, function(response) {
+                        let node_ids = response["recomb_nodes"];
+                        // If no results found for amino acid query, return empty table
+                        if (node_ids.length == 0) {
+                          table.search("NO RESULTS").draw();
+                        }
+                        // Otherwise filter table with result node id set
+                        else {
+                          table.column(1).search(node_ids.join("|"), true, false).draw();
+                        }
+                     });
+                }
+            }
+            else {
                    if (reset_flag) {
                      // Refresh datatable results
                      $('.bs-filters').val('');
@@ -349,10 +370,8 @@
                      reset_flag = false;
                    }
                    table.search($(this).val()).draw();
-             }
-
+            }
            }
-         }
        });
 
        $('#datatable tbody').on('click', 'tr', function () {
@@ -385,10 +404,10 @@
    });
 
        $('#full_datatable tbody').on('click', 'tr', function () {
-         var row = full_table.row( this ).data();
+         let row = full_table.row( this ).data();
          //TODO: Get parsed input file header information ahead of time
-         var data = {"row_id": row[0], "recomb_id" :row[1], "breakpoint1" : row[7], "breakpoint2": row[8], "donor_id" : row[2], "acceptor_id" : row[3], "descendant": row[17]};
-         var endpoints = ["/get_data_full_tree"];
+         let data = {"row_id": row[0], "recomb_id" :row[1], "breakpoint1" : row[7], "breakpoint2": row[8], "donor_id" : row[2], "acceptor_id" : row[3], "descendant": row[17]};
+         let endpoints = ["/get_data_full_tree"];
          $.each(endpoints, function(i,u){
          $.ajax({
          url: u,
@@ -430,9 +449,15 @@
     </label>
  </div>
  <div class="form-check form-switch" id="search">
-    <input class="form-check-input" id="search_by_sample_button" type="checkbox" id="flexSwitchCheckDefault">
-    <label class="form-check-label" for="flexSwitchCheckDefault">Search by Sample/EPI Identifier</label>
+    <input class="form-check-input" id="search_by_sample_button" type="checkbox">
+    <label class="form-check-label" for="flexSwitchCheckDefault"><b>Search by Sample/EPI Identifier</b></label>
  </div>
+
+ <div class="form-check form-switch" id="search_by_aa">
+    <input class="form-check-input" id="search_by_aa_mutation" type="checkbox">
+    <label class="form-check-label" for="flexSwitchCheckDefault"><b>Search by Amino Acid Mutation</b></label>
+ </div>
+
 </div>
 
  <div id="table_container" hidden>
