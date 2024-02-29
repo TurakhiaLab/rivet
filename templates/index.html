@@ -71,7 +71,7 @@
 <link rel="stylesheet" href="static/styles.css"/>
 
 <div id='full_title' hidden>
-    <h5>Full Tree, Last Updated: December 25, 2023</h5>
+    <h5>Full Tree, Last Updated: {{ date }}</h5>
     <p>Enabled by data from
          <a
             href="https://www.gisaid.org/"
@@ -91,7 +91,7 @@
     </div>
 </div>
 <div id='public_title' hidden>
-         <h5>Public Tree, Last Updated: December 25, 2023</h5>
+         <h5>Public Tree, Last Updated: {{ date }}</h5>
          <div class="download_button" id="download">
            <button type="button" class="btn btn-outline-primary" id="download_all_descendants">Download All Descendants</button>
            <button type="button" class="btn btn-outline-primary" id="download_table">Download Table</button>

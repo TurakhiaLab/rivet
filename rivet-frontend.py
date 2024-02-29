@@ -471,6 +471,7 @@ def table():
   results = {} 
   table = cache.get('table')
   full_table = cache.get('full_tree_table')
+  formatted_date = backend.upload_date(app.config.get('date'))
   if table == None:
       table = app.config.get('table')
   if full_table == None:
@@ -485,7 +486,7 @@ def table():
   results["data"] = table
   results["full_columns"] = full_tree_columns
   results["full_data"] = full_table
-  return render_template(template, headings=columns, data=table, full_headings=columns, full_data=full_table)
+  return render_template(template, headings=columns, data=table, full_headings=columns, full_data=full_table, date=formatted_date)
 
 
 if __name__ == "__main__":

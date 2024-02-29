@@ -1097,6 +1097,18 @@ def search_by_sample(recomb_node_set, desc_file, desc_lookup_table, substr):
             recomb_nodes.add(node_id)
     return list(recomb_nodes)
 
+def upload_date(date):
+    """
+    """
+    from datetime import datetime
+    import calendar
+    try:
+        date_obj = datetime.strptime(date, '%Y-%m-%d').date()
+    except:
+        print("[ERROR] Improperly formatted date, check config.yaml file. Expected format: date: 2023-01-31")
+        exit(1)
+    return calendar.month_name[date_obj.month] + " " + str(date_obj.day) + ", " + str(date_obj.year)
+
 def search_by_sample_query(db_file, table, desc_col, query):
     """
     """
