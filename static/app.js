@@ -80,16 +80,14 @@ reate_button('copy_svg', 'Copy SNV Plot', 1200, 280);
 
   if (desc_button.style.visibility != 'hidden') {
     desc_button.addEventListener('click', () => {
-      var url = download_all_descendants();
+      let url = download_all_descendants('/get_all_public_descendants');
       window.location.href = url;
     }, false);
   }
   if (full_tree_desc_button) {
     if (full_tree_desc_button.style.visibility != 'hidden') {
       full_tree_desc_button.addEventListener('click', () => {
-        // TODO: Full tree
-        // desc download
-        var url = download_all_descendants('full_tree');
+        let url = download_all_descendants('/get_all_full_descendants');
         window.location.href = url;
       }, false);
     }
@@ -102,8 +100,7 @@ reate_button('copy_svg', 'Copy SNV Plot', 1200, 280);
   }
   if (full_table_button) {
     full_table_button.addEventListener('click', () => {
-      // Downloading full tree
-      // results table
+      // Downloading full tree results table
       download_table('full');
     }, false);
   }
@@ -131,6 +128,8 @@ reate_button('copy_svg', 'Copy SNV Plot', 1200, 280);
     full_title.setAttribute('hidden', true);
     search_by_sample.setAttribute('hidden', true);
     search_by_aa.setAttribute('hidden', true);
+    desc_button.removeAttribute('hidden');
+    full_tree_desc_button.setAttribute('hidden', true);
     public_title.removeAttribute('hidden');
   });
 
@@ -139,5 +138,7 @@ reate_button('copy_svg', 'Copy SNV Plot', 1200, 280);
     full_title.removeAttribute('hidden');
     search_by_sample.removeAttribute('hidden');
     search_by_aa.removeAttribute('hidden');
+    desc_button.setAttribute('hidden', true);
+    full_tree_desc_button.removeAttribute('hidden');
   });
 }

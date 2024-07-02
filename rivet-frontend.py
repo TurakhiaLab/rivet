@@ -254,10 +254,15 @@ def get_aa_mutations():
         aa_mutations, nt_mutations = backend.get_aa_mutations(db_file, aa_tables[1], node_col, recomb_node_id)
     return jsonify({"aa": aa_mutations, "nt": nt_mutations})
 
-@app.route("/get_all_descendants", methods=["POST", "GET"])
-def get_all_descendants():
-    desc_file = app.config.get('desc_file')
-    return send_file(desc_file, mimetype="text/plain",  as_attachment=True)
+@app.route("/get_all_full_descendants", methods=["POST", "GET"])
+def get_all_full_descendants():
+    file =  app.config.get('full_tree_desc_file')
+    return send_file(file, mimetype="text/plain",  as_attachment=True)
+
+@app.route("/get_all_public_descendants", methods=["POST", "GET"])
+def get_all_public_descendants():
+    file =  app.config.get('desc_file')
+    return send_file(file, mimetype="text/plain",  as_attachment=True)
 
 @app.route("/download_mat", methods=["POST", "GET"])
 def download_mat():
@@ -618,7 +623,6 @@ if __name__ == "__main__":
   app.config['recomb_desc'] = recomb_desc_dict
   app.config['desc_data'] = desc_position_table
   app.config['desc_file'] = desc_file
-  app.config['full_tree_desc_file'] = full_tree_desc_file
  
   # Parameters for full tree descendants information
   app.config['full_tree_recomb_desc'] = full_tree_desc_position_table

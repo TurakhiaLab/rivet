@@ -12,7 +12,6 @@ import string
 import heapq
 import sys
 import gzip
-import lzma
 import csv
 import io
 import os
@@ -109,8 +108,6 @@ def query_desc_file(desc_file, desc_lookup_table, node_id, return_all = False):
     """
     """
     #tick = time.perf_counter()
-    # TODO: Integrate queries for compressed files, decompression too slow
-    #f = lzma.open(desc_file, 'rb')
     f = open(desc_file, 'r')
     # Line byte offset + size of node_id + 1 for '\t' character
     pos = desc_lookup_table[node_id][0]
@@ -335,9 +332,7 @@ def preprocess_desc_file(desc_file, recomb_node_set):
     """
     tick = time.perf_counter()
     BUF_SIZE = 1048576 # Read 1MB at a time
-    if desc_file.endswith(".xz"):
-        f = io.TextIOWrapper(io.BufferedReader(lzma.open(desc_file, 'rb'), buffer_size=BUF_SIZE))
-    elif desc_file.endswith(".gz"):
+    if desc_file.endswith(".gz"):
         f = io.TextIOWrapper(io.BufferedReader(gzip.open(desc_file, 'rb'), buffer_size=BUF_SIZE))
     else:
         f = open(desc_file, 'r', buffering=BUF_SIZE)
@@ -384,9 +379,7 @@ def load_descendants(desc_file, recomb_node_set):
     if desc_file is None:
         return None, None
     BUF_SIZE = 1048576 # Read 1MB at a time
-    if desc_file.endswith(".xz"):
-        f = io.TextIOWrapper(io.BufferedReader(lzma.open(desc_file, 'rb'), buffer_size=BUF_SIZE))
-    elif desc_file.endswith(".gz"):
+    if desc_file.endswith(".gz"):
         f = io.TextIOWrapper(io.BufferedReader(gzip.open(desc_file, 'rb'), buffer_size=BUF_SIZE))
     else:
         f = open(desc_file, 'r', buffering=BUF_SIZE)
