@@ -623,13 +623,13 @@ if __name__ == "__main__":
   app.config['recomb_desc'] = recomb_desc_dict
   app.config['desc_data'] = desc_position_table
   app.config['desc_file'] = desc_file
- 
+
   # Parameters for full tree descendants information
   app.config['full_tree_recomb_desc'] = full_tree_desc_position_table
   app.config['full_tree_sample_counts'] = full_tree_sample_counts
   app.config['full_tree_desc_data'] = full_tree_desc_position_table
   app.config['full_tree_desc_file'] = full_tree_desc_file
-  
+
   # App tree and config parameters
   app.config['environment'] = config["environment"]
   app.config['date'] = str(config["date"])
@@ -648,13 +648,15 @@ if __name__ == "__main__":
   app.config['genome_size'] = genome_size
   app.config['genomic_range'] = genomic_range
   app.config['gene_region_data'] = gene_region_data
-  # Name of persistent database file
-  app.config['db_file'] = config['db_file']
-  app.config['aa_tables'] = (config['aa_public'], config['aa_full'])
-  app.config['sample_table'] = config['sample_table']
-  app.config['desc_col'] = config['desc_col']
-  app.config['aa_col'] = config['aa_col']
-  app.config['node_col'] = config['node_col']
+
+  if config["environment"].lower() != "local":
+      # Server config for persistent database file
+      app.config['db_file'] = config['db_file']
+      app.config['aa_tables'] = (config['aa_public'], config['aa_full'])
+      app.config['sample_table'] = config['sample_table']
+      app.config['desc_col'] = config['desc_col']
+      app.config['aa_col'] = config['aa_col']
+      app.config['node_col'] = config['node_col']
 
   tock = time.perf_counter()
   print(f"Time elapsed: {tock-tick:.2f} seconds")

@@ -4,10 +4,8 @@ channels:
 dependencies:
   - pip
   - seaborn = 0.12.1
-  - google-cloud-storage = 2.7.0
-  - google-cloud-sdk = 412.0.0
-  - flask = 2.2.2
-  - flask-caching = 2.0.1
+  - flask
+  - flask-caching
   - biopython
   - pip:
           - pyyaml
