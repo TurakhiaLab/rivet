@@ -26,8 +26,17 @@ function main() {
             init_coordinate_track(svg.append('svg'), init_track_width, data);
           })});
 
-  // On load, show the full tree title by default
-  document.querySelector('#full_title').removeAttribute('hidden');
+  const public_table = document.querySelector('#public_tree');
+  const full_table = document.querySelector('#full_tree');
+  const public_title = document.querySelector('#public_title');
+  const full_title = document.querySelector('#full_title');
+  const search_by_sample = document.querySelector('#search');
+  const search_by_aa = document.querySelector('#search_by_aa');
+
+  if (full_title) {
+    // On load, show the full tree title by default
+    document.querySelector('#full_title').removeAttribute('hidden');
+  }
 
   // SNV plot svg download and copy buttons setup
   /*
@@ -115,30 +124,28 @@ reate_button('copy_svg', 'Copy SNV Plot', 1200, 280);
       download_taxonium();
     }, false);
   }
-  const public_table = document.querySelector('#public_tree');
-  const full_table = document.querySelector('#full_tree');
-  const public_title = document.querySelector('#public_title');
-  const full_title = document.querySelector('#full_title');
-  const search_by_sample = document.querySelector('#search');
-  const search_by_aa = document.querySelector('#search_by_aa');
 
-  // Listen if public tree selected, update title to public tree title
-  // and remove search by EPI identifier and amino acid mutation
-  public_table.addEventListener('click', () => {
-    full_title.setAttribute('hidden', true);
-    search_by_sample.setAttribute('hidden', true);
-    search_by_aa.setAttribute('hidden', true);
-    desc_button.removeAttribute('hidden');
-    full_tree_desc_button.setAttribute('hidden', true);
-    public_title.removeAttribute('hidden');
-  });
+  if (public_table) {
+    // Listen if public tree selected, update title to public tree title
+    // and remove search by EPI identifier and amino acid mutation
+    public_table.addEventListener('click', () => {
+      full_title.setAttribute('hidden', true);
+      search_by_sample.setAttribute('hidden', true);
+      search_by_aa.setAttribute('hidden', true);
+      desc_button.removeAttribute('hidden');
+      full_tree_desc_button.setAttribute('hidden', true);
+      public_title.removeAttribute('hidden');
+    });
+  }
 
-  full_table.addEventListener('click', () => {
-    public_title.setAttribute('hidden', true);
-    full_title.removeAttribute('hidden');
-    search_by_sample.removeAttribute('hidden');
-    search_by_aa.removeAttribute('hidden');
-    desc_button.setAttribute('hidden', true);
-    full_tree_desc_button.removeAttribute('hidden');
-  });
+  if (full_table) {
+    full_table.addEventListener('click', () => {
+      public_title.setAttribute('hidden', true);
+      full_title.removeAttribute('hidden');
+      search_by_sample.removeAttribute('hidden');
+      search_by_aa.removeAttribute('hidden');
+      desc_button.setAttribute('hidden', true);
+      full_tree_desc_button.removeAttribute('hidden');
+    });
+  }
 }
