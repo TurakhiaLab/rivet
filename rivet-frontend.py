@@ -123,50 +123,27 @@ def get_count_data():
         hist_data = backend.format_histogram_data(months, recomb_counts, month_case_counts, "New Cases")
     return jsonify({"data": hist_data, "month_data": axis_data,  "recomb_counts": recomb_counts})
 
-
-@app.route("/get_detailed_overview", methods=['POST'])
-def get_detailed_overview():
-    content = request.get_json()
-    table = app.config.get('table')
-    sample_counts = app.config.get('sample_counts')
-    metadata = app.config.get('metadata')
-    row_id = int(content["id"])
-    # NOTE: Column values hardcoded
-    recomb_lineage = table[row_id][10]
-    recomb_date = table[row_id][15]
-    donor_lineage = table[row_id][12]
-    acceptor_lineage = table[row_id][14]
-    num_desc = sample_counts[table[row_id][1]]
-    qc_flags = table[row_id][23]
-    earliest_seq = metadata[str(row_id)]["Earliest_seq"]
-    latest_seq = metadata[str(row_id)]["Latest_seq"]
-    countries = metadata[str(row_id)]["countries"]
-    d = {"recomb_lineage": recomb_lineage,
-         "recomb_date": recomb_date,
-         "donor_lineage": donor_lineage,
-         "acceptor_lineage": acceptor_lineage,
-         "num_desc": num_desc, 
-         "qc_flags": util.css_to_list(qc_flags),
-         "earliest_seq": earliest_seq,
-         "latest_seq": latest_seq,
-         "countries": countries
-         }
-    return jsonify({"overview": d})
-
 @app.route("/get_overview", methods=['POST'])
 def get_overview():
     content = request.get_json()
     tree = content["tree_type"]
     row_id = int(content["id"])
-
+    db_file = app.config.get('db_file')
+    node_col = app.config.get('node_col')
     # NOTE: Column values hardcoded
+    NODE_ID_COL = 1
+
     if tree == "public":
         table = app.config.get('table')
-        sample_counts = app.config.get('sample_counts')
+        db_table = app.config.get('sample_public_table')
+        node_id = table[row_id][NODE_ID_COL]
+        num_desc = backend.get_num_desc(db_file, db_table, node_col, node_id)
         metadata = app.config.get('metadata')
     else:
         table = app.config.get('full_tree_table')
-        sample_counts = app.config.get('full_tree_sample_counts')
+        db_table = app.config.get('sample_full_table')
+        node_id = table[row_id][NODE_ID_COL]
+        num_desc = backend.get_num_desc(db_file, db_table, node_col, node_id)
         metadata = app.config.get('full_tree_metadata')
 
     recomb_lineage = table[row_id][10]
@@ -176,7 +153,6 @@ def get_overview():
     qc_flags = table[row_id][23]
     earliest_seq = metadata[str(row_id)]["Earliest_seq"]
     latest_seq = metadata[str(row_id)]["Latest_seq"]
-    num_desc = sample_counts[table[row_id][1]]
     countries = util.format_css(metadata[str(row_id)]["countries"])
     d = {"recomb_lineage": recomb_lineage,
          "recomb_date": recomb_date,
@@ -191,11 +167,12 @@ def get_overview():
 
 @app.route("/search_by_sample_id", methods=['POST'])
 def search_by_sample_id():
+    #TODO: Support search for public tree sample ids
     # Get input search query from user
     query = request.form['query']
     tree = request.form['tree']
     db_file = app.config.get('db_file')
-    sample_table = app.config.get('sample_table')
+    sample_table = app.config.get('sample_full_table')
     desc_col = app.config.get('desc_col')
 
     # Return set of recombinant nodes that return true for substring membership query
@@ -217,28 +194,31 @@ def search_by_aa_mutation():
 
 @app.route("/get_descendants", methods=["POST"])
 def get_descendants():
-    init_data = app.config.get('init_data')
+    env = app.config.get('environment')
     content = request.get_json()
-    desc_lookup_table, desc_file = None, None
-    if content is not None:
-        if content["tree"] == 'public':
-            desc_lookup_table = app.config.get('desc_data')
-            desc_file = app.config.get('desc_file')
-        else:
-            desc_lookup_table = app.config.get('full_tree_desc_data')
-            desc_file = app.config.get('full_tree_desc_file')
-        # If descendants file not provided in local mode, disable feature
-        if desc_lookup_table is None:
-            print("NONE")
-            return jsonify(None)
-        node_id = content["node"]
+
+    # Querying descendants disabled for local version, for the moment
+    if env.lower() == "local" or not content:
+      print("[Error] Descendants information not provided for get_descendants in local mode.")
+      return jsonify(None)
+
+    init_data = app.config.get('init_data')
+    tree = content["tree"]
+    db_file = app.config.get('db_file')
+    node_col = app.config.get('node_col')
+    desc_col = app.config.get('desc_col')
+    node_id = content["node"]
+
+    if tree == 'public':
+        table = app.config.get('table')
+        db_table = app.config.get('sample_public_table')
     else:
-        # Initialize default values from input TSV
-        node_id = init_data["recomb_id"]
-    d = backend.query_desc_file(desc_file, desc_lookup_table, node_id)
-    #TODO: Add unit tests
-    #d = backend.get_node_descendants(desc_d, node_id)
-    return jsonify(d)
+        table = app.config.get('full_tree_table')
+        db_table = app.config.get('sample_full_table')
+
+    # python list strings, list of descendants for given node
+    desc_list = backend.get_desc_list(db_file, db_table, node_col, desc_col, node_id)
+    return jsonify(desc_list)
 
 @app.route("/get_aa_mutations", methods=["POST"])
 def get_aa_mutations():
@@ -591,6 +571,10 @@ if __name__ == "__main__":
   app.config['full_tree_metadata'] = full_tree_metadata
   app.config['full_tree_info_sites'] = full_tree_info_sites
 
+  # Get unique set of recombinant nodes
+  recomb_node_set = set([cell[1] for cell in table])
+  full_tree_recomb_node_set = set([cell[1] for cell in full_tree_table])
+
   # Load descendants file
   desc_file, desc_position_table, full_tree_desc_position_table, full_tree_desc_file, recomb_node_set, recomb_desc_dict, desc_dict, sample_counts, full_tree_desc_file, full_tree_sample_counts, full_tree_recomb_node_set = None,None,None,None,None,None,None,None,None,None,None
   if args.descendants_file:
@@ -598,16 +582,11 @@ if __name__ == "__main__":
       print("Loading provided descendants file/s: ", desc_files)
       desc_file = desc_files[0]
       # Load public tree desc file
-      recomb_node_set = set([cell[1] for cell in table])
       desc_position_table, sample_counts = backend.preprocess_desc_file(desc_file, recomb_node_set)
-      #TODO: recomb_desc_dict -> Only used by search_by_sample feature, disabled for full tree currently
-
       if len(desc_files) > 1:
           full_tree_desc_file = desc_files[1]
           # Load full tree desc file
-          full_tree_recomb_node_set = set([cell[1] for cell in full_tree_table])
           full_tree_desc_position_table, full_tree_sample_counts = backend.preprocess_desc_file(full_tree_desc_file, full_tree_recomb_node_set)
-
 
   # App parameter for public tree recombination results 
   app.config['info_sites'] = info_sites
@@ -653,7 +632,8 @@ if __name__ == "__main__":
       # Server config for persistent database file
       app.config['db_file'] = config['db_file']
       app.config['aa_tables'] = (config['aa_public'], config['aa_full'])
-      app.config['sample_table'] = config['sample_table']
+      app.config['sample_full_table'] = config['sample_full']
+      app.config['sample_public_table'] = config['sample_public']
       app.config['desc_col'] = config['desc_col']
       app.config['aa_col'] = config['aa_col']
       app.config['node_col'] = config['node_col']

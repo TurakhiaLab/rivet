@@ -1130,3 +1130,23 @@ def search_by_aa(db_file, table, aa_query, node_col, aa_col):
     node_ids = con.sql("select {} from {} where {} = '{}'".format(node_col, table, aa_col, aa_query)).fetchall()
     con.close()
     return [x[0] for x in node_ids]
+
+def get_num_desc(db_file, table, col, node_id):
+    """
+    """
+    import duckdb
+    con = duckdb.connect(database=db_file, read_only=True)
+    con.sql
+    num_desc = int(con.sql("select COUNT(*) from {} where {} = '{}'".format(table, col, node_id)).fetchone()[0])
+    con.close()
+    return num_desc
+
+def get_desc_list(db_file, table, node_col, desc_col, node_id, limit=10000):
+    """
+    """
+    import duckdb
+    con = duckdb.connect(database=db_file, read_only=True)
+    con.sql
+    desc_list = con.sql("select {} as desc_list from {} where {} = '{}' limit {}".format(desc_col, table, node_col, node_id, limit)).fetchall()
+    con.close()
+    return [desc[0] for desc in desc_list]
