@@ -88,6 +88,7 @@
                 <p>We currently update the results on this website <u>monthly</u>, but we are planning to increase this frequency. </p>
                 <br><br>
                 <h2 id="">Description of Quality Control (QC) flags</h2>
+                <p><b>Note: </b> These quality control flags are intended to highlight potential quality issues for detected recombinants, however in-practice these flags may be too stringent and do not necessary warrant exclusion.</p>
                 <ul>
                     <li><b>3SeqP02:</b> P-value from 3-seq > 0.2. </li>
                     <li><b>russPval005:</b> FDR of the parsimony improvement > 0.05. (See text S3 of <a href="https://www.nature.com/articles/s41586-022-05189-9#MOESM1">RIPPLES</a> for details of the null model.)   </li>
@@ -97,8 +98,10 @@
                     <li><b>Informative_sites_clump:</b> More than 5 recombination-informative mutations in a 20-nucleotide span.</li>
                     <li><b>Suspicious_mutation_clump:</b> More than 6 mutations (or 3 near indels) in a 20-nucleotide span on any of the donor node, the aceptor node or the recombination node. </li>
                     <li><b>Too_many_mutations_near_INDELs:</b> Too many mutations on 100-nt spans near indels or a string of Ns.</li>
-                    <li><b>RMNM:</b> Recurrent multi-nucleotide mutation.</li>
+                    <li><b>RMNM:</b> Recurrent multi-nucleotide mutation. (See Table 1 of <a href="https://doi.org/10.1101/2024.12.14.628346">Highly recurrent multi-nucleotide mutations in SARS-CoV-2</a>)</li>
                 </ul>
+
+                <p>A few examples of detected trios labeled with a filtration flag by RIVET due to QC issues: <a href="https://www.nature.com/articles/s41586-022-05189-9/figures/6">Extended Data Fig. 3: Examples of detected trios filtered out due to sequence quality concerns</a>.</p>
 
                 <br><br>
                 <h2 id="acknowledgments">Acknowledgments</h2>
@@ -109,6 +112,7 @@
                     <li>Jakob McBroome (UCSC)</li>
                     <li>Alexander Kramer (UCSC)</li>
                     <li>Laura Hughes (Scripps Research)</li>
+                    <li>Nicola De Maio (EMBL-EBI)</li>
                 </ul>
 
                 <p>The tree display links provided through RIVET uses the <a href="https://taxonium.org/?backend=https%3A%2F%2Fapi.cov2tree.org&treenomeEnabled=true">Treenome Browser</a>, developed by <a href="https://github.com/amkram">Alexander Kramer</a> and <a href="https://github.com/theosanderson">Theo Sanderson</a>. </p>
@@ -122,8 +126,11 @@
                 <ul>
                     <li>Kyle Smith, Cheng Ye, Yatish Turakhia, &quot;Tracking and curating putative SARS-CoV-2 recombinants with RIVET&quot;, Bioinformatics (2023), <a href="https://doi.org/10.1093/bioinformatics/btad538">https://doi.org/10.1093/bioinformatics/btad538</a>.</li><br>
 
-                    <li>Yatish Turakhia*, Bryan Thornlow*, Angie S. Hinrichs, Jakob McBroome, Nicolas Ayala, Cheng Ye, Kyle Smith, Nicola De Maio, David Haussler, Robert Lanfear, Russell Corbett-Detig, &quot;Pandemic-Scale Phylogenomics Reveals The SARS-CoV-2 Recombination Landscape&quot;, Nature (2022), <a href="https://doi.org/10.1038/s41586-022-05189-9">https://doi.org/10.1038/s41586-022-05189-9</a>.</li>
+                    <li>Yatish Turakhia*, Bryan Thornlow*, Angie S. Hinrichs, Jakob McBroome, Nicolas Ayala, Cheng Ye, Kyle Smith, Nicola De Maio, David Haussler, Robert Lanfear, Russell Corbett-Detig, &quot;Pandemic-Scale Phylogenomics Reveals The SARS-CoV-2 Recombination Landscape&quot;, Nature (2022), <a href="https://doi.org/10.1038/s41586-022-05189-9">https://doi.org/10.1038/s41586-022-05189-9</a>.</li><br>
+
+                    <li>Nicola De Maio, Kyle Smith, Yatish Turakhia, Nick Goldman, &quot;Highly recurrent multi-nucleotide mutations in SARS-CoV-2&quot;, bioRxiv (2024), <a href="https://doi.org/10.1101/2024.12.14.628346">https://doi.org/10.1101/2024.12.14.628346</a>.</li>
                 </ul>
+                <br>
 
                 <!--Bootstrap-->
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
