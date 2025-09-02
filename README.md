@@ -10,7 +10,7 @@
 [license-badge]: https://img.shields.io/badge/License-MIT-yellow.svg 
 [license-link]: https://github.com/TurakhiaLab/rivet/blob/main/LICENSE
 [![License][license-badge]][license-link]
-[![DOI](https://zenodo.org/badge/530697665.svg)](https://zenodo.org/badge/latestdoi/530697665)
+[![Published in Bioinformatics](https://img.shields.io/badge/Published%20in-Bioinformatics-blue.svg)](https://academic.oup.com/bioinformatics/article/39/9/btad538/7257069)
 
 
 <hr>
