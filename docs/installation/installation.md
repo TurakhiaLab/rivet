@@ -1,9 +1,9 @@
 # Install RIVET On Your Machine
 
-## Installing RIVET Backend using Docker
+## Installing RIVET Backend using Docker on Linux
 !!! Install
     Install `Docker` on your machine first.
-    
+
 For ease of use, the entire `RIVET` backend pipeline, including recombinant ranking, is contained within a pre-built public docker image.
 
 ### Running RIVET Backend Locally On Your Machine
@@ -16,11 +16,13 @@ This will run an interactive `Docker` shell with the necessary `RIVET` environme
 
 <br>
 
-Type the following command to ensure your `RIVET` backend environment is configured correctly, and then proceed to the next steps for running a `RIVET` backend job: [Inferring Recombinants Using the RIVET Backend](installation/upload.md)
+Type the following help command to ensure your `RIVET` backend environment is configured correctly.
 
 ```
 python3 rivet-backend.py --help
 ```
+
+The `wget` command-line utility for downloading files from the internet (the necessary `MAT`, metadata and sequence files required as input to `RIVET`) is included in the `Docker` environment. Proceed to the next steps for running a `RIVET` backend job: [Inferring Recombinants Using the RIVET Backend](installation/upload.md).
 
 <hr>
 <br>
